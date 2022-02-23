@@ -1,0 +1,16 @@
+{% extends 'base_email.html' %}
+
+{% block body %}
+<h1>Добро пожаловать в Terminal.</h1>
+<p>Чтобы начать пользоваться, пожалуйста подтвердите свой Эмайл адрес, нажав на кнопку ниже.</p><br />
+
+<div style="text-align: center;">
+    <a href="{{ url }}" style=" background: #3273dc; color: #fff; text-decoration: none; margin-top: 10rem; padding: 0.8rem 3rem;
+                border-radius: 0.5rem; display: inline;">
+        Подвердить
+    </a>
+    <br />
+    <br />
+    Если не работает кнопка, перейдите по этой ссылке {{ url }}
+</div>
+{% endblock %}

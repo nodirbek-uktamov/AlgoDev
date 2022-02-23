@@ -1,0 +1,52 @@
+{
+    "env": {
+        "browser": true,
+        "jest": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "airbnb"
+    ],
+    "plugins": [
+        "react-hooks"
+    ],
+    "rules": {
+        "linebreak-style": 0,
+        "max-len": ["error", 120],
+        "object-curly-newline": ["error", {
+            "ImportDeclaration": "never"
+        }],
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "indent": ["error", 4],
+        "semi": ["error", "never"],
+        "newline-per-chained-call": 0,
+        "func-names": 0,
+        "no-use-before-define": 0,
+        "react/jsx-indent" : ["error", 4],
+        "react/jsx-indent-props": ["error", 4],
+        "react/jsx-one-expression-per-line": 0,
+        "react/jsx-filename-extension": 0,
+        "import/prefer-default-export": 0,
+        "react/jsx-max-props-per-line": 0,
+        "react/jsx-first-prop-new-line": 0,
+        "react/prop-types": 0,
+        "react/jsx-closing-bracket-location": 0,
+        "react/button-has-type": 0,
+        "jsx-a11y/click-events-have-key-events": 0,
+        "jsx-a11y/no-static-element-interactions": 0,
+        "jsx-a11y/label-has-associated-control": 0,
+        "jsx-a11y/label-has-for": 0,
+        "jsx-a11y/no-noninteractive-element-interactions": 0,
+        "jsx-a11y/control-has-associated-label": 0,
+        "react/jsx-props-no-spreading": 0,
+        "react/no-unescaped-entities": 0,
+        "react/jsx-fragments": 0
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    }
+}

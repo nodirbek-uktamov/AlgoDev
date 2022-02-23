@@ -1,0 +1,12 @@
+.pointer {
+    cursor: pointer;
+}
+
+.strike {
+    text-decoration: line-through;
+}
+
+/* for login buttons */
+.is-blue {
+    background: #45B4DC !important;
+}

@@ -1,0 +1,14 @@
+{% extends 'base_email.html' %}
+
+{% block body %}
+<h1 style="padding: 0.8rem 9.5rem;">У вас новая задача.</h1>
+
+<div style="text-align: center;">
+    <b>{{task.title}}</b>
+    <p>{{task.description}}</p><br />
+    <a href="{{ url }}" style=" background: #3273dc; color: #fff; text-decoration: none; margin-top: 10rem; padding: 0.8rem 3rem;
+                border-radius: 0.5rem; display: inline;">
+        Посмотреть задачи
+    </a>
+</div>
+{% endblock %}

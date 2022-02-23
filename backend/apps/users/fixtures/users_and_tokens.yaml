@@ -1,0 +1,91 @@
+# USERS
+-
+    model: "users.User"
+    pk: 1
+    fields:
+        email: "angelina@gmail.com"
+        username: "angelina@gmail.com"
+        first_name: "Angelina"
+        last_name: "Jolie"
+        expires_user_at: '2021-01-01'
+        verified_at: "2018-01-01 00:00:00+00:00"
+        password: "pbkdf2_sha256$120000$Q3ICPM6omVjp$liGZrVdJWPLpkne0vjBLnJr4S+v49AoVABreMeAwNBU=" # password
+
+-
+    model: "users.User"
+    pk: 2
+    fields:
+        email: "samuel@gmail.com"
+        username: "samuel@gmail.com"
+        first_name: "Samuel"
+        expires_user_at: '2021-01-01'
+        last_name: "Jackson"
+        verified_at: "2018-01-01 00:00:00+00:00"
+        password: "pbkdf2_sha256$120000$Q3ICPM6omVjp$liGZrVdJWPLpkne0vjBLnJr4S+v49AoVABreMeAwNBU=" # password
+
+-
+    model: "users.User"
+    pk: 3
+    fields:
+        email: "monica@gmail.com"
+        username: "monica@gmail.com"
+        first_name: "Monica"
+        expires_user_at: '2021-01-01'
+        last_name: "Bellucci"
+        verified_at: "2018-01-01 00:00:00+00:00"
+        password: "pbkdf2_sha256$120000$Q3ICPM6omVjp$liGZrVdJWPLpkne0vjBLnJr4S+v49AoVABreMeAwNBU=" # password
+
+-
+    model: "users.User"
+    pk: 4
+    fields:
+        email: "scarlett@gmail.com"
+        username: "scarlett@gmail.com"
+        first_name: "Scarlett"
+        expires_user_at: '2021-01-01'
+        last_name: "Johansson"
+        verified_at: "2018-01-01 00:00:00+00:00"
+        password: "pbkdf2_sha256$120000$Q3ICPM6omVjp$liGZrVdJWPLpkne0vjBLnJr4S+v49AoVABreMeAwNBU=" # password
+
+
+
+# TOKENS
+-
+    model: "users.Token"
+    pk: 1
+    fields:
+        user_id: 1
+        key: "af602e8f234ecc9ba03eb8eef2e6eb9c"
+        expires_at: "4000-01-01 00:00:00+00:00"
+        created_at: "2018-01-01 00:00:00+00:00"
+        updated_at: "2018-01-01 00:00:00+00:00"
+
+-
+    model: "users.Token"
+    pk: 2
+    fields:
+        user_id: 2
+        key: "b4f89a9ae6c9dc283cac57ed870910f3"
+        expires_at: "4000-01-01 00:00:00+00:00"
+        created_at: "2018-01-01 00:00:00+00:00"
+        updated_at: "2018-01-01 00:00:00+00:00"
+
+-
+    model: "users.Token"
+    pk: 3
+    fields:
+        user_id: 3
+        key: "120fbeebd5f8d4c460a232b904b9bec7"
+        expires_at: "4000-01-01 00:00:00+00:00"
+        created_at: "2018-01-01 00:00:00+00:00"
+        updated_at: "2018-01-01 00:00:00+00:00"
+
+-
+    model: "users.Token"
+    pk: 4
+    fields:
+        user_id: 4
+        key: "5e84409f824bae3e5aa03a3efe4313c9"
+        expires_at: "4000-01-01 00:00:00+00:00"
+        created_at: "2018-01-01 00:00:00+00:00"
+        updated_at: "2018-01-01 00:00:00+00:00"
