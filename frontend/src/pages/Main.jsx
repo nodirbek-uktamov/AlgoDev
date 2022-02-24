@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Formik } from 'formik'
+import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
 import { parseGzip } from '../utils/websocket'
 import TradeForm from '../components/TradeForm'
 import { usePostRequest } from '../hooks/request'
 import { TRADE } from '../urls'
+import { signOut } from '../utils/auth'
 
 
 export default function Main() {
@@ -12,6 +14,7 @@ export default function Main() {
     const [bestBidAsk, setBestBidAsk] = useState({})
     const [tradeType, setTradeType] = useState('limit')
     const [price, setPrice] = useState('')
+    const history = useHistory()
 
     const trade = usePostRequest({ url: TRADE })
 
@@ -71,6 +74,7 @@ export default function Main() {
 
     return (
         <div className="mx-5 pb-6">
+            <span className="pointer is-size-5" onClick={() => signOut(history)}>Logout</span>
             <Chart symbol={symbol} />
 
             <div className="columns mt-3">
