@@ -32,7 +32,8 @@ sys.path.append(os.path.join(BASE_DIR, 'apps'))
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '.ngrok.io'
+    '.ngrok.io',
+    '62.113.98.2'
 ]
 
 # Application definition
