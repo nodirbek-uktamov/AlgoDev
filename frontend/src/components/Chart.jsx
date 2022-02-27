@@ -1,11 +1,7 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
 
 
-export default React.memo(({ symbol }) => {
-    const ref = useRef(null)
-
-    return (
-        <TradingViewWidget ref={ref} symbol={symbol} interval={1} />
-    )
-})
+export default React.memo(({ symbol }) => (
+    <TradingViewWidget symbol={symbol} interval={1} />
+))
