@@ -3,15 +3,15 @@ import Select from 'react-select'
 import { css, StyleSheet } from 'aphrodite'
 
 
-export default function SearchableSelect({ options, onChange, defaultSymbol }) {
+export default function ReactSelect({ options, onChange, defaultValue, className }) {
     if (options.length === 0) return <div />
 
     return (
         <Select
-            className={`basic-single ${css(styles.container)}`}
-            onChange={(data) => onChange(data.value.toLowerCase())}
+            className={`basic-single ${css(styles.container)} ${className}`}
+            onChange={(data) => onChange(data.value)}
             classNamePrefix="select"
-            defaultValue={options.filter((i) => i.value === defaultSymbol.toUpperCase())}
+            defaultValue={options.filter((i) => i.value === defaultValue)}
             name="color"
             options={options} />
     )

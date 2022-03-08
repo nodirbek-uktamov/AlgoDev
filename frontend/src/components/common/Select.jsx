@@ -19,22 +19,22 @@ export default function Select({
     help,
     ...attributes
 }) {
+    console.log(options)
     const { setFieldValue, values, errors, touched } = useFormikContext()
     const value = values[name]
     const error = errors[name]
     const touch = touched[name]
     const [showInfoButton, setShowInfoButton] = useState(false)
 
-
     useEffect(() => {
-        // Cast type to string if it is number.
-        // Because isEmpty function returns true if you pass any number
         const strValue = typeof value === 'number' ? String(value) : value
+
         if (!empty && isEmpty(strValue) && !isEmpty(options)) {
             setFieldValue(name, options[0][optionValue])
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [options])
+
     return (
         <div className="field">
             <div className="control">

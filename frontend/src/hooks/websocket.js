@@ -2,13 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { parseGzip } from '../utils/websocket'
 
 
-export function useRequest({ sub, dependencies = [] }) {
+export function useWebsocket({ sub }, dependencies) {
     const ws = useRef(null)
     const [data, setData] = useState({})
 
     useEffect(() => {
         ws.current = new WebSocket('wss://api.huobi.pro/ws')
         ws.current.onopen = () => ws.current.send(JSON.stringify({ sub }))
+        console.log('ws connected')
 
         gettingData()
         return () => ws.current.close()

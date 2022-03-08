@@ -141,21 +141,7 @@ LOGGING = {
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'en'
-
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'apps/web/locale'),
-)
-
-LANGUAGE_COOKIE_NAME = 'language'
-
-LANGUAGES = (
-    ('ru', 'Russian'),
-    ('uz', 'Uzbek'),
-    ('en', 'English'),
-)
-
-TIME_ZONE = 'Asia/Tashkent'
+TIME_ZONE = 'Europe/London'
 
 USE_I18N = True
 

@@ -1,6 +1,5 @@
-export const reorderElement = (list, startIndex, endIndex) => {
-    const result = Array.from(list)
-    const [removed] = result.splice(startIndex, 1)
-    result.splice(endIndex, 0, removed)
-    return result
-}
+export const intervals = [
+    { label: 'D', value: 'D' },
+    { label: 'W', value: 'W' },
+    { label: 1, value: 1 },
+]
