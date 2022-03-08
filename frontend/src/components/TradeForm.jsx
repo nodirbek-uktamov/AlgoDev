@@ -5,34 +5,16 @@ import { required } from '../utils/validators'
 import Button from './common/Button'
 
 
-export default React.memo(({ price, tradeType, sell }) => {
+export default React.memo(({ tradeType, sell }) => {
     const { setFieldValue } = useFormikContext()
 
     useEffect(() => {
         setFieldValue('price', price)
-
         // eslint-disable-next-line
     }, [price])
 
     return (
         <Form>
-            {tradeType === 'limit' ? (
-                <Input
-                    name="price"
-                    type="number"
-                    label="Price"
-                    step="0.00000001"
-                    validate={required} />
-            ) : null}
-
-            {tradeType === 'market' ? (
-                <Input
-                    name="market_price"
-                    disabled
-                    value="Маркет"
-                    label="Цена" />
-            ) : null}
-
             <Input
                 name="quantity"
                 step="0.00000001"
