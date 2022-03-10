@@ -3,6 +3,7 @@ export const SIGNUP = '/users/sign-up'
 export const CONFIRM = '/users/confirm'
 export const RESET_PASSWORD = '/users/reset_password'
 
-export const TRADE = '/main/trade/'
+export const TRADE = '/main/trades/'
+export const TRADE_DETAIL = '/main/trades/{id}'
 
-export const domain = 'http://62.113.98.2:8000' // http://62.113.98.2:8000
+export const domain = 'https://4287-213-230-80-253.ngrok.io' // http://62.113.98.2:8000

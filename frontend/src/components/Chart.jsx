@@ -22,7 +22,7 @@ const defaultOptions = {
     container_id: 'tradingview_1a5f8',
 }
 
-export default function Chart({ setPrice, symbol, setSymbol }) {
+export default function Chart({ symbol, setSymbol }) {
     const [options, setOptions] = useState(defaultOptions)
     const [interval, setInterval] = useState(1)
     const symbols = useLoad({ baseURL: 'https://api.huobi.pro/v2/settings/common/symbols/', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
@@ -35,7 +35,7 @@ export default function Chart({ setPrice, symbol, setSymbol }) {
             <div className="is-flex is-align-items-center mb-2">
                 <ReactSelect className="mr-2" options={symbolsList} onChange={(val) => setSymbol(val.toLowerCase())} defaultValue={symbol.toUpperCase()} />
                 <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval} />
-                <BidAsk setPrice={setPrice} symbol={symbol} />
+                <BidAsk symbol={symbol} />
             </div>
 
             <TradingViewWidget {...options} symbol={`BYBIT:${symbol.toUpperCase()}`} interval={interval} />

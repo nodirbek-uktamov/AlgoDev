@@ -9,7 +9,6 @@ export function useWebsocket({ sub }, dependencies) {
     useEffect(() => {
         ws.current = new WebSocket('wss://api.huobi.pro/ws')
         ws.current.onopen = () => ws.current.send(JSON.stringify({ sub }))
-        console.log('ws connected')
 
         gettingData()
         return () => ws.current.close()
@@ -18,18 +17,23 @@ export function useWebsocket({ sub }, dependencies) {
 
     const gettingData = useCallback(() => {
         if (!ws.current) return
+        let lastUpdate = null
 
         ws.current.onmessage = (event) => {
-            parseGzip(event, (d) => {
-                if (d.ping) {
-                    ws.current.send(JSON.stringify({ pong: d.ping }))
-                    return
-                }
+            if (new Date() - lastUpdate > 250) {
+                lastUpdate = new Date()
 
-                if (d.tick) {
-                    setData(d.tick)
-                }
-            })
+                parseGzip(event, (d) => {
+                    if (d.ping) {
+                        ws.current.send(JSON.stringify({ pong: d.ping }))
+                        return
+                    }
+
+                    if (d.tick) {
+                        setData(d.tick)
+                    }
+                })
+            }
         }
     }, [])
 
