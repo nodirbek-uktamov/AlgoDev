@@ -34,12 +34,10 @@ class Command(BaseCommand):
             print(str(e))
 
     def handle(self, *args, **options):
+        users = User.objects.filter(trades__isnull=False).distinct()
         n = 0
 
-        while not time.sleep(0.3):
-            users = User.objects.filter(trades__isnull=False)
-
-            # print(n)
+        while not time.sleep(0.1):
             n += 1
             costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
             costs = {}
@@ -73,9 +71,8 @@ class Command(BaseCommand):
                         continue
 
                     if float(trade.price) > 0:
-                        print('completed')
+                        # print('completed')
                         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
-                        print(timezone.now() + timezone.timedelta(seconds=trade.time_interval), timezone.now())
                         trade.is_completed = True if not trade.loop else False
                         trade.price = 0
                         trade.save()
