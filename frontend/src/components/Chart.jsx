@@ -24,21 +24,31 @@ const defaultOptions = {
 
 export default function Chart({ symbol, setSymbol }) {
     const [options, setOptions] = useState(defaultOptions)
-    const [interval, setInterval] = useState(1)
+    const [interval, setInterval] = useState('60')
     const symbols = useLoad({ baseURL: 'https://api.huobi.pro/v2/settings/common/symbols/', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
 
     let symbolsList = symbols.response ? symbols.response.data || [] : []
     symbolsList = symbolsList.map((i) => ({ value: i.bcdn + i.qcdn, label: i.dn }))
 
+    function onChange(val) {
+        localStorage.setItem('symbol', val.toLowerCase())
+        setSymbol(val.toLowerCase())
+    }
+
     return (
         <div>
             <div className="is-flex is-align-items-center mb-2">
-                <ReactSelect className="mr-2" options={symbolsList} onChange={(val) => setSymbol(val.toLowerCase())} defaultValue={symbol.toUpperCase()} />
+                <ReactSelect
+                    className="mr-2"
+                    options={symbolsList}
+                    onChange={onChange}
+                    defaultValue={symbol.toUpperCase()} />
+
                 <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval} />
                 <BidAsk symbol={symbol} />
             </div>
 
-            <TradingViewWidget {...options} symbol={`BYBIT:${symbol.toUpperCase()}`} interval={interval} />
+            <TradingViewWidget {...options} symbol={`HUOBI:${symbol.toUpperCase()}`} interval={interval} />
         </div>
     )
 }

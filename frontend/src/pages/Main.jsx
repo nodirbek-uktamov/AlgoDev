@@ -14,7 +14,7 @@ import TradesList from '../components/TradesList'
 export default function Main() {
     const [tradeType, setTradeType] = useState('limit')
     const history = useHistory()
-    const [symbol, setSymbol] = useState('trxusdt')
+    const [symbol, setSymbol] = useState(localStorage.getItem('symbol') || 'trxusdt')
     const createTrade = usePostRequest({ url: TRADE })
     const trades = useLoad({ url: TRADE })
 
