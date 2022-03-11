@@ -19,6 +19,8 @@ class User(AbstractUser):
     objects = UsersManager()
     api_key = models.CharField(max_length=255, null=True, blank=True)
     secret_key = models.CharField(max_length=255, null=True, blank=True)
+    spot_account_id = models.IntegerField(null=True, blank=True)
+    margin_account_id = models.IntegerField(null=True, blank=True)
 
     class Meta(AbstractUser.Meta):
         db_table = 'user_users'

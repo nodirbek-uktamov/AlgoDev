@@ -22,6 +22,11 @@ export default function Orders({ symbol }) {
         // eslint-disable-next-line
     }, [data])
 
+    useEffect(() => {
+        setSales([])
+        setPurchases([])
+    }, [symbol])
+
     return (
         <div className="columns m-0 mt-2">
             <div className="column has-background-success-light">

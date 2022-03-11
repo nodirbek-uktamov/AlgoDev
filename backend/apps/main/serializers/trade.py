@@ -1,8 +1,15 @@
 from rest_framework import serializers
-from core.utils.serializers import ValidatorSerializer
+from main.models import Trade
 
 
-class TradeSerializer(serializers.ModelSerializer):
-    quantity = serializers.FloatField()
-    symbol = serializers.CharField()
-    trade_type = serializers.CharField()
+class TradesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trade
+        fields = (
+            'id',
+            'symbol',
+            'quantity',
+            'trade_type',
+            'loop',
+            'time_interval',
+        )

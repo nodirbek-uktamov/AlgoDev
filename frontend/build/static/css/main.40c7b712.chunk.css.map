@@ -1,1 +1,0 @@
-{"version":3,"sources":["styles.css"],"names":[],"mappings":"AAAA,SACI,cACJ,CAEA,QACI,4BACJ,CAGA,SACI,4BACJ","file":"main.40c7b712.chunk.css","sourcesContent":[".pointer {\n    cursor: pointer;\n}\n\n.strike {\n    text-decoration: line-through;\n}\n\n/* for login buttons */\n.is-blue {\n    background: #45B4DC !important;\n}\n"]}

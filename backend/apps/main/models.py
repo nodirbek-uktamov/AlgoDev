@@ -16,6 +16,10 @@ class Trade(models.Model):
     trade_type = models.CharField(max_length=255, choices=TRADE_TYPES)
     loop = models.BooleanField(default=False)
     time_interval = models.IntegerField(default=60)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey('users.User', models.CASCADE, 'trades')
+    price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_trades'
