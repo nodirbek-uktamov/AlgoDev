@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.utils import timezone
 from core.utils.exchange import CustomHuobiClient
 from users.models import User
+from huobi.rest.error import HuobiRestiApiError
 
 
 class Command(BaseCommand):
@@ -32,6 +33,12 @@ class Command(BaseCommand):
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=10)
             trade.save()
             print(str(e))
+
+    def complete_trade(self, trade):
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
+        trade.is_completed = True if not trade.loop else False
+        trade.price = 0
+        trade.save()
 
     def handle(self, *args, **options):
         users = User.objects.filter(trades__isnull=False).distinct()
@@ -63,7 +70,11 @@ class Command(BaseCommand):
 
                     if order:
                         if float(trade.price) != price:
-                            res = client.submit_cancel(order_id=order[0].get('id')).data
+                            try:
+                                res = client.submit_cancel(order_id=order[0].get('id')).data
+                            except HuobiRestiApiError:
+                                self.complete_trade(trade)
+                                continue
 
                             if res.get('status'):
                                 self.place_order(client, trade, cost, price, account_id)
@@ -72,10 +83,7 @@ class Command(BaseCommand):
 
                     if float(trade.price) > 0:
                         # print('completed')
-                        trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
-                        trade.is_completed = True if not trade.loop else False
-                        trade.price = 0
-                        trade.save()
+                        self.complete_trade(trade)
                         continue
 
                     self.place_order(client, trade, cost, price, account_id)
