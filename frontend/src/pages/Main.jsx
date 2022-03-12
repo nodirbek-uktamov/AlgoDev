@@ -9,6 +9,7 @@ import { signOut } from '../utils/auth'
 import Orders from '../components/Orders'
 import Button from '../components/common/Button'
 import TradesList from '../components/TradesList'
+import Logs from '../components/Logs'
 
 
 export default function Main() {
@@ -53,8 +54,8 @@ export default function Main() {
                     <Orders symbol={symbol} />
                 </div>
 
-                <div style={{ width: 200 }} className="column is-narrow">
-                    asd
+                <div style={{ width: 300 }} className="column is-narrow">
+                    <Logs />
                 </div>
             </div>
         </div>

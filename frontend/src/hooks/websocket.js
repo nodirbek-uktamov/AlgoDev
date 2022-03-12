@@ -2,13 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { parseGzip } from '../utils/websocket'
 
 
-export function useWebsocket({ sub }, dependencies) {
+export function useWebsocket({ sub, url, exchangeServer = true }, dependencies) {
     const ws = useRef(null)
     const [data, setData] = useState({})
 
     useEffect(() => {
-        ws.current = new WebSocket('wss://api.huobi.pro/ws')
-        ws.current.onopen = () => ws.current.send(JSON.stringify({ sub }))
+        ws.current = new WebSocket(url || 'wss://api.huobi.pro/ws')
+
+        ws.current.onopen = () => {
+            if (sub) ws.current.send(JSON.stringify({ sub }))
+        }
 
         gettingData()
         return () => ws.current.close()
@@ -20,7 +23,9 @@ export function useWebsocket({ sub }, dependencies) {
         let lastUpdate = null
 
         ws.current.onmessage = (event) => {
-            if (new Date() - lastUpdate > 250) {
+            if (!exchangeServer) {
+                setData(JSON.parse(event.data))
+            } else if (new Date() - lastUpdate > 250) {
                 lastUpdate = new Date()
 
                 parseGzip(event, (d) => {
@@ -35,7 +40,7 @@ export function useWebsocket({ sub }, dependencies) {
                 })
             }
         }
-    }, [])
+    }, [exchangeServer])
 
     return { data }
 }

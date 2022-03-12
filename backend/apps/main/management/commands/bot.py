@@ -1,15 +1,28 @@
 import time
 import requests
+from asgiref.sync import async_to_sync
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils import timezone
 from core.utils.exchange import CustomHuobiClient
 from users.models import User
 from huobi.rest.error import HuobiRestiApiError
+from channels.layers import get_channel_layer
 
 
 class Command(BaseCommand):
     help = 'Loads all fixtures'
+
+    def send_log(self, user_id, message):
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            f'user_{user_id}',
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
 
     def place_order(self, client, trade, cost, price, account_id):
         if trade.trade_type == 'sell':
@@ -24,21 +37,34 @@ class Command(BaseCommand):
                 price="{:.6f}".format(price),
                 client_order_id=trade.id
             )
-            print('placed: ', timezone.now())
             trade.price = price
             trade.save()
+            self.send_log(trade.user.id, f'{trade.id}: {trade.trade_type} order put')
 
         except Exception as e:
             # some error with huobi
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=10)
             trade.save()
-            print(str(e))
+            error = str(e)
+
+            try:
+                error = error.splitlines()[0].split('error: ')[1]
+            except Exception:
+                pass
+
+            self.send_log(trade.user.id, f'{trade.id}: ERROR: {error}')
 
     def complete_trade(self, trade):
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
         trade.is_completed = True if not trade.loop else False
         trade.price = 0
         trade.save()
+        text = f'{trade.id}: Order for trade completed.'
+
+        if trade.loop:
+            text += f' Waiting {trade.time_interval} seconds'
+
+        self.send_log(trade.user.id, text)
 
     def handle(self, *args, **options):
         users = User.objects.filter(trades__isnull=False).distinct()
@@ -46,6 +72,7 @@ class Command(BaseCommand):
 
         while not time.sleep(0.1):
             n += 1
+            print(n)
             costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
             costs = {}
 
@@ -72,6 +99,7 @@ class Command(BaseCommand):
                         if float(trade.price) != price:
                             try:
                                 res = client.submit_cancel(order_id=order[0].get('id')).data
+                                self.send_log(trade.user.id, f'{trade.id}: Order canceled')
                             except HuobiRestiApiError:
                                 self.complete_trade(trade)
                                 continue
