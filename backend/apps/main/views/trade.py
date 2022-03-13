@@ -1,9 +1,10 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from asgiref.sync import async_to_sync
 from main.models import Trade
 from main.serializers.trade import TradesSerializer
+from channels.layers import get_channel_layer
 
 
 class TradeView(APIView):
@@ -16,7 +17,19 @@ class TradeView(APIView):
         serializer = TradesSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
-        return Response(serializer.data, 201)
+
+        data = serializer.data
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'user_{request.user.id}',
+            {
+                'type': 'chat_message',
+                'message': f"{data.get('id')}: Created"
+            }
+        )
+
+        return Response(data, 201)
 
 
 class TradeDetailView(APIView):

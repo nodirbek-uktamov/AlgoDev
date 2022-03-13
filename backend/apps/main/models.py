@@ -20,6 +20,7 @@ class Trade(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey('users.User', models.CASCADE, 'trades')
     price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    filled = models.DecimalField(max_digits=20, decimal_places=10, default=0)
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_trades'

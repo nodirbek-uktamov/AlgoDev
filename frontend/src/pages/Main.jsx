@@ -20,12 +20,10 @@ export default function Main() {
     const trades = useLoad({ url: TRADE })
 
     async function onSubmit(data) {
-        console.log('buy')
         const { success, error } = await createTrade.request({ data: { ...data, symbol, trade_type: tradeType } })
 
         if (success) {
             trades.request()
-            alert('Success')
             return
         }
 
