@@ -73,8 +73,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         n = 0
 
-        while not time.sleep(0.1):
-            users = User.objects.filter(trades__isnull=False).distinct()
+        while not time.sleep(0.3):
+            users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
             print(users)
             n += 1
