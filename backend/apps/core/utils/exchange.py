@@ -79,7 +79,12 @@ class Bot:
     def bot(self):
         while not time.sleep(0.3):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
-            costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
+            try:
+                costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
+            except:
+                time.sleep(1)
+                continue
+
             costs = {}
 
             for cost in costs_res.get('data', []):
