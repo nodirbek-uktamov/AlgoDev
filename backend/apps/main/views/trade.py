@@ -38,3 +38,17 @@ class TradeDetailView(APIView):
         trade.is_completed = True
         trade.save()
         return Response({'ok': True})
+
+
+class CancelTradesView(APIView):
+    def put(self, request):
+        trades = Trade.objects.filter(user=request.user, is_completed=False).update(is_completed=True)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'user_{request.user.id}',
+            {
+                'type': 'chat_message',
+                'message': "Orders canceled"
+            }
+        )
+        return Response({'ok': True})
