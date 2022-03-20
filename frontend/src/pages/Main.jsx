@@ -30,6 +30,16 @@ export default function Main() {
         alert(error && error.data.message)
     }
 
+    const tradeInitialValues = {
+        quantity: '',
+        loop: true,
+        time_interval: 120,
+        iceberg: false,
+        icebergs_count: 0,
+        chase_bot: false,
+        chase_bot_duration: 0,
+    }
+
     return (
         <div className="mx-5 pb-6 mt-1">
             <div style={{ width: 100 }}>
@@ -41,7 +51,7 @@ export default function Main() {
 
             <div className="columns">
                 <div className="column is-narrow">
-                    <Formik initialValues={{ quantity: '', loop: true, time_interval: 120 }} onSubmit={onSubmit}>
+                    <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
                         <TradeForm setTradeType={setTradeType} tradeType={tradeType} />
                     </Formik>
                 </div>
