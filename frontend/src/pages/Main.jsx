@@ -20,7 +20,25 @@ export default function Main() {
     const trades = useLoad({ url: TRADE })
 
     async function onSubmit(data) {
-        const { success, error } = await createTrade.request({ data: { ...data, symbol, trade_type: tradeType } })
+        const newData = {
+            ...data,
+            symbol,
+            trade_type: tradeType,
+        }
+
+        if (data.botType === 'iceberg') {
+            newData.iceberg = true
+        }
+        if (data.botType === 'mm') {
+            newData.iceberg = true
+            newData.market_making = true
+        }
+
+        if (data.botType === 'twap') {
+            newData.twap_bot = true
+        }
+
+        const { success, error } = await createTrade.request({ data: newData })
 
         if (success) {
             trades.request()
@@ -36,8 +54,8 @@ export default function Main() {
         time_interval: 120,
         iceberg: false,
         icebergs_count: 0,
-        chase_bot: false,
-        chase_bot_duration: 0,
+        twap_bot: false,
+        twap_bot_duration: 0,
     }
 
     return (

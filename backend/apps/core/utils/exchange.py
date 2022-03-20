@@ -74,7 +74,7 @@ class CustomHuobiClient(HuobiRestClient):
 
 
 class Bot:
-    chase_bot_order_interval = 300
+    twap_bot_order_interval = 300
 
     def bot(self):
         while not time.sleep(0.3):
@@ -120,13 +120,13 @@ class Bot:
 
                 amount = array[trade.completed_icebergs]
 
-        if trade.chase_bot:
-            trades_count = int(trade.chase_bot_duration / self.chase_bot_order_interval)
+        if trade.twap_bot:
+            trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval)
             amount = trade.quantity / trades_count
 
         return amount
 
-    def chase_bot_place(self, client, account_id, trade, amount):
+    def twap_bot_place(self, client, account_id, trade, amount):
         client.place(
             account_id=account_id,
             amount="{:.2f}".format(amount),
@@ -134,13 +134,13 @@ class Bot:
             type=f'{trade.trade_type}-market',
         )
 
-        trades_count = int(trade.chase_bot_duration / self.chase_bot_order_interval)
-        trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.chase_bot_duration / trades_count)
-        trade.chase_bot_completed_trades += 1
+        trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval)
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.twap_bot_duration / trades_count)
+        trade.twap_bot_completed_trades += 1
 
         self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order sell')
 
-        if trade.chase_bot_completed_trades == trades_count:
+        if trade.twap_bot_completed_trades == trades_count:
             self.complete_trade(trade)
 
     def place_order(self, client, trade, cost, price, account_id):
@@ -150,8 +150,8 @@ class Bot:
         amount = self.calc_amount(trade)
 
         try:
-            if trade.chase_bot:
-                self.chase_bot_place(client, account_id, trade, amount)
+            if trade.twap_bot:
+                self.twap_bot_place(client, account_id, trade, amount)
             else:
                 client.place(
                     account_id=account_id,

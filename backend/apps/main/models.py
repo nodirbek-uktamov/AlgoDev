@@ -28,9 +28,9 @@ class Trade(models.Model):
     market_making = models.BooleanField(default=False)
     market_making_array = models.TextField(default='')
 
-    chase_bot = models.BooleanField(default=False)
-    chase_bot_duration = models.IntegerField(default=0)
-    chase_bot_completed_trades = models.IntegerField(default=0)
+    twap_bot = models.BooleanField(default=False)
+    twap_bot_duration = models.IntegerField(default=0)
+    twap_bot_completed_trades = models.IntegerField(default=0)
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_trades'

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Form, useFormikContext } from 'formik'
 import Input from './common/Input'
 import { required } from '../utils/validators'
@@ -7,30 +7,44 @@ import Checkbox from './common/Checkbox'
 
 
 export default React.memo(({ setTradeType }) => {
-    const { values } = useFormikContext()
+    const { values, setFieldValue } = useFormikContext()
+    const [botType, setBotType] = useState('chase_bot')
+
+    function changeTab(tab) {
+        setBotType(tab)
+        setFieldValue('botType', tab)
+    }
 
     return (
         <Form>
+            <div className="tabs">
+                <ul>
+                    <li onClick={() => changeTab('chase_bot')} className={botType === 'chase_bot' && 'is-active'}>
+                        <a>Chase bot</a>
+                    </li>
+
+                    <li onClick={() => changeTab('iceberg')} className={botType === 'iceberg' && 'is-active'}>
+                        <a>Iceberg</a>
+                    </li>
+
+                    <li onClick={() => changeTab('mm')} className={botType === 'mm' && 'is-active'}>
+                        <a>MM</a>
+                    </li>
+
+                    <li onClick={() => changeTab('twap')} className={botType === 'twap' && 'is-active'}>
+                        <a>Twap</a>
+                    </li>
+                </ul>
+            </div>
+
             <Input
                 name="quantity"
                 step="0.00000001"
                 type="number"
-                label={`Amount (${!values.chase_bot ? 'Pair 1' : 'buy: pair 1, sell: pair 2'})`}
+                label={`Amount (${botType !== 'twap' ? 'Pair 1' : 'buy: pair 2, sell: pair 1'})`}
                 validate={required} />
 
-            {!values.chase_bot && <Checkbox name="loop" label="Is loop" />}
-
-            {values.loop && !values.chase_bot ? (
-                <Input
-                    validate={required}
-                    name="time_interval"
-                    type="number"
-                    label="Interval" />
-            ) : null}
-
-            {!values.chase_bot && <Checkbox name="iceberg" label="Iceberg" />}
-
-            {values.iceberg && !values.chase_bot ? (
+            {botType === 'iceberg' || botType === 'mm' ? (
                 <Input
                     validate={required}
                     name="icebergs_count"
@@ -38,17 +52,23 @@ export default React.memo(({ setTradeType }) => {
                     label="Icebergs count" />
             ) : null}
 
-            <Checkbox name="chase_bot" label="Chase Bot" />
+            {botType !== 'twap' && <Checkbox name="loop" label="Is loop" />}
 
-            {values.chase_bot ? (
+            {values.loop && botType !== 'twap' ? (
                 <Input
                     validate={required}
-                    name="chase_bot_duration"
+                    name="time_interval"
                     type="number"
-                    label="Chase bot duration (seconds)" />
+                    label="Interval" />
             ) : null}
 
-            {values.iceberg && !values.chase_bot ? <Checkbox name="market_making" label="MarketMaking" /> : null}
+            {botType === 'twap' ? (
+                <Input
+                    validate={required}
+                    name="twap_bot_duration"
+                    type="number"
+                    label="Duration (seconds)" />
+            ) : null}
 
             <div className="is-flex">
                 <Button onClick={() => setTradeType('buy')} type="submit" className="is-success" text="Long start" />
