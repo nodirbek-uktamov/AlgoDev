@@ -49,7 +49,7 @@ After=network.target
 User=root
 Group=www-data
 WorkingDirectory=/home/AlgoDev/backend
-ExecStart=daphne -b 62.113.98.2 -p 8000 config.asgi:application
+ExecStart=daphne -b 194.163.164.243 -p 8000 config.asgi:application
 
 [Install]
 WantedBy=multi-user.target
@@ -62,7 +62,7 @@ WantedBy=multi-user.target
 server {
   root /home/AlgoDev/frontend/build/;
   index index.html;
-  server_name 62.113.98.2;
+  server_name 194.163.164.243;
   location / {
     try_files $uri /index.html;
   }
