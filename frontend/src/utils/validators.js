@@ -10,7 +10,7 @@ function empty(value) {
 
 export function required(value) {
     if (empty(value)) {
-        return 'Это поле обязательно'
+        return 'This field is required'
     }
 }
 
@@ -61,7 +61,7 @@ export function email(value) {
     }
 
     if (!regx.test(value)) {
-        return 'Неправильный email-адрес'
+        return 'Invalid email'
     }
 }
 

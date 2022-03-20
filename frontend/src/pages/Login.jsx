@@ -31,7 +31,6 @@ export default function Login() {
         }
     }
 
-
     return (
         <LayoutAuth sidebar={(
             <div>

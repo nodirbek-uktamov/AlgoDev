@@ -39,9 +39,9 @@ export function useRequest(options = {}) {
         } catch (e) {
             setError(e.response || {})
             if (e.response === undefined) {
-                showMessage('Проверьте интернет соединение', 'is-danger')
+                showMessage('Check internet connection', 'is-danger')
             } else if (e.response.status >= 500) {
-                showMessage('Ошибка сервера.', 'is-danger')
+                showMessage('Server error', 'is-danger')
             } else if (e.response.status === 401 && e.response.data.logout) {
                 signOut(history)
             }

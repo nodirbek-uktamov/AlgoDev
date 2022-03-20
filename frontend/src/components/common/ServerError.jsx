@@ -24,7 +24,7 @@ export default function ServerError({ error }) {
             <div className="message-body">
                 <ul>
                     {typeof error.data === 'string' ? (
-                        <ErrorItem field="detail" error="Неизвестная ошибка" />
+                        <ErrorItem field="detail" error="Unknown error" />
                     ) : Object.keys(error.data).map((key) => (
                         <ErrorItem key={key} field={key} error={error.data[key]} />
                     ))}
