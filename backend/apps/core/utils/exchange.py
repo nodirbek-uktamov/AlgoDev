@@ -1,3 +1,4 @@
+import threading
 import time
 from huobi import HuobiRestClient
 from huobi.rest.endpoint import Endpoint
@@ -97,13 +98,15 @@ class Bot:
     def send_log(self, user_id, message):
         channel_layer = get_channel_layer()
 
-        async_to_sync(channel_layer.group_send)(
+        t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
             f'user_{user_id}',
             {
                 'type': 'chat_message',
                 'message': f'{timezone.now().strftime("%H:%M:%S")} {message}'
             }
-        )
+        ))
+        t.daemon = True
+        t.start()
 
     def calc_amount(self, trade):
         amount = float(trade.quantity)
