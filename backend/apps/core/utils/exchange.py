@@ -75,7 +75,7 @@ class CustomHuobiClient(HuobiRestClient):
 
 
 class Bot:
-    twap_bot_order_interval = 3
+    twap_bot_order_interval = 300
 
     def bot(self):
         while not time.sleep(0.3):
