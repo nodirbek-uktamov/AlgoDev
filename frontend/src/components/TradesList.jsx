@@ -15,22 +15,8 @@ export default function TradesList({ trades, onCancel }) {
         }
     }
 
-    async function cancelAll() {
-        const { success } = await cancel.request({ url: CANCEL_TRADES })
-
-        if (success) {
-            onCancel()
-        }
-    }
-
     return (
         <div>
-            {trades.length > 0 && (
-                <div style={{ width: 200, float: 'right' }}>
-                    <Button text="Cancel all orders" className="is-danger my-4" onClick={cancelAll} />
-                </div>
-            )}
-
             <Table pageSize={10000} items={trades} columns={{
                 id: 'ID',
                 symbol: 'Symbol',

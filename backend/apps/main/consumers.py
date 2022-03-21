@@ -15,8 +15,6 @@ class Consumer(WebsocketConsumer):
         )
         self.accept()
 
-        # time.sleep(5)
-
         async_to_sync(self.channel_layer.group_send)(
             self.user_id,
             {
@@ -26,11 +24,8 @@ class Consumer(WebsocketConsumer):
         )
 
     def chat_message(self, event):
-        message = event['message']
-
-        self.send(text_data=json.dumps({
-            'message': message
-        }))
+        event.pop('type')
+        self.send(text_data=json.dumps(event))
 
     def disconnect(self, code):
         async_to_sync(self.channel_layer.group_discard)(

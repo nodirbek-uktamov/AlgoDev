@@ -4,7 +4,6 @@ import { useLoad } from '../hooks/request'
 import ReactSelect from './common/ReactSelect'
 import BidAsk from './BidAsk'
 import { intervals } from '../utils/intervals'
-import Orders from './Orders'
 
 const defaultOptions = {
     width: '100%',
@@ -23,16 +22,18 @@ const defaultOptions = {
 }
 
 export default function Chart({ symbol, setSymbol }) {
-    const [options, setOptions] = useState(defaultOptions)
+    // const [options] = useState(defaultOptions)
     const [interval, setInterval] = useState('60')
-    const symbols = useLoad({ baseURL: 'https://api.huobi.pro/v2/settings/common/symbols/', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
+    const url = 'https://api.huobi.pro/v2/settings/common/symbols/'
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' }
+    const symbols = useLoad({ baseURL: url, headers, Referrer: '' })
 
     let symbolsList = symbols.response ? symbols.response.data || [] : []
-    symbolsList = symbolsList.map((i) => ({ value: i.bcdn + i.qcdn, label: i.dn }))
+    symbolsList = symbolsList.map((i) => ({ value: i.bcdn + i.qcdn, label: i.dn, pair1: i.bcdn, pair2: i.qcdn }))
 
     function onChange(val) {
-        localStorage.setItem('symbol', val.toLowerCase())
-        setSymbol(val.toLowerCase())
+        localStorage.setItem('symbol', JSON.stringify(val))
+        setSymbol(val)
     }
 
     return (
@@ -42,13 +43,13 @@ export default function Chart({ symbol, setSymbol }) {
                     className="mr-2"
                     options={symbolsList}
                     onChange={onChange}
-                    defaultValue={symbol.toUpperCase()} />
+                    defaultValue={symbol} />
 
                 <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval} />
-                <BidAsk symbol={symbol} />
+                <BidAsk symbol={symbol.toLowerCase()} />
             </div>
 
-            <TradingViewWidget {...options} symbol={`HUOBI:${symbol.toUpperCase()}`} interval={interval} />
+            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbol}`} interval={interval} />
         </div>
     )
 }

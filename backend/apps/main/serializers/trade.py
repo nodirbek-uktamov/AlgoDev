@@ -23,6 +23,8 @@ class TradesSerializer(serializers.ModelSerializer):
         else:
             data['twap_bot_duration'] = 0
 
+        data['symbol'] = data['symbol'].lower()
+
         return data
 
     class Meta:

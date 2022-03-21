@@ -75,11 +75,12 @@ class CustomHuobiClient(HuobiRestClient):
 
 
 class Bot:
-    twap_bot_order_interval = 300
+    twap_bot_order_interval = 3
 
     def bot(self):
         while not time.sleep(0.3):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
+
             try:
                 costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
             except:
@@ -95,14 +96,15 @@ class Bot:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users.count()) as pool:
                     pool.map(self.bot_for_user, [(user, costs) for user in users])
 
-    def send_log(self, user_id, message):
+    def send_log(self, user_id, message, action=None):
         channel_layer = get_channel_layer()
 
         t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
             f'user_{user_id}',
             {
                 'type': 'chat_message',
-                'message': f'{timezone.now().strftime("%H:%M:%S")} {message}'
+                'message': f'{timezone.now().strftime("%H:%M:%S")} {message}',
+                'action': action
             }
         ))
         t.daemon = True
@@ -124,7 +126,7 @@ class Bot:
                 amount = array[trade.completed_icebergs]
 
         if trade.twap_bot:
-            trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval)
+            trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval) or 1
             amount = trade.quantity / trades_count
 
         return amount
@@ -137,7 +139,7 @@ class Bot:
             type=f'{trade.trade_type}-market',
         )
 
-        trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval)
+        trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval) or 1
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.twap_bot_duration / trades_count)
         trade.twap_bot_completed_trades += 1
 
@@ -189,9 +191,11 @@ class Bot:
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
 
         log_text = f'{trade.id}: Order completed.'
+        remove_from_list = True
 
         if trade.loop:
             log_text += f' Waiting {trade.time_interval} seconds'
+            remove_from_list = False
 
         if trade.iceberg:
             trade.completed_icebergs = trade.completed_icebergs + 1
@@ -202,11 +206,14 @@ class Bot:
 
             else:
                 log_text = f'{trade.id}: {trade.completed_icebergs} / {trade.icebergs_count} completed.'
+                remove_from_list = False
                 trade.is_completed = False
                 trade.completed_at = None
 
+        action = {'delete': trade.id} if remove_from_list else None
+
         trade.save()
-        self.send_log(trade.user.id, log_text)
+        self.send_log(trade.user.id, log_text, action)
 
     def bot_for_user(self, args):
         user, costs = args

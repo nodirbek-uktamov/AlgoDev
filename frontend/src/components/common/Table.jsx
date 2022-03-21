@@ -1,5 +1,4 @@
 import { css, StyleSheet } from 'aphrodite'
-import cn from 'classnames'
 import isEmpty from 'lodash/isEmpty'
 import React, { Fragment } from 'react'
 
@@ -7,12 +6,10 @@ import Loader from './Loader'
 
 export default function Table({
     loading = false,
-    emptyMessage = 'Пусто',
     showEmptyMessage = true,
     items,
     columns,
     renderItem,
-    emptyMessageColor = null,
 }) {
     if (loading) {
         return (

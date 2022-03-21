@@ -3,8 +3,8 @@ import { Formik } from 'formik'
 import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
 import TradeForm from '../components/TradeForm'
-import { useLoad, usePostRequest } from '../hooks/request'
-import { TRADE } from '../urls'
+import { useLoad, usePostRequest, usePutRequest } from '../hooks/request'
+import { CANCEL_TRADES, TRADE } from '../urls'
 import { signOut } from '../utils/auth'
 import Orders from '../components/Orders'
 import Button from '../components/common/Button'
@@ -15,14 +15,16 @@ import Logs from '../components/Logs'
 export default function Main() {
     const [tradeType, setTradeType] = useState('limit')
     const history = useHistory()
-    const [symbol, setSymbol] = useState(localStorage.getItem('symbol') || 'trxusdt')
+    const initialSymbol = localStorage.getItem('symbol')
+    const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : { value: 'ETHUSDT', pair1: 'ETH', pair2: 'USDT' })
     const createTrade = usePostRequest({ url: TRADE })
     const trades = useLoad({ url: TRADE })
+    const cancelTrades = usePutRequest()
 
     async function onSubmit(data) {
         const newData = {
             ...data,
-            symbol,
+            symbol: symbol.value,
             trade_type: tradeType,
         }
 
@@ -58,30 +60,49 @@ export default function Main() {
         twap_bot_duration: 0,
     }
 
+    async function cancelAllTrades() {
+        const { success } = await cancelTrades.request({ url: CANCEL_TRADES })
+
+        if (success) {
+            trades.setResponse([])
+        }
+    }
+
+
     return (
         <div className="mx-5 pb-6 mt-1">
-            <div style={{ width: 100 }}>
-                <Button
-                    className="pointer my-3 is-info"
-                    onClick={() => signOut(history)}
-                    text="Logout" />
+            <div className="columns mb-4 mt-2">
+                <div className="column" />
+
+                <div className="column is-narrow" style={{ width: 200 }}>
+                    {(trades.response && trades.response.length > 0) && (
+                        <Button text="Cancel all orders" className="is-danger" onClick={cancelAllTrades} />
+                    )}
+                </div>
+
+                <div className="column is-narrow" style={{ width: 200 }}>
+                    <Button
+                        className="pointer is-info"
+                        onClick={() => signOut(history)}
+                        text="Logout" />
+                </div>
             </div>
 
             <div className="columns">
                 <div className="column is-narrow">
                     <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
-                        <TradeForm setTradeType={setTradeType} tradeType={tradeType} />
+                        <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
                     </Formik>
                 </div>
 
-                <div className="column">
-                    <Chart symbol={symbol} setSymbol={setSymbol} />
+                <div className="column is-narrow mr-6" style={{ width: 600 }}>
+                    <Chart symbol={symbol.value.toUpperCase()} setSymbol={setSymbol} />
                     <TradesList onCancel={trades.request} trades={trades.response || []} />
-                    <Orders symbol={symbol} />
+                    <Orders symbol={symbol.value.toLowerCase()} />
                 </div>
 
-                <div style={{ width: 300 }} className="column is-narrow">
-                    <Logs />
+                <div className="column">
+                    <Logs trades={trades} />
                 </div>
             </div>
         </div>

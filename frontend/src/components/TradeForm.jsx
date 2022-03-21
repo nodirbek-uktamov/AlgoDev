@@ -6,7 +6,7 @@ import Button from './common/Button'
 import Checkbox from './common/Checkbox'
 
 
-export default React.memo(({ setTradeType }) => {
+export default React.memo(({ setTradeType, symbol }) => {
     const { values, setFieldValue } = useFormikContext()
     const [botType, setBotType] = useState('chase_bot')
 
@@ -19,19 +19,19 @@ export default React.memo(({ setTradeType }) => {
         <Form>
             <div className="tabs">
                 <ul>
-                    <li onClick={() => changeTab('chase_bot')} className={botType === 'chase_bot' && 'is-active'}>
+                    <li onClick={() => changeTab('chase_bot')} className={botType === 'chase_bot' ? 'is-active' : null}>
                         <a>Chase bot</a>
                     </li>
 
-                    <li onClick={() => changeTab('iceberg')} className={botType === 'iceberg' && 'is-active'}>
+                    <li onClick={() => changeTab('iceberg')} className={botType === 'iceberg' ? 'is-active' : null}>
                         <a>Iceberg</a>
                     </li>
 
-                    <li onClick={() => changeTab('mm')} className={botType === 'mm' && 'is-active'}>
+                    <li onClick={() => changeTab('mm')} className={botType === 'mm' ? 'is-active' : null}>
                         <a>MM</a>
                     </li>
 
-                    <li onClick={() => changeTab('twap')} className={botType === 'twap' && 'is-active'}>
+                    <li onClick={() => changeTab('twap')} className={botType === 'twap' ? 'is-active' : null}>
                         <a>Twap</a>
                     </li>
                 </ul>
@@ -41,7 +41,7 @@ export default React.memo(({ setTradeType }) => {
                 name="quantity"
                 step="0.00000001"
                 type="number"
-                label={`Amount (${botType !== 'twap' ? 'Pair 1' : 'buy: pair 2, sell: pair 1'})`}
+                label={`Amount (${botType !== 'twap' ? symbol.pair1 : `buy: ${symbol.pair2}, sell: ${symbol.pair1}`})`}
                 validate={required} />
 
             {botType === 'iceberg' || botType === 'mm' ? (

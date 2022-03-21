@@ -15,7 +15,7 @@ export default function ReactSelect({ options, onChange, defaultValue, className
     return (
         <Select
             className={`basic-single ${css(styles.container)} ${className}`}
-            onChange={(data) => onChange(data.value)}
+            onChange={onChange}
             classNamePrefix="select"
             defaultValue={options.filter((i) => i.value === defaultValue)}
             name="color"

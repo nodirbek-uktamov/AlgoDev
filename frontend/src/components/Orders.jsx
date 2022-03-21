@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import cn from 'classnames'
 import { useWebsocket } from '../hooks/websocket'
 
 export default function Orders({ symbol }) {
@@ -27,16 +28,22 @@ export default function Orders({ symbol }) {
         setPurchases([])
     }, [symbol])
 
+    function RenderItem({ item, className }) {
+        return (
+            <div className={cn('columns m-0 p-0', className)}>
+                <p style={{ width: 90 }} className="column is-narrow m-0 p-0">{item.price}</p>
+                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(6)}</p>
+            </div>
+        )
+    }
+
     return (
         <div className="columns m-0 mt-2">
             <div className="column has-background-success-light">
                 <p className="is-size-5 mb-2">Purchases</p>
 
                 {purchases.map((item) => (
-                    <div key={item.id} className="columns has-text-success m-0 p-0">
-                        <p className="column m-0 p-0">{item.price}</p>
-                        <p className="column m-0 p-0">{item.amount}</p>
-                    </div>
+                    <RenderItem key={item.id} className="has-text-success" item={item} />
                 ))}
             </div>
 
@@ -44,10 +51,7 @@ export default function Orders({ symbol }) {
                 <p className="is-size-5 mb-2">Sales</p>
 
                 {sales.map((item) => (
-                    <div key={item.id} className="columns has-text-danger m-0 p-0">
-                        <p className="column m-0 p-0">{item.price}</p>
-                        <p className="column m-0 p-0">{item.amount}</p>
-                    </div>
+                    <RenderItem key={item.id} className="has-text-danger" item={item} />
                 ))}
             </div>
         </div>
