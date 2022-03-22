@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { Form, useFormikContext } from 'formik'
 import Input from './common/Input'
 import { required } from '../utils/validators'
@@ -45,11 +45,15 @@ export default React.memo(({ setTradeType, symbol }) => {
                 validate={required} />
 
             {botType === 'iceberg' || botType === 'mm' ? (
-                <Input
-                    validate={required}
-                    name="icebergs_count"
-                    type="number"
-                    label="Icebergs count" />
+                <Fragment>
+                    <Input
+                        validate={required}
+                        name="icebergs_count"
+                        type="number"
+                        label="Icebergs count" />
+
+                    <Checkbox name="take_profit" label="TakeProfit" />
+                </Fragment>
             ) : null}
 
             {botType !== 'twap' && <Checkbox name="loop" label="Is loop" />}

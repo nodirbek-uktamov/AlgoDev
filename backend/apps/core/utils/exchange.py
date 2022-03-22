@@ -84,6 +84,7 @@ class Bot:
             try:
                 costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
             except:
+                print('error with loading tickers')
                 time.sleep(1)
                 continue
 
@@ -146,7 +147,7 @@ class Bot:
         self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order sell')
 
         if trade.twap_bot_completed_trades == trades_count:
-            self.complete_trade(trade)
+            self.complete_trade(trade, client, account_id)
 
     def place_order(self, client, trade, cost, price, account_id):
         if trade.trade_type == 'sell':
@@ -170,6 +171,7 @@ class Bot:
                 self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order put: {price}')
 
         except Exception as e:
+            print(str(e))
             # some error with huobi
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=10)
             error = str(e)
@@ -184,9 +186,25 @@ class Bot:
 
         trade.save()
 
-    def complete_trade(self, trade):
+    def take_profit_order(self, client, account_id, trade, price):
+        trade_type = 'sell'
+
+        if trade.trade_type == 'sell':
+            trade_type = 'buy'
+
+        data = client.place(
+            account_id=account_id,
+            amount="{:.2f}".format(trade.quantity),
+            symbol=trade.symbol,
+            type=f'{trade_type}-limit',
+            price="{:.6f}".format(price),
+            client_order_id=trade.id
+        ).data
+
+        print('data:', data)
+
+    def complete_trade(self, trade, client, account_id):
         trade.is_completed = True if not trade.loop else False
-        trade.price = 0
         trade.filled = 0
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
 
@@ -198,9 +216,16 @@ class Bot:
             remove_from_list = False
 
         if trade.iceberg:
+            amount = self.calc_amount(trade)
             trade.completed_icebergs = trade.completed_icebergs + 1
+            trade.iceberg_prices_sum = float(trade.iceberg_prices_sum) + amount * float(trade.price)
 
             if trade.completed_icebergs == trade.icebergs_count:
+                avg_price = float(trade.iceberg_prices_sum) / float(trade.quantity)
+
+                if trade.take_profit:
+                    self.take_profit_order(client, account_id, trade, avg_price)
+
                 trade.completed_icebergs = 0
                 trade.market_making_array = ''
 
@@ -210,6 +235,7 @@ class Bot:
                 trade.is_completed = False
                 trade.completed_at = None
 
+        trade.price = 0
         action = {'delete': trade.id} if remove_from_list else None
 
         trade.save()
@@ -241,7 +267,7 @@ class Bot:
                         trade.save()
                         self.send_log(trade.user.id, f'{trade.id}: Order canceled. Old price: {trade.price}')
                     except HuobiRestiApiError:
-                        self.complete_trade(trade)
+                        self.complete_trade(trade, client, account_id)
                         continue
 
                     if res.get('status'):
@@ -251,7 +277,7 @@ class Bot:
 
             if float(trade.price) > 0:
                 # print('completed')
-                self.complete_trade(trade)
+                self.complete_trade(trade, client, account_id)
                 continue
 
             self.place_order(client, trade, cost, price, account_id)

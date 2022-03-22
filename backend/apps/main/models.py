@@ -21,8 +21,11 @@ class Trade(models.Model):
     user = models.ForeignKey('users.User', models.CASCADE, 'trades')
     price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
     filled = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+
     iceberg = models.BooleanField(default=False)
     icebergs_count = models.IntegerField(default=0, null=True, blank=True)
+    iceberg_prices_sum = models.DecimalField(max_digits=20, decimal_places=10, default=0)  # for calculating price of take profit
+    take_profit = models.BooleanField(default=False)
     completed_icebergs = models.IntegerField(default=0)
 
     market_making = models.BooleanField(default=False)

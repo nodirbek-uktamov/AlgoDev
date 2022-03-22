@@ -11,6 +11,7 @@ class TradesSerializer(serializers.ModelSerializer):
 
         if not data.get('iceberg'):
             data['icebergs_count'] = 0
+            data['take_profit'] = False
             data['market_making'] = False
 
         if data.get('twap_bot'):
@@ -42,4 +43,5 @@ class TradesSerializer(serializers.ModelSerializer):
             'completed_icebergs',
             'twap_bot',
             'twap_bot_duration',
+            'take_profit',
         )

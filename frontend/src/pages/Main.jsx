@@ -68,7 +68,6 @@ export default function Main() {
         }
     }
 
-
     return (
         <div className="mx-5 pb-6 mt-1">
             <div className="columns mb-4 mt-2">
