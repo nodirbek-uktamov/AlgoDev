@@ -197,7 +197,7 @@ class Bot:
             amount="{:.2f}".format(trade.quantity),
             symbol=trade.symbol,
             type=f'{trade_type}-limit',
-            price="{:.6f}".format(price),
+            price="{:.6f}".format(price * 1.01),
             client_order_id=trade.id
         ).data
 
