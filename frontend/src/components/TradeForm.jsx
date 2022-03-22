@@ -67,11 +67,15 @@ export default React.memo(({ setTradeType, symbol }) => {
             ) : null}
 
             {botType === 'twap' ? (
-                <Input
-                    validate={required}
-                    name="twap_bot_duration"
-                    type="number"
-                    label="Duration (seconds)" />
+                <Fragment>
+                    <Input
+                        validate={required}
+                        name="twap_bot_duration"
+                        type="number"
+                        label="Duration (minutes)" />
+
+                    <p className="is-7 mb-2 is-italic">{(values.quantity || 0) / (values.twap_bot_duration || 1)} every minute</p>
+                </Fragment>
             ) : null}
 
             <div className="is-flex">

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { parseGzip } from '../utils/websocket'
 
 
-export function useWebsocket({ sub, url, exchangeServer = true }, dependencies) {
+export function useWebsocket({ sub, url, exchangeServer = true, stopInterval = 100 }, dependencies) {
     const ws = useRef(null)
     const [data, setData] = useState({})
 
@@ -14,21 +14,26 @@ export function useWebsocket({ sub, url, exchangeServer = true }, dependencies) 
         }
 
         gettingData()
-        return () => ws.current.close()
+
+        return () => {
+            ws.current.close()
+            setData({})
+        }
         // eslint-disable-next-line
     }, dependencies)
 
     const gettingData = useCallback(() => {
         if (!ws.current) return
         let lastUpdate = null
+        let lastEvent = null
 
         ws.current.onmessage = (event) => {
             if (!exchangeServer) {
                 setData(JSON.parse(event.data))
-            } else if (new Date() - lastUpdate > 250) {
+            } else if (new Date() - lastUpdate > stopInterval) {
                 lastUpdate = new Date()
 
-                parseGzip(event, (d) => {
+                parseGzip(lastEvent || event, (d) => {
                     if (d.ping) {
                         ws.current.send(JSON.stringify({ pong: d.ping }))
                         return
@@ -38,9 +43,13 @@ export function useWebsocket({ sub, url, exchangeServer = true }, dependencies) 
                         setData(d.tick)
                     }
                 })
+
+                lastEvent = null
+            } else {
+                lastEvent = event
             }
         }
-    }, [exchangeServer])
+    }, [exchangeServer, stopInterval])
 
     return { data }
 }

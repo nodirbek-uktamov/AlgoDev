@@ -4,7 +4,8 @@ import { LOGS_WS } from '../urls'
 
 export default function Logs({ symbol, trades }) {
     const user = JSON.parse(localStorage.getItem('user'))
-    const { data } = useWebsocket({ url: LOGS_WS.replace('{id}', user.id), exchangeServer: false }, [symbol])
+    const requestParams = { url: LOGS_WS.replace('{id}', user.id), stopInterval: 0, exchangeServer: false }
+    const { data } = useWebsocket(requestParams, [symbol])
     const [logs, setLogs] = useState([])
 
     useEffect(() => {

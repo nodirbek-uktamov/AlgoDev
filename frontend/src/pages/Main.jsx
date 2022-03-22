@@ -26,6 +26,7 @@ export default function Main() {
             ...data,
             symbol: symbol.value,
             trade_type: tradeType,
+            twap_bot_duration: data.twap_bot_duration * 60,
         }
 
         if (data.botType === 'iceberg') {
@@ -97,7 +98,7 @@ export default function Main() {
                 <div className="column is-narrow mr-6" style={{ width: 600 }}>
                     <Chart symbol={symbol.value.toUpperCase()} setSymbol={setSymbol} />
                     <TradesList onCancel={trades.request} trades={trades.response || []} />
-                    <Orders symbol={symbol.value.toLowerCase()} />
+                    {/* <Orders symbol={symbol.value.toLowerCase()} /> */}
                 </div>
 
                 <div className="column">
