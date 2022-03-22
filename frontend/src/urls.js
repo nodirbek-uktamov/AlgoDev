@@ -7,7 +7,7 @@ export const TRADE = '/main/trades/'
 export const TRADE_DETAIL = '/main/trades/{id}/'
 export const CANCEL_TRADES = '/main/trades/cancel/'
 
-export const domain = 'http://localhost:8000' // http://194.163.164.243:8000
+export const domain = 'http://194.163.164.243:8000' // http://194.163.164.243:8000
 export const wsDomain = domain.replace('http', 'ws').replace('https', 'ws')
 
 export const LOGS_WS = `${wsDomain}/logs/{id}/`
