@@ -190,14 +190,17 @@ class Bot:
         trade_type = 'sell'
 
         if trade.trade_type == 'sell':
+            price = price * 0.99
             trade_type = 'buy'
+        else:
+            price = price * 1.01
 
         data = client.place(
             account_id=account_id,
             amount="{:.2f}".format(trade.quantity),
             symbol=trade.symbol,
             type=f'{trade_type}-limit',
-            price="{:.6f}".format(price * 1.01),
+            price="{:.6f}".format(price),
             client_order_id=trade.id
         ).data
 
