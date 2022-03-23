@@ -1,8 +1,6 @@
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from core.utils.serializers import BaseSerializer
-from users.models import User
 
 
 class SignInSerializer(BaseSerializer):
@@ -17,7 +15,7 @@ class SignInSerializer(BaseSerializer):
         )
 
         if not user:
-            msg = _('Указан неправильный логин или пароль')
+            msg = 'Wrong username or password'
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user

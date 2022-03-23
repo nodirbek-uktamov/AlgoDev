@@ -42,7 +42,7 @@ export default function Chart({ symbol, setSymbol, trades }) {
     function onChange(val) {
         setBidAskData({})
         setOrdersData({})
-        ws.current.send(JSON.stringify({ unsub: types.orders.replace('{symbol}', symbol) }))
+        // ws.current.send(JSON.stringify({ unsub: types.orders.replace('{symbol}', symbol) }))
         ws.current.send(JSON.stringify({ unsub: types.bidAsk.replace('{symbol}', symbol) }))
 
         localStorage.setItem('symbol', JSON.stringify(val))
@@ -51,7 +51,7 @@ export default function Chart({ symbol, setSymbol, trades }) {
     }
 
     function connect(s) {
-        ws.current.send(JSON.stringify({ sub: types.orders.replace('{symbol}', s) }))
+        // ws.current.send(JSON.stringify({ sub: types.orders.replace('{symbol}', s) }))
         ws.current.send(JSON.stringify({ sub: types.bidAsk.replace('{symbol}', s) }))
     }
 
