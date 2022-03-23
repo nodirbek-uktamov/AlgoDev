@@ -22,7 +22,7 @@ export default function Logs({ symbol, trades }) {
 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            setLogs([data.message, ...logs])
+            setLogs([...logs, data.message])
 
             if (data.action && data.action.delete && trades.response) {
                 trades.setResponse(trades.response.filter((i) => i.id !== data.action.delete))

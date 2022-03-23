@@ -40,23 +40,30 @@ export default function Chart({ symbol, setSymbol, trades }) {
     const [ordersData, setOrdersData] = useState({})
 
     function onChange(val) {
+        setBidAskData({})
+        setOrdersData({})
+        ws.current.send(JSON.stringify({ unsub: types.orders.replace('{symbol}', symbol) }))
+        ws.current.send(JSON.stringify({ unsub: types.bidAsk.replace('{symbol}', symbol) }))
+
         localStorage.setItem('symbol', JSON.stringify(val))
         setSymbol(val)
+        connect(val.value.toLowerCase())
     }
 
+    function connect(s) {
+        ws.current.send(JSON.stringify({ sub: types.orders.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ sub: types.bidAsk.replace('{symbol}', s) }))
+    }
+
+
     const types = {
-        bidAsk: `market.${symbol.toLowerCase()}.bbo`,
-        orders: `market.${symbol.toLowerCase()}.trade.detail`,
+        bidAsk: 'market.{symbol}.bbo',
+        orders: 'market.{symbol}.trade.detail',
     }
 
     useEffect(() => {
         ws.current = new WebSocket('wss://api.huobi.pro/ws')
-
-        ws.current.onopen = () => {
-            ws.current.send(JSON.stringify({ sub: types.orders }))
-            ws.current.send(JSON.stringify({ sub: types.bidAsk }))
-        }
-
+        ws.current.onopen = () => connect(symbol.toLowerCase())
         gettingData()
 
         return () => {
@@ -78,9 +85,9 @@ export default function Chart({ symbol, setSymbol, trades }) {
                 }
 
                 if (data.tick) {
-                    if (data.ch === types.bidAsk) setBidAskData(data.tick)
+                    if (data.ch.includes('bbo')) setBidAskData(data.tick)
 
-                    if (data.ch === types.orders) {
+                    if (data.ch.includes('trade.detail')) {
                         setOrdersData(data.tick)
                     }
                 }
@@ -99,7 +106,6 @@ export default function Chart({ symbol, setSymbol, trades }) {
         // eslint-disable-next-line
     }, [])
 
-
     return (
         <div>
             <div className="is-flex is-align-items-center mb-2">
@@ -107,15 +113,15 @@ export default function Chart({ symbol, setSymbol, trades }) {
                     className="mr-2"
                     options={symbolsList}
                     onChange={onChange}
-                    defaultValue={symbol} />
+                    defaultValue={symbol.toUpperCase()} />
 
                 <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval} />
                 <BidAsk data={bidAskData} />
             </div>
 
-            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbol}`} interval={interval} />
+            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbol.toUpperCase()}`} interval={interval} />
             <TradesList onCancel={trades.request} trades={trades.response || []} />
-            <Orders data={ordersData} symbol={symbol.toLowerCase()} />
+            <Orders data={ordersData} symbol={symbol} />
         </div>
     )
 }

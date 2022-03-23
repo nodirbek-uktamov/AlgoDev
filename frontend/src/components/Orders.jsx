@@ -39,6 +39,8 @@ export default function Orders({ symbol, data }) {
     }
 
     function onChangeAmountLimit(event) {
+        setPurchases([])
+        setSales([])
         setAmountLimit(event.target.value)
         localStorage.setItem('amountLimit', event.target.value)
     }
