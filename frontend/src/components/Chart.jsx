@@ -6,8 +6,6 @@ import ReactSelect from './common/ReactSelect'
 import BidAsk from './BidAsk'
 import { intervals } from '../utils/intervals'
 import TradesList from './TradesList'
-import Orders from './Orders'
-import { parseGzip } from '../utils/websocket'
 
 const defaultOptions = {
     width: '100%',
@@ -37,11 +35,11 @@ export default function Chart({ symbol, setSymbol, trades }) {
     symbolsList = symbolsList.map((i) => ({ value: i.bcdn + i.qcdn, label: i.dn, pair1: i.bcdn, pair2: i.qcdn }))
 
     const [bidAskData, setBidAskData] = useState({})
-    const [ordersData, setOrdersData] = useState({})
+    // const [ordersData, setOrdersData] = useState({})
 
     function onChange(val) {
         setBidAskData({})
-        setOrdersData({})
+        // setOrdersData({})
         // ws.current.send(JSON.stringify({ unsub: types.orders.replace('{symbol}', symbol) }))
         ws.current.send(JSON.stringify({ unsub: types.bidAsk.replace('{symbol}', symbol) }))
 
@@ -81,16 +79,15 @@ export default function Chart({ symbol, setSymbol, trades }) {
 
                 if (data.ping) {
                     ws.current.send(JSON.stringify({ pong: data.ping }))
-                    return
                 }
 
-                if (data.tick) {
-                    if (data.ch.includes('bbo')) setBidAskData(data.tick)
-
-                    if (data.ch.includes('trade.detail')) {
-                        setOrdersData(data.tick)
-                    }
-                }
+                // if (data.tick) {
+                //     if (data.ch.includes('bbo')) setBidAskData(data.tick)
+                //
+                //     if (data.ch.includes('trade.detail')) {
+                //         setOrdersData(data.tick)
+                //     }
+                // }
             }
 
             const blob = event.data
@@ -121,7 +118,7 @@ export default function Chart({ symbol, setSymbol, trades }) {
 
             <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbol.toUpperCase()}`} interval={interval} />
             <TradesList onCancel={trades.request} trades={trades.response || []} />
-            <Orders data={ordersData} symbol={symbol} />
+            {/* <Orders data={ordersData} symbol={symbol} /> */}
         </div>
     )
 }
