@@ -78,6 +78,14 @@ class Bot:
     twap_bot_order_interval = 60
 
     def bot(self):
+        symbols_settings = requests.get('https://api.huobi.pro/v1/settings/common/symbols').json()
+        precisions = {}
+
+        for i in symbols_settings.get('data', []):
+            precisions[i.get('symbol')] = {'amount': i.get('tap'), 'price': i.get('tpp')}
+
+        del symbols_settings
+
         while not time.sleep(0.3):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
@@ -93,9 +101,10 @@ class Bot:
             for cost in costs_res.get('data', []):
                 costs[cost.get('symbol')] = cost
 
+            del costs_res
             if users.count() > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users.count()) as pool:
-                    pool.map(self.bot_for_user, [(user, costs) for user in users])
+                    pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
 
     def send_log(self, user_id, message, action=None):
         channel_layer = get_channel_layer()
@@ -132,10 +141,13 @@ class Bot:
 
         return amount
 
-    def twap_bot_place(self, client, account_id, trade, amount):
+    def format_float(self, number, decimal_fields):
+        return f'{number:.{decimal_fields}f}'
+
+    def twap_bot_place(self, client, account_id, trade, amount, precision):
         client.place(
             account_id=account_id,
-            amount="{:.2f}".format(amount),
+            amount=self.format_float(amount, precision.get('amount', 0)),
             symbol=trade.symbol,
             type=f'{trade.trade_type}-market',
         )
@@ -147,9 +159,9 @@ class Bot:
         self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order sell')
 
         if trade.twap_bot_completed_trades == trades_count:
-            self.complete_trade(trade, client, account_id)
+            self.complete_trade(trade, client, account_id, precision)
 
-    def place_order(self, client, trade, cost, price, account_id):
+    def place_order(self, client, trade, cost, price, account_id, precision):
         if trade.trade_type == 'sell':
             price = cost.get('ask')
 
@@ -157,14 +169,14 @@ class Bot:
 
         try:
             if trade.twap_bot:
-                self.twap_bot_place(client, account_id, trade, amount)
+                self.twap_bot_place(client, account_id, trade, amount, precision)
             else:
                 client.place(
                     account_id=account_id,
-                    amount="{:.2f}".format(amount - float(trade.filled)),
+                    amount=self.format_float(amount - float(trade.filled), precision.get('amount', 0)),
+                    price=self.format_float(price, precision.get('price', 0)),
                     symbol=trade.symbol,
                     type=f'{trade.trade_type}-limit',
-                    price="{:.6f}".format(price),
                     client_order_id=trade.id
                 )
                 trade.price = price
@@ -186,7 +198,7 @@ class Bot:
 
         trade.save()
 
-    def take_profit_order(self, client, account_id, trade, price):
+    def take_profit_order(self, client, account_id, trade, price, precision):
         trade_type = 'sell'
 
         if trade.trade_type == 'sell':
@@ -197,16 +209,16 @@ class Bot:
 
         data = client.place(
             account_id=account_id,
-            amount="{:.2f}".format(trade.quantity),
+            amount=self.format_float(trade.quantity, precision.get('amount', 0)),
             symbol=trade.symbol,
             type=f'{trade_type}-limit',
-            price="{:.6f}".format(price),
+            price=self.format_float(price, precision.get('price', 0)),
             client_order_id=int(round(trade.completed_at.timestamp() * 1000))
         ).data
 
         print('data:', data)
 
-    def complete_trade(self, trade, client, account_id):
+    def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False
         trade.filled = 0
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
@@ -227,7 +239,7 @@ class Bot:
                 avg_price = float(trade.iceberg_prices_sum) / float(trade.quantity)
 
                 if trade.take_profit:
-                    self.take_profit_order(client, account_id, trade, avg_price)
+                    self.take_profit_order(client, account_id, trade, avg_price, precision)
                     trade.iceberg_prices_sum = 0
 
                 trade.completed_icebergs = 0
@@ -246,7 +258,7 @@ class Bot:
         self.send_log(trade.user.id, log_text, action)
 
     def bot_for_user(self, args):
-        user, costs = args
+        user, costs, precisions = args
 
         client = CustomHuobiClient(access_key=user.api_key, secret_key=user.secret_key)
         orders = client.open_orders().data
@@ -259,6 +271,7 @@ class Bot:
 
         for trade in trades:
             cost = costs[trade.symbol]
+            precision = precisions[trade.symbol]
             price = cost.get('bid')
             order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
@@ -271,17 +284,17 @@ class Bot:
                         trade.save()
                         self.send_log(trade.user.id, f'{trade.id}: Order canceled. Old price: {trade.price}')
                     except HuobiRestiApiError:
-                        self.complete_trade(trade, client, account_id)
+                        self.complete_trade(trade, client, account_id, precision)
                         continue
 
                     if res.get('status'):
-                        self.place_order(client, trade, cost, price, account_id)
+                        self.place_order(client, trade, cost, price, account_id, precision)
 
                 continue
 
             if float(trade.price) > 0:
                 # print('completed')
-                self.complete_trade(trade, client, account_id)
+                self.complete_trade(trade, client, account_id, precision)
                 continue
 
-            self.place_order(client, trade, cost, price, account_id)
+            self.place_order(client, trade, cost, price, account_id, precision)
