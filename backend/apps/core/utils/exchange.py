@@ -201,6 +201,7 @@ class Bot:
             symbol=trade.symbol,
             type=f'{trade_type}-limit',
             price="{:.6f}".format(price),
+            client_order_id=int(round(trade.completed_at.timestamp() * 1000))
         ).data
 
         print('data:', data)
@@ -227,6 +228,7 @@ class Bot:
 
                 if trade.take_profit:
                     self.take_profit_order(client, account_id, trade, avg_price)
+                    trade.iceberg_prices_sum = 0
 
                 trade.completed_icebergs = 0
                 trade.market_making_array = ''
