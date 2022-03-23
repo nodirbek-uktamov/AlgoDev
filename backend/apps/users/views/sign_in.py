@@ -3,9 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from core.utils.exchange import save_account_ids
-from users.models import Token
 from users.serializers.sign_in import SignInSerializer
-from users.serializers.users import UserSerializer
 from users.utils.authentication import sign_in_response
 
 
