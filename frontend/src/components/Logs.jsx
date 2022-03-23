@@ -1,21 +1,35 @@
-import React, { useState, useEffect } from 'react'
-import { useWebsocket } from '../hooks/websocket'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { LOGS_WS } from '../urls'
 
 export default function Logs({ symbol, trades }) {
+    const ws = useRef(null)
+
     const user = JSON.parse(localStorage.getItem('user'))
-    const requestParams = { url: LOGS_WS.replace('{id}', user.id), stopInterval: 0, exchangeServer: false }
-    const { data } = useWebsocket(requestParams, [symbol])
     const [logs, setLogs] = useState([])
 
     useEffect(() => {
-        setLogs([data.message, ...logs])
+        ws.current = new WebSocket(LOGS_WS.replace('{id}', user.id))
+        gettingData()
 
-        if (data.action && data.action.delete && trades.response) {
-            trades.setResponse(trades.response.filter((i) => i.id !== data.action.delete))
+        return () => {
+            ws.current.close()
         }
         // eslint-disable-next-line
-    }, [data])
+    }, [])
+
+    const gettingData = useCallback(() => {
+        if (!ws.current) return
+
+        ws.current.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            setLogs([data.message, ...logs])
+
+            if (data.action && data.action.delete && trades.response) {
+                trades.setResponse(trades.response.filter((i) => i.id !== data.action.delete))
+            }
+        }
+        // eslint-disable-next-line
+    }, [])
 
     return (
         <div className="ml-0 card" style={{ height: 500, overflow: 'scroll' }}>

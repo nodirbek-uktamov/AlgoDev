@@ -20,19 +20,19 @@ export default React.memo(({ setTradeType, symbol }) => {
             <div className="tabs">
                 <ul>
                     <li onClick={() => changeTab('chase_bot')} className={botType === 'chase_bot' ? 'is-active' : null}>
-                        <a>Chase bot</a>
+                        <p>Chase bot</p>
                     </li>
 
                     <li onClick={() => changeTab('iceberg')} className={botType === 'iceberg' ? 'is-active' : null}>
-                        <a>Iceberg</a>
+                        <p>Iceberg</p>
                     </li>
 
                     <li onClick={() => changeTab('mm')} className={botType === 'mm' ? 'is-active' : null}>
-                        <a>MM</a>
+                        <p>MM</p>
                     </li>
 
                     <li onClick={() => changeTab('twap')} className={botType === 'twap' ? 'is-active' : null}>
-                        <a>Twap</a>
+                        <p>Twap</p>
                     </li>
                 </ul>
             </div>

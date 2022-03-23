@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import cn from 'classnames'
-import { useWebsocket } from '../hooks/websocket'
 
-export default function Orders({ symbol }) {
-    const { data } = useWebsocket({ sub: `market.${symbol}.trade.detail` }, [symbol])
+export default function Orders({ symbol, data }) {
     const [sales, setSales] = useState([])
     const [purchases, setPurchases] = useState([])
+    const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
 
     useEffect(() => {
         if (data && data.data) {
             data.data.map((item) => {
+                if (item.amount < +amountLimit) return
+
                 if (item.direction === 'sell') {
                     setSales([item, ...sales].slice(0, 10))
                 }
@@ -37,22 +38,39 @@ export default function Orders({ symbol }) {
         )
     }
 
+    function onChangeAmountLimit(event) {
+        setAmountLimit(event.target.value)
+        localStorage.setItem('amountLimit', event.target.value)
+    }
+
     return (
-        <div className="columns m-0 mt-2">
-            <div className="column has-background-success-light">
-                <p className="is-size-5 mb-2">Purchases</p>
+        <div>
+            <p className="mt-2">Amount from</p>
 
-                {purchases.map((item) => (
-                    <RenderItem key={item.id} className="has-text-success" item={item} />
-                ))}
-            </div>
+            <input
+                className="input mt-2"
+                style={{ width: 200 }}
+                step="0.00000001"
+                type="number"
+                value={amountLimit}
+                onChange={onChangeAmountLimit} />
 
-            <div className="column has-background-danger-light">
-                <p className="is-size-5 mb-2">Sales</p>
+            <div className="columns m-0 mt-2">
+                <div className="column has-background-success-light">
+                    <p className="is-size-5 mb-2">Purchases</p>
 
-                {sales.map((item) => (
-                    <RenderItem key={item.id} className="has-text-danger" item={item} />
-                ))}
+                    {purchases.map((item, index) => (
+                        <RenderItem key={index} className="has-text-success" item={item} />
+                    ))}
+                </div>
+
+                <div className="column has-background-danger-light">
+                    <p className="is-size-5 mb-2">Sales</p>
+
+                    {sales.map((item, index) => (
+                        <RenderItem key={index} className="has-text-danger" item={item} />
+                    ))}
+                </div>
             </div>
         </div>
     )

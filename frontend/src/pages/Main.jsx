@@ -96,9 +96,7 @@ export default function Main() {
                 </div>
 
                 <div className="column is-narrow mr-6" style={{ width: 600 }}>
-                    <Chart symbol={symbol.value.toUpperCase()} setSymbol={setSymbol} />
-                    <TradesList onCancel={trades.request} trades={trades.response || []} />
-                    {/* <Orders symbol={symbol.value.toLowerCase()} /> */}
+                    <Chart trades={trades} symbol={symbol.value.toUpperCase()} setSymbol={setSymbol} />
                 </div>
 
                 <div className="column">

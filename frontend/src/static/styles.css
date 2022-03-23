@@ -10,3 +10,20 @@
 .is-blue {
     background: #45B4DC !important;
 }
+.tabs p {
+    align-items: center;
+    border-bottom-color: #dbdbdb;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    color: #4a4a4a;
+    display: flex;
+    justify-content: center;
+    margin-bottom: -1px;
+    padding: 0.5em 1em;
+    vertical-align: top;
+}
+
+.tabs li.is-active p {
+    border-bottom-color: #485fc7;
+    color: #485fc7;
+}

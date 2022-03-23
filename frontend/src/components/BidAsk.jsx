@@ -1,9 +1,6 @@
 import React from 'react'
-import { useWebsocket } from '../hooks/websocket'
 
-export default function BidAsk({ symbol }) {
-    const { data } = useWebsocket({ sub: `market.${symbol}.bbo` }, [symbol])
-
+export default function BidAsk({ data }) {
     return (
         <div className="columns ml-0">
             <div className="column is-narrow pointer">
