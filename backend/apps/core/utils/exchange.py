@@ -201,7 +201,6 @@ class Bot:
             symbol=trade.symbol,
             type=f'{trade_type}-limit',
             price="{:.6f}".format(price),
-            client_order_id=trade.id
         ).data
 
         print('data:', data)
