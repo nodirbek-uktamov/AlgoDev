@@ -38,7 +38,6 @@ export default function Chart({ symbol, setSymbol, trades }) {
     // const [ordersData, setOrdersData] = useState({})
 
     function onChange(val) {
-        setBidAskData({})
         // setOrdersData({})
         // ws.current.send(JSON.stringify({ unsub: types.orders.replace('{symbol}', symbol) }))
         ws.current.send(JSON.stringify({ unsub: types.bidAsk.replace('{symbol}', symbol) }))
@@ -52,7 +51,6 @@ export default function Chart({ symbol, setSymbol, trades }) {
         // ws.current.send(JSON.stringify({ sub: types.orders.replace('{symbol}', s) }))
         ws.current.send(JSON.stringify({ sub: types.bidAsk.replace('{symbol}', s) }))
     }
-
 
     const types = {
         bidAsk: 'market.{symbol}.bbo',
@@ -82,7 +80,7 @@ export default function Chart({ symbol, setSymbol, trades }) {
                 }
 
                 if (data.tick) {
-                    if (data.ch.includes('bbo')) setBidAskData(data.tick)
+                    if (data.ch.includes('bbo')) setBidAskData({ [data.ch.split('.')[1]]: data.tick })
 
                     // if (data.ch.includes('trade.detail')) {
                     //     setOrdersData(data.tick)
@@ -113,7 +111,7 @@ export default function Chart({ symbol, setSymbol, trades }) {
                     defaultValue={symbol.toUpperCase()} />
 
                 <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval} />
-                <BidAsk data={bidAskData} />
+                <BidAsk data={bidAskData[symbol] || {}} />
             </div>
 
             <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbol.toUpperCase()}`} interval={interval} />
