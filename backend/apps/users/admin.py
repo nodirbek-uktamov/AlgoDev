@@ -7,5 +7,5 @@ admin.site.unregister(Group)
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    fields = ('email', 'first_name', 'last_name', 'verified_at')
-    list_display = ('email', 'first_name', 'last_name', 'verified_at')
+    fields = ('email', 'first_name', 'last_name', 'verified_at', 'is_active', 'username')
+    list_display = ('email', 'first_name', 'last_name', 'verified_at', 'is_active', 'username')
