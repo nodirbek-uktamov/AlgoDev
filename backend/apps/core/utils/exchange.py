@@ -161,6 +161,23 @@ class Bot:
         if trade.twap_bot_completed_trades == trades_count:
             self.complete_trade(trade, client, account_id, precision)
 
+    def handle_error(self, trade, e):
+        print(str(e))
+
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=10)
+        trade.is_completed = True
+
+        error = str(e)
+
+        try:
+            error = error.splitlines()[0].split('error: ')[1]
+        except Exception:
+            pass
+
+        action = {'delete': trade.id}
+
+        self.send_log(trade.user.id, f'{trade.id}: ERROR: {error}', action)
+
     def place_order(self, client, trade, cost, price, account_id, precision):
         if trade.trade_type == 'sell':
             price = cost.get('ask')
@@ -183,18 +200,7 @@ class Bot:
                 self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order put: {price}')
 
         except Exception as e:
-            print(str(e))
-            # some error with huobi
-            trade.completed_at = timezone.now() + timezone.timedelta(seconds=10)
-            error = str(e)
-
-            try:
-                error = error.splitlines()[0].split('error: ')[1]
-                trade.is_completed = True
-            except Exception:
-                pass
-
-            self.send_log(trade.user.id, f'{trade.id}: ERROR: {error}')
+            self.handle_error(trade, e)
 
         trade.save()
 
@@ -207,16 +213,19 @@ class Bot:
         else:
             price = price * 1.01
 
-        data = client.place(
-            account_id=account_id,
-            amount=self.format_float(trade.quantity, precision.get('amount', 0)),
-            symbol=trade.symbol,
-            type=f'{trade_type}-limit',
-            price=self.format_float(price, precision.get('price', 0)),
-            client_order_id=int(round(trade.completed_at.timestamp() * 1000))
-        ).data
+        try:
+            data = client.place(
+                account_id=account_id,
+                amount=self.format_float(trade.quantity, precision.get('amount', 0)),
+                symbol=trade.symbol,
+                type=f'{trade_type}-limit',
+                price=self.format_float(price, precision.get('price', 0)),
+                client_order_id=int(round(trade.completed_at.timestamp() * 1000))
+            ).data
 
-        print('data:', data)
+            # print('data:', data)
+        except Exception as e:
+            self.handle_error(trade, e)
 
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False

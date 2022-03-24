@@ -6,7 +6,7 @@ export default function Logs({ symbol, trades }) {
 
     const user = JSON.parse(localStorage.getItem('user'))
     const [logs, setLogs] = useState([])
-    const [log, setLog] = useState([])
+    const [log, setLog] = useState({})
 
     useEffect(() => {
         ws.current = new WebSocket(LOGS_WS.replace('{id}', user.id))
@@ -19,7 +19,11 @@ export default function Logs({ symbol, trades }) {
     }, [])
 
     useEffect(() => {
-        setLogs([log, ...logs])
+        if (log.action && log.action.delete && trades.response) {
+            trades.setResponse(trades.response.filter((i) => i.id !== log.action.delete))
+        }
+
+        setLogs([log.message, ...logs])
         // eslint-disable-next-line
     }, [log])
 
@@ -29,11 +33,7 @@ export default function Logs({ symbol, trades }) {
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data)
 
-            setLog(data.message)
-
-            if (data.action && data.action.delete && trades.response) {
-                trades.setResponse(trades.response.filter((i) => i.id !== data.action.delete))
-            }
+            setLog(data)
         }
         // eslint-disable-next-line
     }
