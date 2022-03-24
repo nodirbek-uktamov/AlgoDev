@@ -81,13 +81,13 @@ export default function Chart({ symbol, setSymbol, trades }) {
                     ws.current.send(JSON.stringify({ pong: data.ping }))
                 }
 
-                // if (data.tick) {
-                //     if (data.ch.includes('bbo')) setBidAskData(data.tick)
-                //
-                //     if (data.ch.includes('trade.detail')) {
-                //         setOrdersData(data.tick)
-                //     }
-                // }
+                if (data.tick) {
+                    if (data.ch.includes('bbo')) setBidAskData(data.tick)
+
+                    // if (data.ch.includes('trade.detail')) {
+                    //     setOrdersData(data.tick)
+                    // }
+                }
             }
 
             const blob = event.data
