@@ -1,6 +1,14 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
-export default function BidAsk({ data }) {
+function BidAsk({ wsCallbacksRef, symbol }) {
+    const [rawData, setRawData] = useState({})
+    const data = rawData[symbol] || {}
+
+    useEffect(() => {
+        wsCallbacksRef.current = { ...wsCallbacksRef.current, setBidAskData: setRawData }
+        // eslint-disable-next-line
+    }, [])
+
     return (
         <div className="columns ml-0">
             <div className="column is-narrow pointer">
@@ -13,3 +21,5 @@ export default function BidAsk({ data }) {
         </div>
     )
 }
+
+export default React.memo(BidAsk)

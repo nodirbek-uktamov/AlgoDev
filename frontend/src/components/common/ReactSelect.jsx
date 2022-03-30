@@ -3,7 +3,7 @@ import Select from 'react-select'
 import { css, StyleSheet } from 'aphrodite'
 
 
-export default function ReactSelect({ options, onChange, defaultValue, className }) {
+function ReactSelect({ options, onChange, defaultValue, className }) {
     if (options.length === 0) return <div />
 
     const sortedOptions = options.sort((a, b) => {
@@ -22,6 +22,8 @@ export default function ReactSelect({ options, onChange, defaultValue, className
             options={sortedOptions} />
     )
 }
+
+export default React.memo(ReactSelect)
 
 const styles = StyleSheet.create({
     container: {

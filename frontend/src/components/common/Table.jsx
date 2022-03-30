@@ -4,7 +4,7 @@ import React, { Fragment } from 'react'
 
 import Loader from './Loader'
 
-export default function Table({
+function Table({
     loading = false,
     showEmptyMessage = true,
     items,
@@ -41,6 +41,8 @@ export default function Table({
         </div>
     )
 }
+
+export default React.memo(Table)
 
 
 const styles = StyleSheet.create({

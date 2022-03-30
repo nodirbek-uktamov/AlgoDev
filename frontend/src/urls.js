@@ -7,6 +7,11 @@ export const TRADE = '/main/trades/'
 export const TRADE_DETAIL = '/main/trades/{id}/'
 export const CANCEL_TRADES = '/main/trades/cancel/'
 
+
+export const HUOBI_DOMAIN = 'https://api.huobi.pro'
+export const HUOBI_SYMBOLS = `${HUOBI_DOMAIN}/v2/settings/common/symbols/`
+export const HUOBI_SYMBOL_SETTINGS = `${HUOBI_DOMAIN}/v1/settings/common/symbols`
+
 let host = window.location.origin
 
 if (window.location.hostname === 'localhost') {

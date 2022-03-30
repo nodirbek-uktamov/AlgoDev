@@ -52,7 +52,23 @@ export default React.memo(({ setTradeType, symbol }) => {
                         type="number"
                         label="Icebergs count" />
 
+                    <Input
+                        name="iceberg_price"
+                        step="0.00000001"
+                        type="number"
+                        label="Price"
+                        validate={required} />
+
                     <Checkbox name="take_profit" label="TakeProfit" />
+
+                    {values.take_profit && (
+                        <Input
+                            name="take_profit_percent"
+                            step="0.1"
+                            type="number"
+                            label="Take profit percent (%)"
+                            validate={required} />
+                    ) }
                 </Fragment>
             ) : null}
 

@@ -1,28 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import cn from 'classnames'
 
-export default function Orders({ symbol, data }) {
+export default function Orders({ symbol, wsCallbacksRef }) {
     const [sales, setSales] = useState([])
     const [purchases, setPurchases] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
 
-    useEffect(() => {
+    const onChangeData = (data) => {
         if (data && data.data) {
             data.data.map((item) => {
                 if (item.amount < +amountLimit) return
 
                 if (item.direction === 'sell') {
-                    setSales([item, ...sales].slice(0, 10))
+                    setSales((oldSales) => [item, ...oldSales].slice(0, 10))
                 }
 
                 if (item.direction === 'buy') {
-                    setPurchases([item, ...purchases].slice(0, 10))
+                    setPurchases((oldPurchases) => [item, ...oldPurchases].slice(0, 10))
                 }
             })
         }
+    }
 
+    useEffect(() => {
+        wsCallbacksRef.current = { ...wsCallbacksRef.current, setOrdersData: onChangeData }
         // eslint-disable-next-line
-    }, [data])
+    }, [amountLimit])
 
     useEffect(() => {
         setSales([])

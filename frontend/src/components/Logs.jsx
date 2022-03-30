@@ -19,11 +19,18 @@ export default function Logs({ symbol, trades }) {
     }, [])
 
     useEffect(() => {
-        if (log.action && log.action.delete && trades.response) {
-            trades.setResponse(trades.response.filter((i) => i.id !== log.action.delete))
+        if (log.action && trades.response) {
+            if (log.action.delete) trades.setResponse(trades.response.filter((i) => i.id !== log.action.delete))
+
+            if (log.action.filled_amount) {
+                trades.setResponse(trades.response.map((i) => {
+                    if (i.id === log.action.trade) return { ...i, filledAmount: log.action.filled_amount }
+                    return i
+                }))
+            }
         }
 
-        setLogs([log.message, ...logs])
+        if (log.message) setLogs([log.message, ...logs])
         // eslint-disable-next-line
     }, [log])
 
@@ -42,7 +49,7 @@ export default function Logs({ symbol, trades }) {
         <div className="ml-0 card" style={{ height: 500, overflow: 'scroll' }}>
             <div className="card-content content">
                 {logs.map((message, index) => (
-                    <p key={index}>{message}</p>
+                    <div dangerouslySetInnerHTML={{ __html: message }} className="mb-1" key={index} />
                 ))}
             </div>
         </div>

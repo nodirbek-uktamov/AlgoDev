@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { createContext, useState } from 'react'
 import { Formik } from 'formik'
 import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
@@ -6,11 +6,11 @@ import TradeForm from '../components/TradeForm'
 import { useLoad, usePostRequest, usePutRequest } from '../hooks/request'
 import { CANCEL_TRADES, TRADE } from '../urls'
 import { signOut } from '../utils/auth'
-import Orders from '../components/Orders'
 import Button from '../components/common/Button'
-import TradesList from '../components/TradesList'
 import Logs from '../components/Logs'
+import { Context } from '../components/common/BaseContext'
 
+export const MainContext = createContext({})
 
 export default function Main() {
     const [tradeType, setTradeType] = useState('limit')
@@ -27,6 +27,7 @@ export default function Main() {
             symbol: symbol.value,
             trade_type: tradeType,
             twap_bot_duration: data.twap_bot_duration * 60,
+            iceberg_price: data.iceberg_price || 0,
         }
 
         if (data.botType === 'iceberg') {
@@ -59,6 +60,7 @@ export default function Main() {
         icebergs_count: 0,
         twap_bot: false,
         twap_bot_duration: 0,
+        iceberg_price: '',
     }
 
     async function cancelAllTrades() {
@@ -70,39 +72,41 @@ export default function Main() {
     }
 
     return (
-        <div className="mx-5 pb-6 mt-1">
-            <div className="columns mb-4 mt-2">
-                <div className="column" />
+        <Context.Provider value={{ }}>
+            <div className="mx-5 pb-6 mt-1">
+                <div className="columns mb-4 mt-2">
+                    <div className="column" />
 
-                <div className="column is-narrow" style={{ width: 200 }}>
-                    {(trades.response && trades.response.length > 0) && (
-                        <Button text="Cancel all orders" className="is-danger" onClick={cancelAllTrades} />
-                    )}
+                    <div className="column is-narrow" style={{ width: 200 }}>
+                        {(trades.response && trades.response.length > 0) && (
+                            <Button text="Cancel all orders" className="is-danger" onClick={cancelAllTrades} />
+                        )}
+                    </div>
+
+                    <div className="column is-narrow" style={{ width: 200 }}>
+                        <Button
+                            className="pointer is-info"
+                            onClick={() => signOut(history)}
+                            text="Logout" />
+                    </div>
                 </div>
 
-                <div className="column is-narrow" style={{ width: 200 }}>
-                    <Button
-                        className="pointer is-info"
-                        onClick={() => signOut(history)}
-                        text="Logout" />
+                <div className="columns">
+                    <div className="column is-narrow">
+                        <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
+                            <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
+                        </Formik>
+                    </div>
+
+                    <div className="column is-narrow mr-6" style={{ width: 600 }}>
+                        <Chart trades={trades} symbol={symbol.value.toLowerCase()} setSymbol={setSymbol} />
+                    </div>
+
+                    <div className="column">
+                        <Logs trades={trades} />
+                    </div>
                 </div>
             </div>
-
-            <div className="columns">
-                <div className="column is-narrow">
-                    <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
-                        <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
-                    </Formik>
-                </div>
-
-                <div className="column is-narrow mr-6" style={{ width: 600 }}>
-                    <Chart trades={trades} symbol={symbol.value.toLowerCase()} setSymbol={setSymbol} />
-                </div>
-
-                <div className="column">
-                    <Logs trades={trades} />
-                </div>
-            </div>
-        </div>
+        </Context.Provider>
     )
 }

@@ -1311,6 +1311,11 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
+"@lab49/react-order-book@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@lab49/react-order-book/-/react-order-book-0.1.1.tgz#e8badce0b45af15e60c264cdaff123c1a7ab8f9e"
+  integrity sha512-rfMFxyvMIAijWLQnZh+yDDDUOxtqrEDwZuPSNwJNpx442tqw6JpsTPW689hnHgemte0XXkeqXPcrRsZnx81qpg==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"

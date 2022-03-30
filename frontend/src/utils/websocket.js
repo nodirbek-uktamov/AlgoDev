@@ -1,21 +1,13 @@
-import { gunzip, strFromU8 } from 'fflate'
+import pako from 'pako'
 
 export function parseGzip(event, f) {
-    const fr = new FileReader()
+    const blob = event.data
+    const reader = new FileReader()
 
-    fr.onload = function () {
-        gunzip(
-            new Uint8Array(fr.result),
-            (err, raw) => {
-                if (err) {
-                    console.error(err)
-                    return {}
-                }
-                const data = JSON.parse(strFromU8(raw))
-                f(data)
-                // Use the data variable however you wish
-            },
-        )
+    reader.onload = function (e) {
+        const ploydata = new Uint8Array(e.target.result)
+        const msg = pako.inflate(ploydata, { to: 'string' })
+        f(msg)
     }
-    fr.readAsArrayBuffer(event.data)
+    reader.readAsArrayBuffer(blob, 'utf-8')
 }

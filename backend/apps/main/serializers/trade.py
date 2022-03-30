@@ -4,6 +4,10 @@ from main.models import Trade
 
 class TradesSerializer(serializers.ModelSerializer):
     completed_icebergs = serializers.IntegerField(read_only=True)
+    filled_amount = serializers.SerializerMethodField(read_only=True)
+
+    def get_filled_amount(self, obj):
+        return obj.filled_amount
 
     def validate(self, data):
         if not data.get('loop'):
@@ -13,6 +17,10 @@ class TradesSerializer(serializers.ModelSerializer):
             data['icebergs_count'] = 0
             data['take_profit'] = False
             data['market_making'] = False
+            data['iceberg_price'] = 0
+
+        if not data.get('take_profit'):
+            data['take_profit_percent'] = 0
 
         if data.get('twap_bot'):
             data['loop'] = False
@@ -44,4 +52,8 @@ class TradesSerializer(serializers.ModelSerializer):
             'twap_bot',
             'twap_bot_duration',
             'take_profit',
+            'take_profit_percent',
+            'iceberg_price',
+            'quantity',
+            'filled_amount'
         )

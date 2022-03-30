@@ -9,9 +9,13 @@ from core.utils.helpers import random_array
 from django.db.models import Q
 from django.utils import timezone
 from huobi.rest.error import HuobiRestiApiError
+
+from core.utils.logs import bold, red
 from users.models import User
 import concurrent
 import requests
+
+twap_bot_order_interval = 60
 
 
 def save_account_ids(user):
@@ -75,8 +79,6 @@ class CustomHuobiClient(HuobiRestClient):
 
 
 class Bot:
-    twap_bot_order_interval = 60
-
     def bot(self):
         symbols_settings = requests.get('https://api.huobi.pro/v1/settings/common/symbols').json()
         precisions = {}
@@ -113,7 +115,7 @@ class Bot:
             f'user_{user_id}',
             {
                 'type': 'chat_message',
-                'message': f'{timezone.now().strftime("%H:%M:%S")} {message}',
+                'message': f'({timezone.now().strftime("%H:%M:%S")})&nbsp; &nbsp;{message}',
                 'action': action
             }
         ))
@@ -136,7 +138,7 @@ class Bot:
                 amount = array[trade.completed_icebergs]
 
         if trade.twap_bot:
-            trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval) or 1
+            trades_count = int(trade.twap_bot_duration / twap_bot_order_interval) or 1
             amount = trade.quantity / trades_count
 
         return amount
@@ -152,11 +154,11 @@ class Bot:
             type=f'{trade.trade_type}-market',
         )
 
-        trades_count = int(trade.twap_bot_duration / self.twap_bot_order_interval) or 1
+        trades_count = int(trade.twap_bot_duration / twap_bot_order_interval) or 1
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.twap_bot_duration / trades_count)
         trade.twap_bot_completed_trades += 1
 
-        self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order sell')
+        self.send_log(trade.user.id, f'{trade.id}: {trade.trade_type} order sell')
 
         if trade.twap_bot_completed_trades == trades_count:
             self.complete_trade(trade, client, account_id, precision)
@@ -176,13 +178,16 @@ class Bot:
 
         action = {'delete': trade.id}
 
-        self.send_log(trade.user.id, f'{trade.id}: ERROR: {error}', action)
+        self.send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}', action)
 
     def place_order(self, client, trade, cost, price, account_id, precision):
         if trade.trade_type == 'sell':
             price = cost.get('ask')
 
         amount = self.calc_amount(trade)
+
+        if trade.iceberg:
+            price = float(trade.iceberg_price)
 
         try:
             if trade.twap_bot:
@@ -208,10 +213,10 @@ class Bot:
         trade_type = 'sell'
 
         if trade.trade_type == 'sell':
-            price = price * 0.99
+            price = price * (100 - trade.take_profit_percent) / 100
             trade_type = 'buy'
         else:
-            price = price * 1.01
+            price = price * (100 + trade.take_profit_percent) / 100
 
         try:
             data = client.place(
@@ -232,7 +237,7 @@ class Bot:
         trade.filled = 0
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
 
-        log_text = f'{trade.id}: Order completed.'
+        log_text = f'{trade.id}: {bold("Order completed")}.'
         remove_from_list = True
 
         if trade.loop:
@@ -243,6 +248,7 @@ class Bot:
             amount = self.calc_amount(trade)
             trade.completed_icebergs = trade.completed_icebergs + 1
             trade.iceberg_prices_sum = float(trade.iceberg_prices_sum) + amount * float(trade.price)
+            log_text = f'{trade.id}: {bold(f"{trade.completed_icebergs} / {trade.icebergs_count} completed.")}'
 
             if trade.completed_icebergs == trade.icebergs_count:
                 avg_price = float(trade.iceberg_prices_sum) / float(trade.quantity)
@@ -255,7 +261,6 @@ class Bot:
                 trade.market_making_array = ''
 
             else:
-                log_text = f'{trade.id}: {trade.completed_icebergs} / {trade.icebergs_count} completed.'
                 remove_from_list = False
                 trade.is_completed = False
                 trade.completed_at = None
@@ -285,7 +290,7 @@ class Bot:
             order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
             if order:
-                if float(trade.price) != price:
+                if float(trade.price) != price and not trade.iceberg:
                     try:
                         res = client.submit_cancel(order_id=order[0].get('id')).data
                         filled = order[0].get('filled-amount')
