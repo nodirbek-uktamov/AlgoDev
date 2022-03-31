@@ -1,8 +1,10 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.utils.exchange import generate_auth_params_ws
+
 
 class BalanceView(APIView):
     def get(self, request):
-        print('asd')
-        return Response({}, 201)
+        data = generate_auth_params_ws(request.user.api_key, request.user.secret_key)
+        return Response(data, 201)

@@ -1,14 +1,60 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect, useRef } from 'react'
 import { Form, useFormikContext } from 'formik'
 import Input from './common/Input'
 import { required } from '../utils/validators'
 import Button from './common/Button'
 import Checkbox from './common/Checkbox'
+import { useLoad } from '../hooks/request'
+import { BALANCE } from '../urls'
 
 
 export default React.memo(({ setTradeType, symbol }) => {
+    const balanceParams = useLoad({ url: BALANCE })
     const { values, setFieldValue } = useFormikContext()
     const [botType, setBotType] = useState('chase_bot')
+    const ws = useRef(null)
+    const [balance, setBalance] = useState({})
+    const user = JSON.parse(localStorage.getItem('user'))
+
+    useEffect(() => {
+        if (balanceParams.response && !ws.current) {
+            ws.current = new WebSocket(balanceParams.response.url)
+            ws.current.onopen = () => connect(balanceParams.response.params)
+
+            ws.current.addEventListener('message', (event) => {
+                const data = JSON.parse(event.data)
+
+                if (data.code === 200 && data.ch === 'auth') {
+                    ws.current.send(JSON.stringify({
+                        action: 'sub',
+                        ch: 'accounts.update#2',
+                    }))
+                }
+
+                if (data.action === 'ping') {
+                    ws.current.send(JSON.stringify({ action: 'pong', data: { ts: data.data.ts } }))
+                }
+
+                if (data.action === 'push' && data.data.accountId === user.spotAccountId) {
+                    setBalance((oldBalance) => ({ ...oldBalance, [data.data.currency]: Number(data.data.available).toFixed(8) }))
+                }
+            })
+
+            return () => {
+                ws.current.close()
+            }
+        }
+
+        // eslint-disable-next-line
+    }, [balanceParams.response])
+
+    function connect(params) {
+        ws.current.send(JSON.stringify({
+            action: 'req',
+            ch: 'auth',
+            params,
+        }))
+    }
 
     function changeTab(tab) {
         setBotType(tab)
@@ -93,6 +139,11 @@ export default React.memo(({ setTradeType, symbol }) => {
                     <p className="is-7 mb-2 is-italic">{(values.quantity || 0) / (values.twap_bot_duration || 1)} every minute</p>
                 </Fragment>
             ) : null}
+
+            <div className="columns">
+                <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} USDT</div>
+                <div className="column">{(balance[symbol.pair1.toLowerCase()] || 0)} TRX</div>
+            </div>
 
             <div className="is-flex">
                 <Button onClick={() => setTradeType('buy')} type="submit" className="is-success" text="Long start" />

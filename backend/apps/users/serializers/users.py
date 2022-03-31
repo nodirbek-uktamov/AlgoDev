@@ -10,7 +10,7 @@ from users.models import User
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email',)
+        fields = ('id', 'first_name', 'last_name', 'email', 'spot_account_id', 'margin_account_id')
         extra_kwargs = {
             'email': {'read_only': True},
         }
