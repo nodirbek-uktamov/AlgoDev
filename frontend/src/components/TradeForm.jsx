@@ -141,8 +141,8 @@ export default React.memo(({ setTradeType, symbol }) => {
             ) : null}
 
             <div className="columns">
-                <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} USDT</div>
-                <div className="column">{(balance[symbol.pair1.toLowerCase()] || 0)} TRX</div>
+                <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
+                <div className="column">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
             </div>
 
             <div className="is-flex">
