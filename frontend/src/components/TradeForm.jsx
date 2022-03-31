@@ -98,12 +98,14 @@ export default React.memo(({ setTradeType, symbol }) => {
                         type="number"
                         label="Icebergs count" />
 
-                    <Input
-                        name="iceberg_price"
-                        step="0.00000001"
-                        type="number"
-                        label="Price"
-                        validate={required} />
+                    {botType === 'iceberg' && (
+                        <Input
+                            name="iceberg_price"
+                            step="0.00000001"
+                            type="number"
+                            label="Price"
+                            validate={required} />
+                    )}
 
                     <Checkbox name="take_profit" label="TakeProfit" />
 

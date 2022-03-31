@@ -290,6 +290,10 @@ class Bot:
                 trade.completed_icebergs = 0
                 trade.market_making_array = ''
 
+                if trade.loop:
+                    log_text += f'. Waiting {trade.time_interval} seconds'
+                    remove_from_list = False
+
             else:
                 remove_from_list = False
                 trade.is_completed = False
