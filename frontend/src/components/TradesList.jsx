@@ -5,7 +5,7 @@ import { usePutRequest } from '../hooks/request'
 import { TRADE_DETAIL } from '../urls'
 
 
-function TradesList({ trades, onCancel }) {
+function TradesList({ trades, onCancel, tpp }) {
     const cancel = usePutRequest()
 
     const cancelTrade = useCallback(async (id) => {
@@ -21,7 +21,7 @@ function TradesList({ trades, onCancel }) {
         <tr key={item.id}>
             <td>{item.id}</td>
             <td>{item.symbol.toUpperCase()}</td>
-            <td className="is-narrow">{Number(item.filledAmount)} / {Number(item.quantity)}</td>
+            <td className="is-narrow">{Number(item.filledAmount).toFixed(tpp)} / {Number(item.quantity)}</td>
             <td>{item.tradeType}</td>
             <td>{item.loop ? item.timeInterval : 'not loop'}</td>
 
@@ -30,7 +30,7 @@ function TradesList({ trades, onCancel }) {
             </td>
         </tr>
         // eslint-disable-next-line
-    ), [])
+    ), [tpp])
 
     return (
         <div>

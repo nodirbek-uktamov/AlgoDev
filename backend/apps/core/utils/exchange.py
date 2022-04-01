@@ -326,6 +326,7 @@ class Bot:
             if order:
                 if float(trade.price) != price and (not trade.iceberg or trade.market_making):
                     try:
+                        print(order[0].get('id'), trade.id)
                         res = client.submit_cancel(order_id=order[0].get('id')).data
                         filled = order[0].get('filled-amount')
                         trade.filled = float(trade.filled) + float(filled)

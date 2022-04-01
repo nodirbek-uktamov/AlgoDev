@@ -22,7 +22,7 @@ export default function Logs({ symbol, trades }) {
         if (log.action && trades.response) {
             if (log.action.delete) trades.setResponse(trades.response.filter((i) => i.id !== log.action.delete))
 
-            if (log.action.filled_amount) {
+            if (typeof log.action.filled_amount === 'number') {
                 trades.setResponse(trades.response.map((i) => {
                     if (i.id === log.action.trade) return { ...i, filledAmount: log.action.filled_amount }
                     return i

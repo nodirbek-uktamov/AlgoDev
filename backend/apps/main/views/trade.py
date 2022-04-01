@@ -2,6 +2,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from asgiref.sync import async_to_sync
+
+from core.utils.exchange import CustomHuobiClient
 from main.models import Trade
 from main.serializers.trade import TradesSerializer
 from channels.layers import get_channel_layer
@@ -37,13 +39,38 @@ class TradeDetailView(APIView):
         trade = get_object_or_404(Trade, pk=pk, user=request.user)
         trade.is_completed = True
         trade.save()
+
+        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user.secret_key)
+        orders = client.open_orders().data
+
+        order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+
+        if order:
+            client.submit_cancel(order_id=order[0].get('id'))
+
         return Response({'ok': True})
 
 
 class CancelTradesView(APIView):
     def put(self, request):
-        trades = Trade.objects.filter(user=request.user, is_completed=False).update(is_completed=True)
+        trades = Trade.objects.filter(user=request.user, is_completed=False)
+        trades_list = list(trades)
+        trades.update(is_completed=True)
         channel_layer = get_channel_layer()
+
+        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user.secret_key)
+        orders = client.open_orders().data
+        orders_for_cancel = []
+
+        for trade in trades_list:
+            order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+
+            if order:
+                orders_for_cancel.append(str(order[0].get('id')))
+
+        if orders_for_cancel:
+            client.batch_cancel(order_ids=orders_for_cancel)
+
         async_to_sync(channel_layer.group_send)(
             f'user_{request.user.id}',
             {

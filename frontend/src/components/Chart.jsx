@@ -140,7 +140,7 @@ function Chart({ symbol, setSymbol, trades }) {
             </div>
 
             <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbol.toUpperCase()}`} interval={interval} />
-            <TradesList onCancel={trades.request} trades={trades.response || []} />
+            <TradesList tpp={tpp} onCancel={trades.request} trades={trades.response || []} />
 
             <div className="tabs mt-4">
                 <ul>
