@@ -83,6 +83,11 @@ export default React.memo(({ setTradeType, symbol }) => {
                 </ul>
             </div>
 
+            <div className="columns">
+                <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
+                <div className="column">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
+            </div>
+
             <Input
                 name="quantity"
                 step="0.00000001"
@@ -141,11 +146,6 @@ export default React.memo(({ setTradeType, symbol }) => {
                     <p className="is-7 mb-2 is-italic">{(values.quantity || 0) / (values.twap_bot_duration || 1)} every minute</p>
                 </Fragment>
             ) : null}
-
-            <div className="columns">
-                <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
-                <div className="column">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
-            </div>
 
             <div className="is-flex">
                 <Button onClick={() => setTradeType('buy')} type="submit" className="is-success" text="Long start" />
