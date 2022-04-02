@@ -28,6 +28,13 @@ export default function Logs({ symbol, trades }) {
                     return i
                 }))
             }
+
+            if (typeof log.action.completed_loops === 'number') {
+                trades.setResponse(trades.response.map((i) => {
+                    if (i.id === log.action.trade) return { ...i, completedLoops: log.action.completed_loops }
+                    return i
+                }))
+            }
         }
 
         if (log.message) setLogs([log.message, ...logs])

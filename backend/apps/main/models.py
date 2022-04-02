@@ -22,6 +22,7 @@ class Trade(models.Model):
     quantity = models.DecimalField(max_digits=20, decimal_places=10)
     trade_type = models.CharField(max_length=255, choices=TRADE_TYPES)
     loop = models.BooleanField(default=False)
+    completed_loops = models.IntegerField(default=0)
     time_interval = models.IntegerField(default=60)
     is_completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -65,7 +66,6 @@ class Trade(models.Model):
 
     def save(self, *args, **kwargs):
         channel_layer = get_channel_layer()
-        print(self.filled_amount)
 
         t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
             f'user_{self.user.id}',

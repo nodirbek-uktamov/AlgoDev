@@ -1,14 +1,16 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useRef, useState } from 'react'
 import { Formik } from 'formik'
 import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
 import TradeForm from '../components/TradeForm'
 import { useLoad, usePostRequest, usePutRequest } from '../hooks/request'
-import { BALANCE, CANCEL_TRADES, TRADE } from '../urls'
+import { CANCEL_TRADES, HUOBI_SYMBOL_SETTINGS, TRADE } from '../urls'
 import { signOut } from '../utils/auth'
 import Button from '../components/common/Button'
 import Logs from '../components/Logs'
 import { Context } from '../components/common/BaseContext'
+import { parseGzip, WS_TYPES } from '../utils/websocket'
+import OrdersTabs from '../components/OrdersTabs'
 
 export const MainContext = createContext({})
 
@@ -20,6 +22,12 @@ export default function Main() {
     const createTrade = usePostRequest({ url: TRADE })
     const trades = useLoad({ url: TRADE })
     const cancelTrades = usePutRequest()
+    const wsCallbacksRef = useRef({})
+    const ws = useRef(null)
+    const [depthType, setDepthType] = useState('step0')
+    const symbolPreccions = useLoad({ baseURL: HUOBI_SYMBOL_SETTINGS, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
+    const symbolSettings = symbolPreccions.response ? symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase()) : {}
+    const tpp = symbolSettings.tpp || 0
 
     async function onSubmit(data) {
         const newData = {
@@ -71,6 +79,54 @@ export default function Main() {
         }
     }
 
+    function connect(s) {
+        ws.current.send(JSON.stringify({ sub: WS_TYPES.orders.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ sub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
+    }
+
+    function disconnect() {
+        ws.current.send(JSON.stringify({ unsub: WS_TYPES.orders.replace('{symbol}', symbol) }))
+        ws.current.send(JSON.stringify({ unsub: WS_TYPES.bidAsk.replace('{symbol}', symbol) }))
+        ws.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', symbol).replace('{type}', depthType) }))
+    }
+
+    useEffect(() => {
+        ws.current = new WebSocket('wss://api.huobi.pro/ws')
+        ws.current.onopen = () => connect(symbol.value.toLowerCase())
+
+        ws.current.addEventListener('message', (event) => {
+            const handleMessage = (msg) => {
+                const data = JSON.parse(msg)
+
+                if (data.ping) {
+                    ws.current.send(JSON.stringify({ pong: data.ping }))
+                }
+
+                if (data.tick) {
+                    if (data.ch.includes('bbo') && typeof wsCallbacksRef.current.setBidAskData === 'function') {
+                        wsCallbacksRef.current.setBidAskData({ [data.ch.split('.')[1]]: data.tick })
+                    }
+
+                    if (data.ch.includes('trade.detail') && typeof wsCallbacksRef.current.setOrdersData === 'function') {
+                        wsCallbacksRef.current.setOrdersData(data.tick)
+                    }
+
+                    if (data.ch.includes('depth') && typeof wsCallbacksRef.current.setBook === 'function') {
+                        wsCallbacksRef.current.setBook(data.tick)
+                    }
+                }
+            }
+
+            parseGzip(event, handleMessage)
+        })
+
+        return () => {
+            ws.current.close()
+        }
+        // eslint-disable-next-line
+    }, [])
+
     return (
         <Context.Provider value={{ }}>
             <div className="mx-5 pb-6 mt-1">
@@ -92,14 +148,23 @@ export default function Main() {
                 </div>
 
                 <div className="columns">
-                    <div className="column is-narrow">
+                    <div className="column is-narrow" style={{ width: 500 }}>
                         <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
                             <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
                         </Formik>
+
+                        <OrdersTabs wsCallbacksRef={wsCallbacksRef} tpp={tpp} symbol={symbol.value.toLowerCase()} depthType={depthType} setDepthType={setDepthType} ws={ws} />
                     </div>
 
                     <div className="column is-narrow mr-6" style={{ width: 600 }}>
-                        <Chart trades={trades} symbol={symbol.value.toLowerCase()} setSymbol={setSymbol} />
+                        <Chart
+                            tpp={tpp}
+                            wsCallbacksRef={wsCallbacksRef}
+                            connect={connect}
+                            disconnect={disconnect}
+                            trades={trades}
+                            symbol={symbol.value.toLowerCase()}
+                            setSymbol={setSymbol} />
                     </div>
 
                     <div className="column">

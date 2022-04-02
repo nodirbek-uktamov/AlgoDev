@@ -293,14 +293,19 @@ class Bot:
                 if trade.loop:
                     log_text += f'. Waiting {trade.time_interval} seconds'
                     remove_from_list = False
+                    trade.completed_loops += 1
 
             else:
                 remove_from_list = False
                 trade.is_completed = False
                 trade.completed_at = None
 
+        else:
+            trade.completed_loops += 1
+
         trade.price = 0
-        action = {'delete': trade.id} if remove_from_list else None
+        action = {'delete': trade.id} if remove_from_list else {}
+        action = {**action, 'trade': trade.id, 'completed_loops': trade.completed_loops}
 
         trade.save()
         self.send_log(trade.user.id, log_text, action)
@@ -326,7 +331,6 @@ class Bot:
             if order:
                 if float(trade.price) != price and (not trade.iceberg or trade.market_making):
                     try:
-                        print(order[0].get('id'), trade.id)
                         res = client.submit_cancel(order_id=order[0].get('id')).data
                         filled = order[0].get('filled-amount')
                         trade.filled = float(trade.filled) + float(filled)

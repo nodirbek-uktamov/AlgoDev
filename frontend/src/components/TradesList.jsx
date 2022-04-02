@@ -24,6 +24,7 @@ function TradesList({ trades, onCancel, tpp }) {
             <td className="is-narrow">{Number(item.filledAmount).toFixed(tpp)} / {Number(item.quantity)}</td>
             <td>{item.tradeType}</td>
             <td>{item.loop ? item.timeInterval : 'not loop'}</td>
+            <td>{item.completedLoops}</td>
 
             <td className="is-narrow">
                 <Button text="Cancel" className="is-danger" onClick={() => cancelTrade(item.id)} />
@@ -40,6 +41,7 @@ function TradesList({ trades, onCancel, tpp }) {
                 quantity: 'Quantity',
                 side: 'Side',
                 interval: 'Interval (seconds)',
+                completedLoops: 'Completed loops',
                 actions: '',
             }} renderItem={renderItem} />
         </div>

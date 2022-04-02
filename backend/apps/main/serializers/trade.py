@@ -55,5 +55,6 @@ class TradesSerializer(serializers.ModelSerializer):
             'take_profit_percent',
             'iceberg_price',
             'quantity',
-            'filled_amount'
+            'filled_amount',
+            'completed_loops',
         )

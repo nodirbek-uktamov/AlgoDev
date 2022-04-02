@@ -11,3 +11,10 @@ export function parseGzip(event, f) {
     }
     reader.readAsArrayBuffer(blob, 'utf-8')
 }
+
+
+export const WS_TYPES = {
+    bidAsk: 'market.{symbol}.bbo',
+    orders: 'market.{symbol}.trade.detail',
+    book: 'market.{symbol}.depth.{type}',
+}
