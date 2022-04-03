@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 import cn from 'classnames'
 
 export default function Orders({ symbol, wsCallbacksRef }) {
-    const [sales, setSales] = useState([])
-    const [purchases, setPurchases] = useState([])
+    const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
 
     const onChangeData = (data) => {
@@ -11,13 +10,7 @@ export default function Orders({ symbol, wsCallbacksRef }) {
             data.data.map((item) => {
                 if (item.amount < +amountLimit) return
 
-                if (item.direction === 'sell') {
-                    setSales((oldSales) => [item, ...oldSales].slice(0, 10))
-                }
-
-                if (item.direction === 'buy') {
-                    setPurchases((oldPurchases) => [item, ...oldPurchases].slice(0, 10))
-                }
+                setOrders((oldPurchases) => [item, ...oldPurchases].slice(0, 30))
             })
         }
     }
@@ -28,13 +21,12 @@ export default function Orders({ symbol, wsCallbacksRef }) {
     }, [amountLimit])
 
     useEffect(() => {
-        setSales([])
-        setPurchases([])
+        setOrders([])
     }, [symbol])
 
-    function RenderItem({ item, className }) {
+    function RenderItem({ item }) {
         return (
-            <div className={cn('columns m-0 p-0', className)}>
+            <div className={cn('columns m-0 p-0')} style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
                 <p style={{ width: 90 }} className="column is-narrow m-0 p-0">{item.price}</p>
                 <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(6)}</p>
             </div>
@@ -42,8 +34,7 @@ export default function Orders({ symbol, wsCallbacksRef }) {
     }
 
     function onChangeAmountLimit(event) {
-        setPurchases([])
-        setSales([])
+        setOrders([])
         setAmountLimit(event.target.value)
         localStorage.setItem('amountLimit', event.target.value)
     }
@@ -61,19 +52,9 @@ export default function Orders({ symbol, wsCallbacksRef }) {
                 onChange={onChangeAmountLimit} />
 
             <div className="columns m-0 mt-2">
-                <div className="column has-background-success-light">
-                    <p className="is-size-5 mb-2">Purchases</p>
-
-                    {purchases.map((item, index) => (
-                        <RenderItem key={index} className="has-text-success" item={item} />
-                    ))}
-                </div>
-
-                <div className="column has-background-danger-light">
-                    <p className="is-size-5 mb-2">Sales</p>
-
-                    {sales.map((item, index) => (
-                        <RenderItem key={index} className="has-text-danger" item={item} />
+                <div className="column" style={{ backgroundColor: orders.length > 0 ? '#141826' : null }}>
+                    {orders.map((item, index) => (
+                        <RenderItem key={index} item={item} />
                     ))}
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { OrderBook } from '@lab49/react-order-book'
+import { css, StyleSheet } from 'aphrodite'
 
-export default function OrdersDepth({ wsCallbacksRef }) {
+function OrdersDepth({ wsCallbacksRef, tpp, botPrices }) {
     const [book, setBook] = useState(null)
 
     useEffect(() => {
@@ -9,108 +9,43 @@ export default function OrdersDepth({ wsCallbacksRef }) {
         // eslint-disable-next-line
     }, [])
 
+    function isActive(price) {
+        return Object.values(botPrices).filter((i) => Number(i.price) === price).length > 0
+    }
 
-    return (
-        <div className="mt-3">
-            <style
+    console.log(botPrices)
 
-                dangerouslySetInnerHTML={{
-                    __html: `
-            .MakeItNiceAgain {
-              background-color: #151825;
-              color: rgba(255, 255, 255, 0.6);
-              display: inline-block;
-              font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-              font-size: 13px;
-              font-variant-numeric: tabular-nums;
-              padding: 50px 0;
-            }
+    return book ? (
+        <div className="mt-3 p-4" style={{ backgroundColor: '#141826' }}>
+            <div>
+                {book.asks.slice(0, 10).reverse().map((i) => (
+                    <div
+                        key={i[0]}
+                        className={isActive(i[0]) ? css(styles.activePrice) : null}
+                        style={{ color: '#FA4D56' }}>{i[0].toFixed(tpp)}
+                    </div>
+                ))}
 
-            .MakeItNiceAgain__side-header {
-              font-weight: 700;
-              margin: 0 0 5px 0;
-              text-align: right;
-            }
-
-            .MakeItNiceAgain__list {
-              list-style-type: none;
-              margin: 0;
-              padding: 0;
-            }
-
-            .MakeItNiceAgain__list-item {
-              border-top: 1px solid rgba(255, 255, 255, 0.1);
-              cursor: pointer;
-              display: flex;
-              justify-content: flex-end;
-            }
-
-            .MakeItNiceAgain__list-item:before {
-              content: '';
-              flex: 1 1;
-              padding: 3px 5px;
-            }
-
-            .MakeItNiceAgain__side--bids .MakeItNiceAgain__list-item {
-              flex-direction: row-reverse;
-            }
-
-            .MakeItNiceAgain__side--bids .MakeItNiceAgain__list-item:last-child {
-              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .MakeItNiceAgain__side--bids .MakeItNiceAgain__size {
-              text-align: right;
-            }
-
-            .MakeItNiceAgain__list-item:hover {
-              background: #262935;
-            }
-
-            .MakeItNiceAgain__price {
-              border-left: 1px solid rgba(255, 255, 255, 0.1);
-              border-right: 1px solid rgba(255, 255, 255, 0.1);
-              color: #b7bdc1;
-              display: inline-block;
-              flex: 0 0 50px;
-              margin: 0;
-              padding: 3px 5px;
-              text-align: center;
-            }
-
-            .MakeItNiceAgain__size {
-              flex: 1 1;
-              margin: 0;
-              padding: 3px 5px;
-              position: relative;
-            }
-
-            .MakeItNiceAgain__size:before {
-              background-color: var(--row-color);
-              content: '';
-              height: 100%;
-              left: 0;
-              opacity: 0.08;
-              position: absolute;
-              top: 0;
-              width: 100%;
-            }
-          `,
-                }}
-            />
-
-            {book ? (
-                <OrderBook
-                    book={{
-                        bids: book.bids,
-                        asks: book.asks,
-                    }}
-                    fullOpacity
-                    interpolateColor={(color) => color}
-                    listLength={10}
-                    stylePrefix="MakeItNiceAgain"
-                    showSpread={false} />
-            ) : null}
+                <div className="mt-2">
+                    {book.bids.slice(0, 10).map((i) => (
+                        <div
+                            key={i[0]}
+                            className={isActive(i[0]) ? css(styles.activePrice) : null}
+                            style={{ color: '#00B464' }}>
+                            {i[0].toFixed(tpp)}
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
-    )
+    ) : null
 }
+
+const styles = StyleSheet.create({
+    activePrice: {
+        fontWeight: '700',
+        textDecoration: 'underline',
+    },
+})
+
+export default React.memo(OrdersDepth)

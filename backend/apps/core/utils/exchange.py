@@ -223,16 +223,23 @@ class Bot:
             if trade.twap_bot:
                 self.twap_bot_place(client, account_id, trade, amount, precision)
             else:
+                readable_price = self.format_float(price, precision.get('price', 0))
+
                 client.place(
                     account_id=account_id,
                     amount=self.format_float(amount - float(trade.filled), precision.get('amount', 0)),
-                    price=self.format_float(price, precision.get('price', 0)),
+                    price=readable_price,
                     symbol=trade.symbol,
                     type=f'{trade.trade_type}-limit',
                     client_order_id=trade.id
                 )
                 trade.price = price
-                self.send_log(trade.user.id, f'{trade.id}   {trade.trade_type} order put: {price}')
+
+                self.send_log(
+                    trade.user.id,
+                    f'{trade.id}   {trade.trade_type} order put: {price}',
+                    {'price': {'price': readable_price, 'trade': trade.id}}
+                )
 
         except Exception as e:
             self.handle_error(trade, e)
@@ -305,7 +312,11 @@ class Bot:
 
         trade.price = 0
         action = {'delete': trade.id} if remove_from_list else {}
-        action = {**action, 'trade': trade.id, 'completed_loops': trade.completed_loops}
+
+        action = {
+            **action, 'trade': trade.id, 'completed_loops': trade.completed_loops,
+            'price': {'price': 0, 'trade': trade.id}
+        }
 
         trade.save()
         self.send_log(trade.user.id, log_text, action)
@@ -335,7 +346,12 @@ class Bot:
                         filled = order[0].get('filled-amount')
                         trade.filled = float(trade.filled) + float(filled)
                         trade.save()
-                        self.send_log(trade.user.id, f'{trade.id}: Order canceled. Old price: {trade.price}')
+
+                        self.send_log(
+                            trade.user.id,
+                            f'{trade.id}: Order canceled. Old price: {trade.price}',
+                            {'price': {'price': 0, 'trade': trade.id}}
+                        )
                     except HuobiRestiApiError:
                         self.complete_trade(trade, client, account_id, precision)
                         continue

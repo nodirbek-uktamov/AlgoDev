@@ -4,8 +4,8 @@ import OrdersDepth from './OrdersDepth'
 import Orders from './Orders'
 import { WS_TYPES } from '../utils/websocket'
 
-export default function OrdersTabs({ tpp, ws, symbol, wsCallbacksRef, setDepthType, depthType }) {
-    const [ordersTab, setOrdersTab] = useState('list')
+export default function OrdersTabs({ tpp, botPrices, ws, symbol, wsCallbacksRef, setDepthType, depthType }) {
+    const [ordersTab, setOrdersTab] = useState('depth')
 
     const depthSteps = [
         { label: (0.1 ** tpp).toFixed(tpp), value: 'step0' },
@@ -23,7 +23,7 @@ export default function OrdersTabs({ tpp, ws, symbol, wsCallbacksRef, setDepthTy
     }
 
     return (
-        <Fragment>
+        <div>
             <div className="tabs mt-4">
                 <ul>
                     <li onClick={() => setOrdersTab('list')} className={ordersTab === 'list' ? 'is-active' : null}>
@@ -41,9 +41,9 @@ export default function OrdersTabs({ tpp, ws, symbol, wsCallbacksRef, setDepthTy
             {ordersTab === 'depth' && (
                 <Fragment>
                     <ReactSelect options={depthSteps} onChange={onChangeDepthType} defaultValue={depthSteps[0].value} />
-                    <OrdersDepth wsCallbacksRef={wsCallbacksRef} />
+                    <OrdersDepth botPrices={botPrices} tpp={tpp} wsCallbacksRef={wsCallbacksRef} />
                 </Fragment>
             )}
-        </Fragment>
+        </div>
     )
 }

@@ -29,6 +29,8 @@ export default function Main() {
     const symbolSettings = symbolPreccions.response ? symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase()) : {}
     const tpp = symbolSettings.tpp || 0
 
+    const [botPrices, setBotPrices] = useState({})
+
     async function onSubmit(data) {
         const newData = {
             ...data,
@@ -148,15 +150,15 @@ export default function Main() {
                 </div>
 
                 <div className="columns">
-                    <div className="column is-narrow" style={{ width: 500 }}>
+                    <div className="column is-narrow" style={{ width: 400 }}>
                         <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
                             <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
                         </Formik>
 
-                        <OrdersTabs wsCallbacksRef={wsCallbacksRef} tpp={tpp} symbol={symbol.value.toLowerCase()} depthType={depthType} setDepthType={setDepthType} ws={ws} />
+                        <Logs setBotPrices={setBotPrices} trades={trades} />
                     </div>
 
-                    <div className="column is-narrow mr-6" style={{ width: 600 }}>
+                    <div className="column">
                         <Chart
                             tpp={tpp}
                             wsCallbacksRef={wsCallbacksRef}
@@ -167,8 +169,15 @@ export default function Main() {
                             setSymbol={setSymbol} />
                     </div>
 
-                    <div className="column">
-                        <Logs trades={trades} />
+                    <div className="column is-narrow">
+                        <OrdersTabs
+                            botPrices={botPrices}
+                            wsCallbacksRef={wsCallbacksRef}
+                            tpp={tpp}
+                            symbol={symbol.value.toLowerCase()}
+                            depthType={depthType}
+                            setDepthType={setDepthType}
+                            ws={ws} />
                     </div>
                 </div>
             </div>

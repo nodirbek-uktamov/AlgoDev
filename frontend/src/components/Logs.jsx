@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { LOGS_WS } from '../urls'
 
-export default function Logs({ symbol, trades }) {
+export default function Logs({ setBotPrices, trades }) {
     const ws = useRef(null)
 
     const user = JSON.parse(localStorage.getItem('user'))
@@ -22,7 +22,12 @@ export default function Logs({ symbol, trades }) {
         if (log.action && trades.response) {
             if (log.action.delete) {
                 trades.setResponse(trades.response.filter((i) => i.id !== log.action.delete))
+                setBotPrices((oldPrices) => ({ ...oldPrices, [log.action.delete]: 0 }))
             } else {
+                if (log.action.price) {
+                    setBotPrices((oldPrices) => ({ ...oldPrices, [log.action.price.trade]: log.action.price }))
+                }
+
                 if (typeof log.action.filled_amount === 'number') {
                     trades.setResponse(trades.response.map((i) => {
                         if (i.id === log.action.trade) return { ...i, filledAmount: log.action.filled_amount }
@@ -55,7 +60,7 @@ export default function Logs({ symbol, trades }) {
     }
 
     return (
-        <div className="ml-0 card" style={{ height: 500, overflow: 'scroll' }}>
+        <div className="ml-0 mt-5 card" style={{ height: 500, overflowX: 'hidden', overflowY: 'auto' }}>
             <div className="card-content content">
                 {logs.map((message, index) => (
                     <div dangerouslySetInnerHTML={{ __html: message }} className="mb-1" key={index} />
