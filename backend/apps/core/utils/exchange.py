@@ -118,7 +118,7 @@ class Bot:
 
         del symbols_settings
 
-        while not time.sleep(0.3):
+        while not time.sleep(0.05):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
             try:

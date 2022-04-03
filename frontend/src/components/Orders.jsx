@@ -26,7 +26,7 @@ export default function Orders({ symbol, wsCallbacksRef }) {
 
     function RenderItem({ item }) {
         return (
-            <div className={cn('columns m-0 p-0')} style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
+            <div className="columns m-0 p-0" style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
                 <p style={{ width: 90 }} className="column is-narrow m-0 p-0">{item.price}</p>
                 <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(6)}</p>
             </div>
@@ -51,12 +51,10 @@ export default function Orders({ symbol, wsCallbacksRef }) {
                 value={amountLimit}
                 onChange={onChangeAmountLimit} />
 
-            <div className="columns m-0 mt-2">
-                <div className="column" style={{ backgroundColor: orders.length > 0 ? '#141826' : null }}>
-                    {orders.map((item, index) => (
-                        <RenderItem key={index} item={item} />
-                    ))}
-                </div>
+            <div className="p-3 mt-2" style={{ backgroundColor: orders.length > 0 ? '#141826' : null }}>
+                {orders.map((item, index) => (
+                    <RenderItem key={index} item={item} />
+                ))}
             </div>
         </div>
     )

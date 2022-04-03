@@ -88,9 +88,11 @@ export default function Main() {
     }
 
     function disconnect() {
-        ws.current.send(JSON.stringify({ unsub: WS_TYPES.orders.replace('{symbol}', symbol) }))
-        ws.current.send(JSON.stringify({ unsub: WS_TYPES.bidAsk.replace('{symbol}', symbol) }))
-        ws.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', symbol).replace('{type}', depthType) }))
+        const s = symbol.value.toLowerCase()
+
+        ws.current.send(JSON.stringify({ unsub: WS_TYPES.orders.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ unsub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
     }
 
     useEffect(() => {
@@ -171,6 +173,7 @@ export default function Main() {
 
                     <div className="column is-narrow">
                         <OrdersTabs
+                            symbolSettings={symbolSettings}
                             botPrices={botPrices}
                             wsCallbacksRef={wsCallbacksRef}
                             tpp={tpp}
