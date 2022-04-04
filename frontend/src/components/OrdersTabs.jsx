@@ -25,7 +25,7 @@ export default function OrdersTabs({ botPrices, ws, symbol, symbolSettings, wsCa
 
     return (
         <div>
-            <div className="tabs mt-4">
+            <div className="tabs">
                 <ul>
                     <li onClick={() => setOrdersTab('list')} className={ordersTab === 'list' ? 'is-active' : null}>
                         <p>Trade list</p>

@@ -238,7 +238,7 @@ class Bot:
                 self.send_log(
                     trade.user.id,
                     f'{trade.id}   {trade.trade_type} order put: {price}',
-                    {'price': {'price': readable_price, 'trade': trade.id}}
+                    {'price': {'price': readable_price, 'trade': trade.id, 'trade_type': trade.trade_type}}
                 )
 
         except Exception as e:

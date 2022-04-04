@@ -99,37 +99,56 @@ export default function Main() {
         ws.current = new WebSocket('wss://api.huobi.pro/ws')
         ws.current.onopen = () => connect(symbol.value.toLowerCase())
 
-        ws.current.addEventListener('message', (event) => {
-            const handleMessage = (msg) => {
-                const data = JSON.parse(msg)
+        ws.current.onclose = onClose
 
-                if (data.ping) {
-                    ws.current.send(JSON.stringify({ pong: data.ping }))
-                }
-
-                if (data.tick) {
-                    if (data.ch.includes('bbo') && typeof wsCallbacksRef.current.setBidAskData === 'function') {
-                        wsCallbacksRef.current.setBidAskData({ [data.ch.split('.')[1]]: data.tick })
-                    }
-
-                    if (data.ch.includes('trade.detail') && typeof wsCallbacksRef.current.setOrdersData === 'function') {
-                        wsCallbacksRef.current.setOrdersData(data.tick)
-                    }
-
-                    if (data.ch.includes('depth') && typeof wsCallbacksRef.current.setBook === 'function') {
-                        wsCallbacksRef.current.setBook(data.tick)
-                    }
-                }
-            }
-
-            parseGzip(event, handleMessage)
-        })
+        ws.current.addEventListener('message', handleMessage)
 
         return () => {
             ws.current.close()
         }
         // eslint-disable-next-line
     }, [])
+
+    function onClose() {
+        if (wsCallbacksRef.current.setLogs) {
+            wsCallbacksRef.current.setLogs((oldLogs) => ['Huobi socket is closed. Reconnecting...', ...oldLogs])
+        }
+
+        ws.current = new WebSocket('wss://api.huobi.pro/ws')
+
+        ws.current.onopen = () => {
+            setTimeout(() => {
+                connect(symbol.value.toLowerCase())
+            }, 1000)
+        }
+
+        ws.current.addEventListener('message', handleMessage)
+        ws.current.onclose = onClose
+    }
+
+    function handleMessage(event) {
+        parseGzip(event, (msg) => {
+            const data = JSON.parse(msg)
+
+            if (data.ping) {
+                ws.current.send(JSON.stringify({ pong: data.ping }))
+            }
+
+            if (data.tick) {
+                if (data.ch.includes('bbo') && typeof wsCallbacksRef.current.setBidAskData === 'function') {
+                    wsCallbacksRef.current.setBidAskData({ [data.ch.split('.')[1]]: data.tick })
+                }
+
+                if (data.ch.includes('trade.detail') && typeof wsCallbacksRef.current.setOrdersData === 'function') {
+                    wsCallbacksRef.current.setOrdersData(data.tick)
+                }
+
+                if (data.ch.includes('depth') && typeof wsCallbacksRef.current.setBook === 'function') {
+                    wsCallbacksRef.current.setBook(data.tick)
+                }
+            }
+        })
+    }
 
     return (
         <Context.Provider value={{ }}>
@@ -152,15 +171,15 @@ export default function Main() {
                 </div>
 
                 <div className="columns">
-                    <div className="column is-narrow" style={{ width: 400 }}>
+                    <div className="column is-narrow" style={{ width: 350 }}>
                         <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
                             <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
                         </Formik>
 
-                        <Logs setBotPrices={setBotPrices} trades={trades} />
+                        <Logs wsCallbacksRef={wsCallbacksRef} setBotPrices={setBotPrices} trades={trades} />
                     </div>
 
-                    <div className="column">
+                    <div className="column is-narrow mr-4" style={{ width: 670 }}>
                         <Chart
                             tpp={tpp}
                             wsCallbacksRef={wsCallbacksRef}
@@ -171,7 +190,7 @@ export default function Main() {
                             setSymbol={setSymbol} />
                     </div>
 
-                    <div className="column is-narrow">
+                    <div className="column">
                         <OrdersTabs
                             symbolSettings={symbolSettings}
                             botPrices={botPrices}

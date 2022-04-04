@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { LOGS_WS } from '../urls'
 
-export default function Logs({ setBotPrices, trades }) {
+export default function Logs({ setBotPrices, trades, wsCallbacksRef }) {
     const ws = useRef(null)
 
     const user = JSON.parse(localStorage.getItem('user'))
     const [logs, setLogs] = useState([])
-    const [log, setLog] = useState({})
+
+    function connect() {
+        ws.current = new WebSocket(LOGS_WS.replace('{id}', user.id))
+        ws.current.onmessage = handleMessage
+        ws.current.onclose = onClose
+    }
 
     useEffect(() => {
-        ws.current = new WebSocket(LOGS_WS.replace('{id}', user.id))
-        gettingData()
+        wsCallbacksRef.current = { ...wsCallbacksRef.current, setLogs }
+        connect()
 
         return () => {
             ws.current.close()
@@ -18,25 +23,34 @@ export default function Logs({ setBotPrices, trades }) {
         // eslint-disable-next-line
     }, [])
 
-    useEffect(() => {
-        if (log.action && trades.response) {
+    function onClose() {
+        setLogs((oldLogs) => ['Logs socket is closed. Reconnecting...', ...oldLogs])
+        connect()
+    }
+
+    function handleMessage(event) {
+        if (!ws.current) return
+
+        const log = JSON.parse(event.data)
+
+        if (log.action) {
             if (log.action.delete) {
-                trades.setResponse(trades.response.filter((i) => i.id !== log.action.delete))
-                setBotPrices((oldPrices) => ({ ...oldPrices, [log.action.delete]: 0 }))
+                trades.setResponse((oldTrades) => (oldTrades || []).filter((i) => i.id !== log.action.delete))
+                setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.delete]: { price: 0 } }))
             } else {
                 if (log.action.price) {
-                    setBotPrices((oldPrices) => ({ ...oldPrices, [log.action.price.trade]: log.action.price }))
+                    setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.price.trade]: log.action }))
                 }
 
                 if (typeof log.action.filled_amount === 'number') {
-                    trades.setResponse(trades.response.map((i) => {
+                    trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
                         if (i.id === log.action.trade) return { ...i, filledAmount: log.action.filled_amount }
                         return i
                     }))
                 }
 
                 if (typeof log.action.completed_loops === 'number') {
-                    trades.setResponse(trades.response.map((i) => {
+                    trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
                         if (i.id === log.action.trade) return { ...i, completedLoops: log.action.completed_loops }
                         return i
                     }))
@@ -44,19 +58,7 @@ export default function Logs({ setBotPrices, trades }) {
             }
         }
 
-        if (log.message) setLogs([log.message, ...logs])
-        // eslint-disable-next-line
-    }, [log])
-
-    const gettingData = () => {
-        if (!ws.current) return
-
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-
-            setLog(data)
-        }
-        // eslint-disable-next-line
+        if (log.message) setLogs((oldLogs) => [log.message, ...oldLogs])
     }
 
     return (

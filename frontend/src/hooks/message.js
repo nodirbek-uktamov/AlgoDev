@@ -6,8 +6,8 @@ export function useMessage() {
 
     return [
         (text, className) => {
-            setText(text)
-            setClassName(className || 'is-dark')
+            if (setText) setText(text)
+            if (setClassName) setClassName(className || 'is-dark')
         },
         () => {
             setText(null)
