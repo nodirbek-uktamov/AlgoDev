@@ -6,7 +6,6 @@ import json
 import threading
 import time
 from datetime import datetime
-from pprint import pprint
 from urllib.parse import urlencode
 
 import requests
