@@ -6,6 +6,7 @@ import json
 import threading
 import time
 from datetime import datetime
+from pprint import pprint
 from urllib.parse import urlencode
 
 import requests
@@ -110,11 +111,11 @@ class CustomHuobiClient(HuobiRestClient):
 
 class Bot:
     def bot(self):
-        symbols_settings = requests.get('https://api.huobi.pro/v1/settings/common/symbols').json()
+        symbols_settings = requests.get('https://api.huobi.pro/v1/common/symbols').json()
         precisions = {}
 
         for i in symbols_settings.get('data', []):
-            precisions[i.get('symbol')] = {'amount': i.get('tap'), 'price': i.get('tpp')}
+            precisions[i.get('symbol')] = {'amount': i.get('amount-precision'), 'price': i.get('price-precision'), 'min_price': i.get('min-order-value')}
 
         del symbols_settings
 
@@ -152,7 +153,7 @@ class Bot:
         t.daemon = True
         t.start()
 
-    def calc_amount(self, trade):
+    def calc_amount(self, trade, precision, price=0):
         amount = float(trade.quantity)
 
         if trade.iceberg:
@@ -160,7 +161,7 @@ class Bot:
 
             if trade.market_making:
                 if not trade.market_making_array:
-                    array = random_array(float(trade.quantity), trade.icebergs_count, decimal_fields=10)
+                    array = random_array(float(trade.quantity), trade.icebergs_count, precision.get('min_price') / price, 10)
                     trade.market_making_array = json.dumps(array)
                 else:
                     array = json.loads(trade.market_making_array)
@@ -214,10 +215,10 @@ class Bot:
         if trade.trade_type == 'sell':
             price = cost.get('ask')
 
-        amount = self.calc_amount(trade)
-
         if trade.iceberg and not trade.market_making:
             price = float(trade.iceberg_price)
+
+        amount = self.calc_amount(trade, precision, price)
 
         try:
             if trade.twap_bot:
@@ -282,7 +283,7 @@ class Bot:
             remove_from_list = False
 
         if trade.iceberg:
-            amount = self.calc_amount(trade)
+            amount = self.calc_amount(trade, precision)
             trade.completed_icebergs = trade.completed_icebergs + 1
             trade.iceberg_prices_sum = float(trade.iceberg_prices_sum) + amount * float(trade.price)
             log_text = f'{trade.id}: {bold(f"{trade.completed_icebergs} / {trade.icebergs_count} completed.")}'

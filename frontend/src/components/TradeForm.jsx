@@ -4,12 +4,12 @@ import Input from './common/Input'
 import { required } from '../utils/validators'
 import Button from './common/Button'
 import Checkbox from './common/Checkbox'
-import { useLoad } from '../hooks/request'
+import { useGetRequest } from '../hooks/request'
 import { BALANCE } from '../urls'
 
 
 export default React.memo(({ setTradeType, symbol }) => {
-    const balanceParams = useLoad({ url: BALANCE })
+    const balanceParams = useGetRequest({ url: BALANCE })
     const { values, setFieldValue } = useFormikContext()
     const [botType, setBotType] = useState('chase_bot')
     const ws = useRef(null)
@@ -17,36 +17,36 @@ export default React.memo(({ setTradeType, symbol }) => {
     const user = JSON.parse(localStorage.getItem('user'))
 
     useEffect(() => {
-        if (balanceParams.response && !ws.current) {
-            ws.current = new WebSocket(balanceParams.response.url)
-            ws.current.onopen = () => connect(balanceParams.response.params)
+        initialConnection()
+        // eslint-disable-next-line
+    }, [])
 
-            ws.current.addEventListener('message', (event) => {
-                const data = JSON.parse(event.data)
+    async function initialConnection() {
+        const { response } = await balanceParams.request()
+        ws.current = new WebSocket(response.url)
+        ws.current.onopen = () => connect(response.params)
+        ws.current.onclose = initialConnection
+        ws.current.addEventListener('message', handleMessage)
+    }
 
-                if (data.code === 200 && data.ch === 'auth') {
-                    ws.current.send(JSON.stringify({
-                        action: 'sub',
-                        ch: 'accounts.update#2',
-                    }))
-                }
+    function handleMessage(event) {
+        const data = JSON.parse(event.data)
 
-                if (data.action === 'ping') {
-                    ws.current.send(JSON.stringify({ action: 'pong', data: { ts: data.data.ts } }))
-                }
-
-                if (data.action === 'push' && data.data.accountId === user.spotAccountId) {
-                    setBalance((oldBalance) => ({ ...oldBalance, [data.data.currency]: Number(data.data.available).toFixed(8) }))
-                }
-            })
-
-            return () => {
-                ws.current.close()
-            }
+        if (data.code === 200 && data.ch === 'auth') {
+            ws.current.send(JSON.stringify({
+                action: 'sub',
+                ch: 'accounts.update#2',
+            }))
         }
 
-        // eslint-disable-next-line
-    }, [balanceParams.response])
+        if (data.action === 'ping') {
+            ws.current.send(JSON.stringify({ action: 'pong', data: { ts: data.data.ts } }))
+        }
+
+        if (data.action === 'push' && data.data.accountId === user.spotAccountId) {
+            setBalance((oldBalance) => ({ ...oldBalance, [data.data.currency]: Number(data.data.available).toFixed(8) }))
+        }
+    }
 
     function connect(params) {
         ws.current.send(JSON.stringify({
