@@ -24,7 +24,4 @@ class Consumer(WebsocketConsumer):
         self.send(text_data=json.dumps(event))
 
     def disconnect(self, code):
-        async_to_sync(self.channel_layer.group_discard)(
-            "chat",
-            self.channel_name,
-        )
+        async_to_sync(self.channel_layer.group_discard)(self.user_id, self.channel_name)
