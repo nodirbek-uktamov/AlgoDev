@@ -5,30 +5,26 @@ from channels.generic.websocket import WebsocketConsumer
 
 class Consumer(WebsocketConsumer):
     def connect(self):
+        self.accept()
         kwargs = self.scope['url_route']['kwargs']
         id = kwargs['id']
         self.user_id = f'user_{id}'
 
-        async_to_sync(self.channel_layer.group_add)(
-            self.user_id,
-            self.channel_name,
-        )
-        self.accept()
+        async_to_sync(self.channel_layer.group_add)(self.user_id, self.channel_name)
 
         async_to_sync(self.channel_layer.group_send)(
             self.user_id,
             {
-                'type': 'chat_message',
+                'type': 'chat.message',
                 'message': 'Connected to logs'
             }
         )
 
     def chat_message(self, event):
-        event.pop('type')
         self.send(text_data=json.dumps(event))
 
     def disconnect(self, code):
         async_to_sync(self.channel_layer.group_discard)(
-            self.user_id,
+            "chat",
             self.channel_name,
         )
