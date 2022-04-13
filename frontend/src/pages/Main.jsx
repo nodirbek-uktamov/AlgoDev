@@ -86,9 +86,9 @@ export default function Main() {
     }
 
     function connect(s) {
-        // ws.current.send(JSON.stringify({ sub: WS_TYPES.orders.replace('{symbol}', s) }))
-        // ws.current.send(JSON.stringify({ sub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
-        // ws.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
+        ws.current.send(JSON.stringify({ sub: WS_TYPES.orders.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ sub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
+        ws.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
     }
 
     function disconnect() {
