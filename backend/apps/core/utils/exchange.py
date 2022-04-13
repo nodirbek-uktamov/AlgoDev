@@ -274,7 +274,6 @@ class Bot:
     def grid_bot(self, client, trade, cost, account_id, precision):
         start_price = min(trade.grid_end_price, trade.grid_start_price)
         end_price = max(trade.grid_end_price, trade.grid_start_price)
-        print(precision.get('min_price') / float(start_price))
 
         prices_array = random_array(
             float(trade.quantity),
@@ -286,7 +285,6 @@ class Bot:
         for i in range(1, trade.grid_trades_count + 1):
             price = start_price + i * (end_price - start_price) / (trade.grid_trades_count + 1)
             quantity = prices_array[i - 1]
-            print(quantity)
 
             client.place(
                 account_id=account_id,
@@ -362,7 +360,7 @@ class Bot:
             trades = user.trades.filter(
                 Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
                 is_completed=False
-            )
+            ).order_by('grid_bot')
 
             for trade in trades:
                 cost = costs[trade.symbol]
