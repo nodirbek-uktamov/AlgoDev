@@ -22,7 +22,9 @@ export default React.memo(({ setTradeType, symbol }) => {
     }, [])
 
     async function initialConnection() {
-        const { response } = await balanceParams.request()
+        const { response, success } = await balanceParams.request()
+        if (!success) return
+
         ws.current = new WebSocket(response.url)
         ws.current.onopen = () => connect(response.params)
         ws.current.onclose = initialConnection
@@ -80,6 +82,10 @@ export default React.memo(({ setTradeType, symbol }) => {
                     <li onClick={() => changeTab('twap')} className={botType === 'twap' ? 'is-active' : null}>
                         <p>Twap</p>
                     </li>
+
+                    <li onClick={() => changeTab('grid')} className={botType === 'grid' ? 'is-active' : null}>
+                        <p>Grid</p>
+                    </li>
                 </ul>
             </div>
 
@@ -125,9 +131,9 @@ export default React.memo(({ setTradeType, symbol }) => {
                 </Fragment>
             ) : null}
 
-            {botType !== 'twap' && <Checkbox name="loop" label="Is loop" />}
+            {botType !== 'twap' && botType !== 'grid' && <Checkbox name="loop" label="Is loop" />}
 
-            {values.loop && botType !== 'twap' ? (
+            {values.loop && botType !== 'twap' && botType !== 'grid' ? (
                 <Input
                     validate={required}
                     name="time_interval"
@@ -146,6 +152,31 @@ export default React.memo(({ setTradeType, symbol }) => {
                     <p className="is-7 mb-2 is-italic">{(values.quantity || 0) / (values.twap_bot_duration || 1)} every minute</p>
                 </Fragment>
             ) : null}
+
+            {botType === 'grid' ? (
+                <Fragment>
+                    <Input
+                        validate={required}
+                        name="grid_trades_count"
+                        type="number"
+                        label="Trades count" />
+
+                    <Input
+                        name="grid_start_price"
+                        step="0.00000001"
+                        type="number"
+                        label="Start price"
+                        validate={required} />
+
+                    <Input
+                        name="grid_end_price"
+                        step="0.00000001"
+                        type="number"
+                        label="End price"
+                        validate={required} />
+                </Fragment>
+            ) : null}
+
 
             <div className="is-flex">
                 <Button onClick={() => setTradeType('buy')} type="submit" className="is-success" text="Long start" />

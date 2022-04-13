@@ -6,4 +6,4 @@ class Command(BaseCommand, Bot):
     help = 'Bot'
 
     def handle(self, *args, **options):
-        self.bot()
+        self.run_bot()

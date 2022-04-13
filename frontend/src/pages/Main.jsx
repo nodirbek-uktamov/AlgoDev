@@ -52,6 +52,10 @@ export default function Main() {
             newData.twap_bot = true
         }
 
+        if (data.botType === 'grid') {
+            newData.grid_bot = true
+        }
+
         const { success, error } = await createTrade.request({ data: newData })
 
         if (success) {
@@ -82,9 +86,9 @@ export default function Main() {
     }
 
     function connect(s) {
-        ws.current.send(JSON.stringify({ sub: WS_TYPES.orders.replace('{symbol}', s) }))
-        ws.current.send(JSON.stringify({ sub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
-        ws.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
+        // ws.current.send(JSON.stringify({ sub: WS_TYPES.orders.replace('{symbol}', s) }))
+        // ws.current.send(JSON.stringify({ sub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
+        // ws.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
     }
 
     function disconnect() {
@@ -171,7 +175,7 @@ export default function Main() {
                 </div>
 
                 <div className="columns">
-                    <div className="column is-narrow" style={{ width: 350 }}>
+                    <div className="column is-narrow" style={{ width: 320 }}>
                         <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
                             <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
                         </Formik>

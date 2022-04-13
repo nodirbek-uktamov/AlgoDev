@@ -109,12 +109,13 @@ class CustomHuobiClient(HuobiRestClient):
 
 
 class Bot:
-    def bot(self):
+    def run_bot(self):
         symbols_settings = requests.get('https://api.huobi.pro/v1/common/symbols').json()
         precisions = {}
 
         for i in symbols_settings.get('data', []):
-            precisions[i.get('symbol')] = {'amount': i.get('amount-precision'), 'price': i.get('price-precision'), 'min_price': i.get('min-order-value')}
+            precisions[i.get('symbol')] = {'amount': i.get('amount-precision'), 'price': i.get('price-precision'),
+                                           'min_price': i.get('min-order-value')}
 
         del symbols_settings
 
@@ -160,7 +161,8 @@ class Bot:
 
             if trade.market_making:
                 if not trade.market_making_array:
-                    array = random_array(float(trade.quantity), trade.icebergs_count, precision.get('min_price') / price, 10)
+                    array = random_array(float(trade.quantity), trade.icebergs_count,
+                                         precision.get('min_price') / price, 10)
                     trade.market_making_array = json.dumps(array)
                 else:
                     array = json.loads(trade.market_making_array)
@@ -269,6 +271,34 @@ class Bot:
         except Exception as e:
             self.handle_error(trade, e)
 
+    def grid_bot(self, client, trade, cost, account_id, precision):
+        start_price = min(trade.grid_end_price, trade.grid_start_price)
+        end_price = max(trade.grid_end_price, trade.grid_start_price)
+        print(precision.get('min_price') / float(start_price))
+
+        prices_array = random_array(
+            float(trade.quantity),
+            trade.grid_trades_count,
+            precision.get('min_price') / float(start_price),
+            10
+        )
+
+        for i in range(1, trade.grid_trades_count + 1):
+            price = start_price + i * (end_price - start_price) / (trade.grid_trades_count + 1)
+            quantity = prices_array[i - 1]
+            print(quantity)
+
+            client.place(
+                account_id=account_id,
+                amount=self.format_float(quantity, precision.get('amount', 0)),
+                symbol=trade.symbol,
+                type=f'{trade.trade_type}-limit',
+                price=self.format_float(price, precision.get('price', 0)),
+                client_order_id=int(round(timezone.now().timestamp() * 1000))
+            )
+
+        self.complete_trade(trade, client, account_id, precision)
+
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False
         trade.filled = 0
@@ -322,48 +352,57 @@ class Bot:
         self.send_log(trade.user.id, log_text, action)
 
     def bot_for_user(self, args):
-        user, costs, precisions = args
+        try:
+            user, costs, precisions = args
 
-        client = CustomHuobiClient(access_key=user.api_key, secret_key=user.secret_key)
-        orders = client.open_orders().data
-        account_id = user.spot_account_id
+            client = CustomHuobiClient(access_key=user.api_key, secret_key=user.secret_key)
+            orders = client.open_orders().data
+            account_id = user.spot_account_id
 
-        trades = user.trades.filter(
-            Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
-            is_completed=False
-        )
+            trades = user.trades.filter(
+                Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
+                is_completed=False
+            )
 
-        for trade in trades:
-            cost = costs[trade.symbol]
-            precision = precisions[trade.symbol]
-            price = cost.get('bid')
-            order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+            for trade in trades:
+                cost = costs[trade.symbol]
+                precision = precisions[trade.symbol]
+                price = cost.get('bid')
 
-            if order:
-                if float(trade.price) != price and (not trade.iceberg or trade.market_making):
-                    try:
-                        res = client.submit_cancel(order_id=order[0].get('id')).data
-                        filled = order[0].get('filled-amount')
-                        trade.filled = float(trade.filled) + float(filled)
-                        trade.save()
+                if trade.grid_bot:
+                    self.grid_bot(client, trade, cost, account_id, precision)
+                    continue
 
-                        self.send_log(
-                            trade.user.id,
-                            f'{trade.id}: Order canceled. Old price: {trade.price}',
-                            {'price': {'price': 0, 'trade': trade.id}}
-                        )
-                    except HuobiRestiApiError:
-                        self.complete_trade(trade, client, account_id, precision)
-                        continue
+                order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
-                    if res.get('status'):
-                        self.place_order(client, trade, cost, price, account_id, precision)
+                if order:
+                    if float(trade.price) != price and (not trade.iceberg or trade.market_making):
+                        try:
+                            res = client.submit_cancel(order_id=order[0].get('id')).data
+                            filled = order[0].get('filled-amount')
+                            trade.filled = float(trade.filled) + float(filled)
+                            trade.save()
 
-                continue
+                            self.send_log(
+                                trade.user.id,
+                                f'{trade.id}: Order canceled. Old price: {trade.price}',
+                                {'price': {'price': 0, 'trade': trade.id}}
+                            )
+                        except HuobiRestiApiError:
+                            self.complete_trade(trade, client, account_id, precision)
+                            continue
 
-            if float(trade.price) > 0:
-                # print('completed')
-                self.complete_trade(trade, client, account_id, precision)
-                continue
+                        if res.get('status'):
+                            self.place_order(client, trade, cost, price, account_id, precision)
 
-            self.place_order(client, trade, cost, price, account_id, precision)
+                    continue
+
+                if float(trade.price) > 0:
+                    # print('completed')
+                    self.complete_trade(trade, client, account_id, precision)
+                    continue
+
+                self.place_order(client, trade, cost, price, account_id, precision)
+
+        except Exception as e:
+            print(str(e))

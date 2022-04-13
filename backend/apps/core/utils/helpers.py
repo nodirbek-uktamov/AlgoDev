@@ -21,7 +21,7 @@ def random_array(sum, count, min_value=0, decimal_fields=5):
         values_sum = sum / count * nums_count
         avg_val = round(sum / count, decimal_fields)
 
-        val_1 = round(uniform(max(min_value, avg_val * 0.7), avg_val * 1.3), decimal_fields)
+        val_1 = round(uniform(max(min_value, avg_val * 0.7), min(avg_val * 1.3, sum / count)), decimal_fields)
 
         if nums_count == 1:
             val_1 = values_sum
@@ -34,7 +34,7 @@ def random_array(sum, count, min_value=0, decimal_fields=5):
         else:
             values_sum -= val_1
             avg_val = values_sum / 2
-            val_2 = round(uniform(max(min_value, avg_val * 0.7), avg_val * 1.3), decimal_fields)
+            val_2 = round(uniform(max(min_value, avg_val * 0.7), min(avg_val * 1.3, sum / count)), decimal_fields)
             val_3 = round(values_sum - val_2, decimal_fields)
             result.append(val_1)
             result.append(val_2)

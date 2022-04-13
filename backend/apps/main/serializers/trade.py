@@ -32,6 +32,18 @@ class TradesSerializer(serializers.ModelSerializer):
         else:
             data['twap_bot_duration'] = 0
 
+        if data.get('grid_bot'):
+            data['loop'] = False
+            data['time_interval'] = 0
+            data['iceberg'] = False
+            data['icebergs_count'] = 0
+            data['market_making'] = False
+
+        else:
+            data['grid_trades_count'] = 0
+            data['grid_start_price'] = 0
+            data['grid_end_price'] = 0
+
         data['symbol'] = data['symbol'].lower()
 
         return data
@@ -57,4 +69,8 @@ class TradesSerializer(serializers.ModelSerializer):
             'quantity',
             'filled_amount',
             'completed_loops',
+            'grid_bot',
+            'grid_trades_count',
+            'grid_start_price',
+            'grid_end_price',
         )
