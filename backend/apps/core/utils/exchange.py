@@ -236,8 +236,11 @@ class Bot:
                 return
 
             else:
+                log_text = f'{trade.id}: {bold(f"{len(old_order_ids) - len(active_orders)} orders completed, replacing orders")}.'
+
                 if active_orders:
                     client.batch_cancel(order_ids=active_orders)
+                    self.send_log(trade.user.id, log_text)
 
                 trade.hft_order_ids = '[]'
                 trade.save()
