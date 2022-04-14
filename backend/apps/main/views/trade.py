@@ -1,9 +1,11 @@
+import json
+
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from asgiref.sync import async_to_sync
 
-from core.utils.exchange import CustomHuobiClient
+from core.exchange.client import CustomHuobiClient
 from main.models import Trade
 from main.serializers.trade import TradesSerializer
 from channels.layers import get_channel_layer
@@ -43,10 +45,16 @@ class TradeDetailView(APIView):
         client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user.secret_key)
         orders = client.open_orders().data
 
-        order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+        active_orders = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
-        if order:
-            client.submit_cancel(order_id=order[0].get('id'))
+        if trade.hft_bot:
+            old_order_ids = json.loads(trade.hft_order_ids)
+            active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
+
+        active_orders = list(map(lambda a: a['id'], active_orders))
+
+        if active_orders:
+            client.batch_cancel(order_ids=active_orders)
 
         return Response({'ok': True})
 
@@ -67,6 +75,12 @@ class CancelTradesView(APIView):
 
             if order:
                 orders_for_cancel.append(str(order[0].get('id')))
+
+            if trade.hft_bot:
+                old_order_ids = json.loads(trade.hft_order_ids)
+                active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
+                active_orders = list(map(lambda a: a['id'], active_orders))
+                orders_for_cancel = [*orders_for_cancel, *active_orders]
 
         if orders_for_cancel:
             client.batch_cancel(order_ids=orders_for_cancel)

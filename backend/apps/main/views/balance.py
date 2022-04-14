@@ -1,7 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from core.utils.exchange import generate_auth_params_ws
+from core.exchange.utils import generate_auth_params_ws
 
 
 class BalanceView(APIView):

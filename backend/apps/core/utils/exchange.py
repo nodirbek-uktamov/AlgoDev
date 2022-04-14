@@ -1,12 +1,8 @@
-import base64
 import concurrent
-import hashlib
-import hmac
 import json
 import threading
 import time
-from datetime import datetime
-from urllib.parse import urlencode
+from os import system
 
 import requests
 from asgiref.sync import async_to_sync
@@ -14,9 +10,9 @@ from channels.layers import get_channel_layer
 from django.db.models import Q
 from django.utils import timezone
 from huobi import HuobiRestClient
-from huobi.rest.endpoint import Endpoint
 from huobi.rest.error import HuobiRestiApiError
 
+from core.exchange.client import CustomHuobiClient
 from core.utils.helpers import random_array
 from core.utils.logs import bold, red
 from users.models import User
@@ -37,75 +33,6 @@ def save_account_ids(user):
                 user.margin_account_id = account.get('id')
 
         user.save()
-
-
-def generate_auth_params_ws(access_key, secret_key):
-    timestamp = str(datetime.utcnow().isoformat())[0:19]
-    params = {'accessKey': access_key,
-              'signatureMethod': 'HmacSHA256',
-              'signatureVersion': '2.1',
-              'timestamp': timestamp
-              }
-    params_text = urlencode(params)
-    method = 'GET'
-    endpoint = '/ws/v2'
-    base_uri = 'api.huobi.pro'
-
-    pre_signed_text = method + '\n' + base_uri + '\n' + endpoint + '\n' + params_text
-    hash_code = hmac.new(secret_key.encode(), pre_signed_text.encode(), hashlib.sha256).digest()
-    signature = base64.b64encode(hash_code).decode()
-
-    url = 'wss://' + base_uri + endpoint
-
-    params['signature'] = signature
-    params["authType"] = "api"
-
-    return {'url': url, 'params': params}
-
-
-class CustomHuobiClient(HuobiRestClient):
-    open_orders = Endpoint(
-        method='GET',
-        path='/v1/order/openOrders',
-        auth_required=True,
-    )
-
-    place = Endpoint(
-        method='POST',
-        path='/v1/order/orders/place',
-        auth_required=True,
-        params={
-            'account_id': {
-                'required': True,
-                'name': 'account-id'
-            },
-            'amount': {
-                'required': True,
-            },
-            'price': {
-                'required': False,
-            },
-            'source': {
-                'required': False,
-            },
-            'symbol': {
-                'required': True
-            },
-            'client_order_id': {
-                'required': False,
-                'name': 'client-order-id'
-            },
-            'type': {
-                'required': True,
-                'choices': [
-                    'buy-market',
-                    'sell-market',
-                    'buy-limit',
-                    'sell-limit',
-                ]
-            },
-        }
-    )
 
 
 class Bot:
@@ -135,6 +62,7 @@ class Bot:
                 costs[cost.get('symbol')] = cost
 
             del costs_res
+
             if users.count() > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users.count()) as pool:
                     pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
@@ -297,6 +225,87 @@ class Bot:
 
         self.complete_trade(trade, client, account_id, precision)
 
+    def hft_bot(self, client, trade, cost, account_id, precision, orders):
+        old_order_ids = json.loads(trade.hft_order_ids)
+
+        if len(old_order_ids) > 0:
+            active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
+            active_orders = list(map(lambda a: a['id'], active_orders))
+
+            if len(active_orders) == len(old_order_ids):
+                return
+
+            else:
+                if active_orders:
+                    client.batch_cancel(order_ids=active_orders)
+
+                trade.hft_order_ids = '[]'
+                trade.save()
+
+        min_values = []
+        ask_prices = []
+        bid_prices = []
+
+        for i in range(trade.hft_orders_on_each_side):
+            percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(trade.hft_default_price_difference) + 100)
+            price = cost['ask'] * percent / 100
+            min_values.append(precision.get('min_price') / float(price))
+            ask_prices.append(price)
+
+        ask_orders_q = random_array(
+            float(trade.quantity) / 2,
+            trade.hft_orders_on_each_side,
+            min_values
+        )
+
+        min_values = []
+
+        for i in range(trade.hft_orders_on_each_side):
+            percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(trade.hft_default_price_difference))
+            price = cost['ask'] * percent / 100
+            min_values.append(precision.get('min_price') / float(price))
+            bid_prices.append(price)
+
+        bid_orders_q = random_array(
+            float(trade.quantity) / 2,
+            trade.hft_orders_on_each_side,
+            min_values
+        )
+
+        order_ids = []
+
+        # place orders:
+        for i in range(trade.hft_orders_on_each_side):
+            client_order_id = int(round(timezone.now().timestamp() * 100000))
+
+            client.place(
+                account_id=account_id,
+                amount=self.format_float(ask_orders_q[i] - float(trade.filled), precision.get('amount', 0)),
+                price=self.format_float(ask_prices[i], precision.get('price', 0)),
+                symbol=trade.symbol,
+                type=f'sell-limit',
+                client_order_id=client_order_id
+            )
+
+            order_ids.append(client_order_id)
+
+        for i in range(trade.hft_orders_on_each_side):
+            client_order_id = int(round(timezone.now().timestamp() * 100000))
+
+            client.place(
+                account_id=account_id,
+                amount=self.format_float(bid_orders_q[i], precision.get('amount', 0)),
+                price=self.format_float(bid_prices[i], precision.get('price', 0)),
+                symbol=trade.symbol,
+                type=f'buy-limit',
+                client_order_id=client_order_id
+            )
+
+            order_ids.append(client_order_id)
+
+        trade.hft_order_ids = json.dumps(order_ids)
+        trade.save()
+
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False
         trade.filled = 0
@@ -369,6 +378,10 @@ class Bot:
 
                 if trade.grid_bot:
                     self.grid_bot(client, trade, cost, account_id, precision)
+                    continue
+
+                if trade.hft_bot:
+                    self.hft_bot(client, trade, cost, account_id, precision, orders)
                     continue
 
                 order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))

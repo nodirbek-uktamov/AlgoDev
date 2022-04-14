@@ -32,8 +32,11 @@ class Trade(models.Model):
 
     iceberg = models.BooleanField(default=False)
     icebergs_count = models.IntegerField(default=0, null=True, blank=True)
-    iceberg_prices_sum = models.DecimalField(max_digits=20, decimal_places=10,
-                                             default=0)  # for calculating price of take profit
+    iceberg_prices_sum = models.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        default=0
+)  # for calculating price of take profit
     iceberg_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
     take_profit = models.BooleanField(default=False)
     take_profit_percent = models.FloatField(default=0)
@@ -50,6 +53,12 @@ class Trade(models.Model):
     grid_trades_count = models.IntegerField(default=0)
     grid_start_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
     grid_end_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+
+    hft_bot = models.BooleanField(default=False)
+    hft_default_price_difference = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    hft_orders_price_difference = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    hft_orders_on_each_side = models.IntegerField(default=0)
+    hft_order_ids = models.TextField(default='[]')
 
     @property
     def filled_amount(self):

@@ -44,6 +44,18 @@ class TradesSerializer(serializers.ModelSerializer):
             data['grid_start_price'] = 0
             data['grid_end_price'] = 0
 
+        if data.get('hft_bot'):
+            data['loop'] = False
+            data['time_interval'] = 0
+            data['iceberg'] = False
+            data['icebergs_count'] = 0
+            data['market_making'] = False
+
+        else:
+            data['hft_default_price_difference'] = 0
+            data['hft_orders_price_difference'] = 0
+            data['hft_orders_on_each_side'] = 0
+
         data['symbol'] = data['symbol'].lower()
 
         return data
@@ -69,8 +81,14 @@ class TradesSerializer(serializers.ModelSerializer):
             'quantity',
             'filled_amount',
             'completed_loops',
+
             'grid_bot',
             'grid_trades_count',
             'grid_start_price',
             'grid_end_price',
+
+            'hft_default_price_difference',
+            'hft_orders_price_difference',
+            'hft_orders_on_each_side',
+            'hft_bot',
         )

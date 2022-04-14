@@ -86,12 +86,16 @@ export default React.memo(({ setTradeType, symbol }) => {
                     <li onClick={() => changeTab('grid')} className={botType === 'grid' ? 'is-active' : null}>
                         <p>Grid</p>
                     </li>
+
+                    <li onClick={() => changeTab('hft')} className={botType === 'hft' ? 'is-active' : null}>
+                        <p>HFT</p>
+                    </li>
                 </ul>
             </div>
 
             <div className="columns">
                 <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
-                <div className="column">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
+                <div className="column is-narrow">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
             </div>
 
             <Input
@@ -131,9 +135,9 @@ export default React.memo(({ setTradeType, symbol }) => {
                 </Fragment>
             ) : null}
 
-            {botType !== 'twap' && botType !== 'grid' && <Checkbox name="loop" label="Is loop" />}
+            {botType !== 'twap' && botType !== 'grid' && botType !== 'hft' && <Checkbox name="loop" label="Is loop" />}
 
-            {values.loop && botType !== 'twap' && botType !== 'grid' ? (
+            {values.loop && botType !== 'twap' && botType !== 'grid' && botType !== 'hft' ? (
                 <Input
                     validate={required}
                     name="time_interval"
@@ -177,16 +181,55 @@ export default React.memo(({ setTradeType, symbol }) => {
                 </Fragment>
             ) : null}
 
+            {botType === 'hft' ? (
+                <Fragment>
+                    <div className="columns mb-0">
+                        <div className="column">
+                            <Input
+                                name="hft_default_price_difference"
+                                validate={required}
+                                step="0.00000001"
+                                type="number"
+                                label="Initial difference" />
+                        </div>
 
-            <div className="is-flex">
-                <Button onClick={() => setTradeType('buy')} type="submit" className="is-success" text="Long start" />
+                        <div className="column">
+                            <Input
+                                name="hft_orders_price_difference"
+                                step="0.00000001"
+                                type="number"
+                                label="Orders difference"
+                                validate={required} />
+                        </div>
+                    </div>
 
-                <Button
-                    onClick={() => setTradeType('sell')}
-                    type="submit"
-                    className="is-danger ml-1"
-                    text="Short start" />
-            </div>
+                    <Input
+                        validate={required}
+                        name="hft_orders_on_each_side"
+                        type="number"
+                        label="Orders on each side" />
+
+                    <Button type="submit" className="is-primary" text="Create" />
+
+                    <p className="is-7 my-2 is-italic">
+                        {values.hft_orders_on_each_side} buy orders<br />
+                        {values.hft_orders_on_each_side} sell orders<br />
+                    </p>
+
+                </Fragment>
+            ) : null}
+
+            {botType !== 'hft' ? (
+                <div className="is-flex">
+                    <Button onClick={() => setTradeType('buy')} type="submit" className="is-success" text="Long start" />
+
+                    <Button
+                        onClick={() => setTradeType('sell')}
+                        type="submit"
+                        className="is-danger ml-1"
+                        text="Short start" />
+                </div>
+            ) : null}
         </Form>
     )
 })

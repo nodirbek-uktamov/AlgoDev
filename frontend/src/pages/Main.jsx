@@ -15,7 +15,7 @@ import OrdersTabs from '../components/OrdersTabs'
 export const MainContext = createContext({})
 
 export default function Main() {
-    const [tradeType, setTradeType] = useState('limit')
+    const [tradeType, setTradeType] = useState('buy')
     const history = useHistory()
     const initialSymbol = localStorage.getItem('symbol')
     const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : { value: 'ETHUSDT', pair1: 'ETH', pair2: 'USDT' })
@@ -56,6 +56,10 @@ export default function Main() {
             newData.grid_bot = true
         }
 
+        if (data.botType === 'hft') {
+            newData.hft_bot = true
+        }
+
         const { success, error } = await createTrade.request({ data: newData })
 
         if (success) {
@@ -75,6 +79,9 @@ export default function Main() {
         twap_bot: false,
         twap_bot_duration: 0,
         iceberg_price: '',
+        hft_orders_on_each_side: 0,
+        hft_orders_price_difference: 0,
+        hft_default_price_difference: 0,
     }
 
     async function cancelAllTrades() {
