@@ -34,7 +34,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.ngrok.io',
     '194.163.164.243',
-    '62.113.98.2'
+    '62.113.98.2',
+    'hftcryptobot.com'
 ]
 
 # Application definition

@@ -18,7 +18,7 @@ let host = window.location.origin
 if (window.location.hostname === 'localhost') {
     host = 'http://localhost'
 }
-export const domain = `${host}:8000` // http://62.113.98.2:8000
+export const domain = host // https://hftcryptobot.com/
 export const wsDomain = domain.replace('http', 'ws').replace('https', 'ws')
 
 export const LOGS_WS = `${wsDomain}/logs/{id}/`
