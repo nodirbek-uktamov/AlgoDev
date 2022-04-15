@@ -13,7 +13,7 @@ export const HUOBI_DOMAIN = 'https://api.huobi.pro'
 export const HUOBI_SYMBOLS = `${HUOBI_DOMAIN}/v2/settings/common/symbols/`
 export const HUOBI_SYMBOL_SETTINGS = `${HUOBI_DOMAIN}/v1/settings/common/symbols`
 
-export const domain = window.origin // https://hftcryptobot.com
+export const domain = window.origin.replace('3000', '8000') // https://hftcryptobot.com
 export const wsDomain = domain.replace('http', 'ws')
 
-export const LOGS_WS = `${wsDomain}/logs/{id}/`
+export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`
