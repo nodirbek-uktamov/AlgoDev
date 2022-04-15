@@ -21,4 +21,4 @@ if (window.location.hostname === 'localhost') {
 export const domain = host // https://hftcryptobot.com/
 export const wsDomain = domain.replace('http', 'ws').replace('https', 'ws')
 
-export const LOGS_WS = `${wsDomain}/logs/{id}/`
+export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`
