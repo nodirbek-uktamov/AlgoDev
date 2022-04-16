@@ -80,17 +80,13 @@ export default React.memo(({ setTradeType, symbol }) => {
         <Form>
             <div className={cn('dropdown mb-3', { 'is-active': isDropdownOpen })} style={{ width: '100%' }}>
                 <div className="dropdown-trigger" style={{ width: '100%' }}>
-                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="button is-fullwidth is-flex">
-                        <div className="column is-narrow p-0">{botTypes[botType]}</div>
-
-                        <div className="column is-narrow p-0">
-                            <ion-icon name="chevron-down-outline" />
-                        </div>
+                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="button is-fullwidth">
+                        <div className="is-narrow">{botTypes[botType]}</div>
                     </button>
                 </div>
 
-                <div className="dropdown-menu">
-                    <div className="dropdown-content">
+                <div className="dropdown-menu" style={{ width: '100%' }}>
+                    <div className="dropdown-content" style={{ width: '100%' }}>
                         <a
                             className={cn('dropdown-item', { 'is-active': botType === 'chase_bot' })}
                             onClick={() => changeTab('chase_bot')}>
@@ -225,7 +221,7 @@ export default React.memo(({ setTradeType, symbol }) => {
                             <Input
                                 name="hft_default_price_difference"
                                 validate={required}
-                                step="0.00000001"
+                                step="0.1"
                                 type="number"
                                 label="Initial difference" />
                         </div>
@@ -233,7 +229,7 @@ export default React.memo(({ setTradeType, symbol }) => {
                         <div className="column">
                             <Input
                                 name="hft_orders_price_difference"
-                                step="0.00000001"
+                                step="0.1"
                                 type="number"
                                 label="Orders difference"
                                 validate={required} />
