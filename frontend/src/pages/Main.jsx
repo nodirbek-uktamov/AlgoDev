@@ -190,7 +190,7 @@ export default function Main() {
                         <Logs wsCallbacksRef={wsCallbacksRef} setBotPrices={setBotPrices} trades={trades} />
                     </div>
 
-                    <div className="column is-narrow mr-4" style={{ width: 670 }}>
+                    <div className="column mr-4" style={{ minWidth: 670 }}>
                         <Chart
                             tpp={tpp}
                             wsCallbacksRef={wsCallbacksRef}
@@ -201,7 +201,7 @@ export default function Main() {
                             setSymbol={setSymbol} />
                     </div>
 
-                    <div className="column">
+                    <div className="column is-narrow">
                         <OrdersTabs
                             symbolSettings={symbolSettings}
                             botPrices={botPrices}

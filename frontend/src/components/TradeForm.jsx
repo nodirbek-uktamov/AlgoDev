@@ -1,5 +1,6 @@
 import React, { useState, Fragment, useEffect, useRef } from 'react'
 import { Form, useFormikContext } from 'formik'
+import cn from 'classnames'
 import Input from './common/Input'
 import { required } from '../utils/validators'
 import Button from './common/Button'
@@ -8,10 +9,21 @@ import { useGetRequest } from '../hooks/request'
 import { BALANCE } from '../urls'
 
 
+const botTypes = {
+    chase_bot: 'Chase bot',
+    iceberg: 'Iceberg',
+    mm: 'MM',
+    twap: 'Twap',
+    grid: 'Grid',
+    hft: 'HFT',
+}
+
+
 export default React.memo(({ setTradeType, symbol }) => {
     const balanceParams = useGetRequest({ url: BALANCE })
     const { values, setFieldValue } = useFormikContext()
     const [botType, setBotType] = useState('chase_bot')
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const ws = useRef(null)
     const [balance, setBalance] = useState({})
     const user = JSON.parse(localStorage.getItem('user'))
@@ -60,41 +72,66 @@ export default React.memo(({ setTradeType, symbol }) => {
 
     function changeTab(tab) {
         setBotType(tab)
+        setIsDropdownOpen(false)
         setFieldValue('botType', tab)
     }
 
     return (
         <Form>
-            <div className="tabs">
-                <ul>
-                    <li onClick={() => changeTab('chase_bot')} className={botType === 'chase_bot' ? 'is-active' : null}>
-                        <p>Chase bot</p>
-                    </li>
+            <div className={cn('dropdown mb-3', { 'is-active': isDropdownOpen })} style={{ width: '100%' }}>
+                <div className="dropdown-trigger" style={{ width: '100%' }}>
+                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="button is-fullwidth is-flex">
+                        <div className="column is-narrow p-0">{botTypes[botType]}</div>
 
-                    <li onClick={() => changeTab('iceberg')} className={botType === 'iceberg' ? 'is-active' : null}>
-                        <p>Iceberg</p>
-                    </li>
+                        <div className="column is-narrow p-0">
+                            <ion-icon name="chevron-down-outline" />
+                        </div>
+                    </button>
+                </div>
 
-                    <li onClick={() => changeTab('mm')} className={botType === 'mm' ? 'is-active' : null}>
-                        <p>MM</p>
-                    </li>
+                <div className="dropdown-menu">
+                    <div className="dropdown-content">
+                        <a
+                            className={cn('dropdown-item', { 'is-active': botType === 'chase_bot' })}
+                            onClick={() => changeTab('chase_bot')}>
+                            {botTypes.chase_bot}
+                        </a>
 
-                    <li onClick={() => changeTab('twap')} className={botType === 'twap' ? 'is-active' : null}>
-                        <p>Twap</p>
-                    </li>
+                        <a
+                            className={cn('dropdown-item', { 'is-active': botType === 'iceberg' })}
+                            onClick={() => changeTab('iceberg')}>
+                            {botTypes.iceberg}
+                        </a>
 
-                    <li onClick={() => changeTab('grid')} className={botType === 'grid' ? 'is-active' : null}>
-                        <p>Grid</p>
-                    </li>
+                        <a
+                            className={cn('dropdown-item', { 'is-active': botType === 'mm' })}
+                            onClick={() => changeTab('mm')}>
+                            {botTypes.mm}
+                        </a>
 
-                    <li onClick={() => changeTab('hft')} className={botType === 'hft' ? 'is-active' : null}>
-                        <p>HFT</p>
-                    </li>
-                </ul>
+                        <a
+                            className={cn('dropdown-item', { 'is-active': botType === 'twap' })}
+                            onClick={() => changeTab('twap')}>
+                            {botTypes.twap}
+                        </a>
+
+                        <a
+                            className={cn('dropdown-item', { 'is-active': botType === 'grid' })}
+                            onClick={() => changeTab('grid')}>
+                            {botTypes.grid}
+                        </a>
+
+                        <a
+                            className={cn('dropdown-item', { 'is-active': botType === 'hft' })}
+                            onClick={() => changeTab('hft')}>
+                            {botTypes.hft}
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <div className="columns">
-                <div className="column">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
+            <div className="columns mb-0">
+                <div className="column pr-0">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
                 <div className="column is-narrow">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
             </div>
 
