@@ -184,7 +184,7 @@ export default function Main() {
                 <div className="columns">
                     <div className="column is-narrow" style={{ width: 320 }}>
                         <Formik initialValues={tradeInitialValues} onSubmit={onSubmit}>
-                            <TradeForm symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
+                            <TradeForm symbolSettings={symbolSettings} symbol={symbol} setTradeType={setTradeType} tradeType={tradeType} />
                         </Formik>
 
                         <Logs wsCallbacksRef={wsCallbacksRef} setBotPrices={setBotPrices} trades={trades} />

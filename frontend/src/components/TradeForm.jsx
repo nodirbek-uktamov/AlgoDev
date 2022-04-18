@@ -19,7 +19,7 @@ const botTypes = {
 }
 
 
-export default React.memo(({ setTradeType, symbol }) => {
+export default React.memo(({ setTradeType, symbol, symbolSettings }) => {
     const balanceParams = useGetRequest({ url: BALANCE })
     const { values, setFieldValue } = useFormikContext()
     const [botType, setBotType] = useState('chase_bot')
@@ -27,6 +27,8 @@ export default React.memo(({ setTradeType, symbol }) => {
     const ws = useRef(null)
     const [balance, setBalance] = useState({})
     const user = JSON.parse(localStorage.getItem('user'))
+
+    console.log(symbolSettings)
 
     useEffect(() => {
         initialConnection()
@@ -58,7 +60,7 @@ export default React.memo(({ setTradeType, symbol }) => {
         }
 
         if (data.action === 'push' && data.data.accountId === user.spotAccountId) {
-            setBalance((oldBalance) => ({ ...oldBalance, [data.data.currency]: Number(data.data.available).toFixed(8) }))
+            setBalance((oldBalance) => ({ ...oldBalance, [data.data.currency]: Number(data.data.available) }))
         }
     }
 
@@ -127,8 +129,13 @@ export default React.memo(({ setTradeType, symbol }) => {
             </div>
 
             <div className="columns mb-0">
-                <div className="column pr-0">{(balance[symbol.pair2.toLowerCase()] || 0)} {symbol.pair2}</div>
-                <div className="column is-narrow">{(balance[symbol.pair1.toLowerCase()] || 0)} {symbol.pair1}</div>
+                <div className="column pr-0">
+                    {(balance[symbol.pair2.toLowerCase()] || 0).toFixed(symbolSettings.ttp)} {symbol.pair2}
+                </div>
+
+                <div className="column is-narrow">
+                    {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbolSettings.tap)} {symbol.pair1}
+                </div>
             </div>
 
             <Input

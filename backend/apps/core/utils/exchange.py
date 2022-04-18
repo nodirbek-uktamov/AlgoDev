@@ -123,11 +123,19 @@ class Bot:
         if trade.twap_bot_completed_trades == trades_count:
             self.complete_trade(trade, client, account_id, precision)
 
-    def handle_error(self, trade, e):
+    def handle_error(self, trade, e, cancel=True):
         print(str(e))
 
-        trade.completed_at = timezone.now() + timezone.timedelta(seconds=10)
-        trade.is_completed = True
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=30)
+        action = None
+        additional_text = ''
+
+        if cancel:
+            trade.is_completed = True
+            action = {'delete': trade.id}
+
+        else:
+            additional_text = 'Will repeat after 30 seconds.'
 
         error = str(e)
 
@@ -136,9 +144,7 @@ class Bot:
         except Exception:
             pass
 
-        action = {'delete': trade.id}
-
-        self.send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}', action)
+        self.send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
 
     def place_order(self, client, trade, cost, price, account_id, precision):
         if trade.trade_type == 'sell':
@@ -275,38 +281,46 @@ class Bot:
             min_values
         )
 
+        client_order_ids = []
         order_ids = []
 
-        # place orders:
-        for i in range(trade.hft_orders_on_each_side):
-            client_order_id = int(round(timezone.now().timestamp() * 100000))
+        try:
+            # place orders:
+            for i in range(trade.hft_orders_on_each_side):
+                client_order_id = int(round(timezone.now().timestamp() * 100000))
 
-            client.place(
-                account_id=account_id,
-                amount=self.format_float(ask_orders_q[i] - float(trade.filled), precision.get('amount', 0)),
-                price=self.format_float(ask_prices[i], precision.get('price', 0)),
-                symbol=trade.symbol,
-                type=f'sell-limit',
-                client_order_id=client_order_id
-            )
+                order = client.place(
+                    account_id=account_id,
+                    amount=self.format_float(ask_orders_q[i] - float(trade.filled), precision.get('amount', 0)),
+                    price=self.format_float(ask_prices[i], precision.get('price', 0)),
+                    symbol=trade.symbol,
+                    type=f'sell-limit',
+                    client_order_id=client_order_id
+                ).data
 
-            order_ids.append(client_order_id)
+                order_ids.append(order.get('data'))
+                client_order_ids.append(client_order_id)
 
-        for i in range(trade.hft_orders_on_each_side):
-            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            for i in range(trade.hft_orders_on_each_side):
+                client_order_id = int(round(timezone.now().timestamp() * 100000))
 
-            client.place(
-                account_id=account_id,
-                amount=self.format_float(bid_orders_q[i], precision.get('amount', 0)),
-                price=self.format_float(bid_prices[i], precision.get('price', 0)),
-                symbol=trade.symbol,
-                type=f'buy-limit',
-                client_order_id=client_order_id
-            )
+                order = client.place(
+                    account_id=account_id,
+                    amount=self.format_float(bid_orders_q[i], precision.get('amount', 0)),
+                    price=self.format_float(bid_prices[i], precision.get('price', 0)),
+                    symbol=trade.symbol,
+                    type=f'buy-limit',
+                    client_order_id=client_order_id
+                ).data
 
-            order_ids.append(client_order_id)
+                order_ids.append(order.get('data'))
+                client_order_ids.append(client_order_id)
 
-        trade.hft_order_ids = json.dumps(order_ids)
+        except Exception as e:
+            self.handle_error(trade, e, False)
+            client.batch_cancel(order_ids=order_ids)
+
+        trade.hft_order_ids = json.dumps(client_order_ids)
         trade.save()
 
     def complete_trade(self, trade, client, account_id, precision):

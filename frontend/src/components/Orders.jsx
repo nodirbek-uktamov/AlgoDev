@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import cn from 'classnames'
 
-export default function Orders({ symbol, wsCallbacksRef }) {
+export default function Orders({ symbol, wsCallbacksRef, symbolSettings }) {
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
 
@@ -27,8 +26,11 @@ export default function Orders({ symbol, wsCallbacksRef }) {
     function RenderItem({ item }) {
         return (
             <div className="columns m-0 p-0" style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
-                <p style={{ width: 90 }} className="column is-narrow m-0 p-0">{item.price}</p>
-                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(6)}</p>
+                <p style={{ width: 100 }} className="column is-narrow m-0 p-0">
+                    {item.price.toFixed(symbolSettings.tpp)}
+                </p>
+
+                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(symbolSettings.tap)}</p>
             </div>
         )
     }

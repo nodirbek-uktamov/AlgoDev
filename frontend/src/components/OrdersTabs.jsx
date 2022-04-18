@@ -37,7 +37,12 @@ export default function OrdersTabs({ botPrices, ws, symbol, symbolSettings, wsCa
                 </ul>
             </div>
 
-            {ordersTab === 'list' && <Orders wsCallbacksRef={wsCallbacksRef} symbol={symbol} />}
+            {ordersTab === 'list' && (
+                <Orders
+                    wsCallbacksRef={wsCallbacksRef}
+                    symbolSettings={symbolSettings}
+                    symbol={symbol} />
+            )}
 
             {ordersTab === 'depth' && (
                 <Fragment>
