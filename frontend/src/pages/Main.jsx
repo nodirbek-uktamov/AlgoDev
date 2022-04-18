@@ -126,20 +126,20 @@ export default function Main() {
     }, [])
 
     function onClose() {
-        if (wsCallbacksRef.current.setLogs) {
-            wsCallbacksRef.current.setLogs((oldLogs) => ['Huobi socket is closed. Reconnecting...', ...oldLogs])
-        }
+        setTimeout(() => {
+            if (wsCallbacksRef.current.setLogs) {
+                wsCallbacksRef.current.setLogs((oldLogs) => ['Huobi socket is closed. Reconnect after 1 seconds', ...oldLogs])
+            }
 
-        ws.current = new WebSocket('wss://api.huobi.pro/ws')
+            ws.current = new WebSocket('wss://api.huobi.pro/ws')
 
-        ws.current.onopen = () => {
-            setTimeout(() => {
+            ws.current.onopen = () => {
                 connect(symbol.value.toLowerCase())
-            }, 1000)
-        }
+            }
 
-        ws.current.addEventListener('message', handleMessage)
-        ws.current.onclose = onClose
+            ws.current.addEventListener('message', handleMessage)
+            ws.current.onclose = onClose
+        }, 1000)
     }
 
     function handleMessage(event) {
