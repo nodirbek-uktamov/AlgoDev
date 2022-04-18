@@ -28,8 +28,6 @@ export default React.memo(({ setTradeType, symbol, symbolSettings }) => {
     const [balance, setBalance] = useState({})
     const user = JSON.parse(localStorage.getItem('user'))
 
-    console.log(symbolSettings)
-
     useEffect(() => {
         initialConnection()
         // eslint-disable-next-line
@@ -82,9 +80,7 @@ export default React.memo(({ setTradeType, symbol, symbolSettings }) => {
         <Form>
             <div className={cn('dropdown mb-3', { 'is-active': isDropdownOpen })} style={{ width: '100%' }}>
                 <div className="dropdown-trigger" style={{ width: '100%' }}>
-                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="button is-fullwidth">
-                        <div className="is-narrow">{botTypes[botType]}</div>
-                    </button>
+                    <Button text={botTypes[botType]} onClick={() => setIsDropdownOpen(!isDropdownOpen)} />
                 </div>
 
                 <div className="dropdown-menu" style={{ width: '100%' }}>

@@ -318,7 +318,9 @@ class Bot:
 
         except Exception as e:
             self.handle_error(trade, e, False)
-            client.batch_cancel(order_ids=order_ids)
+
+            if order_ids:
+                client.batch_cancel(order_ids=order_ids)
 
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.save()

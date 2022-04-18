@@ -30,8 +30,11 @@ export default function Main() {
     const tpp = symbolSettings.tpp || 0
 
     const [botPrices, setBotPrices] = useState({})
+    const formValues = JSON.parse(localStorage.getItem('savedForms') || '{}')
 
     async function onSubmit(data) {
+        localStorage.setItem('savedForms', JSON.stringify({ ...formValues, [symbol.value]: data }))
+
         const newData = {
             ...data,
             symbol: symbol.value,
@@ -43,6 +46,7 @@ export default function Main() {
         if (data.botType === 'iceberg') {
             newData.iceberg = true
         }
+
         if (data.botType === 'mm') {
             newData.iceberg = true
             newData.market_making = true
@@ -82,6 +86,7 @@ export default function Main() {
         hft_orders_on_each_side: 0,
         hft_orders_price_difference: 0,
         hft_default_price_difference: 0,
+        ...formValues[symbol.value],
     }
 
     async function cancelAllTrades() {
