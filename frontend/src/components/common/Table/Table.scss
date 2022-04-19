@@ -1,0 +1,21 @@
+.table-container {
+    width: 100%;
+}
+
+.th-cell {
+    width: 120px;
+}
+
+.th-cell:first-child,
+.td-item:first-child {
+    padding-left: 12px;
+}
+
+.th-cell_sort {
+    background-color: inherit;
+    color: #F7FEFF;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+}

@@ -4,7 +4,7 @@ import { useLoad } from '../hooks/request'
 import ReactSelect from './common/ReactSelect'
 import BidAsk from './BidAsk'
 import { intervals } from '../utils/intervals'
-import TradesList from './TradesList'
+import {TradesList} from '../components/TradesList'
 import { HUOBI_SYMBOL_SETTINGS, HUOBI_SYMBOLS } from '../urls'
 
 const defaultOptions = {

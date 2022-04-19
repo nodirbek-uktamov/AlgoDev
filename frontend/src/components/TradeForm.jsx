@@ -29,7 +29,8 @@ export default React.memo(({ setTradeType, symbol, symbolSettings }) => {
     const user = JSON.parse(localStorage.getItem('user'))
 
     useEffect(() => {
-        initialConnection()
+        // setTimeout(() => initialConnection(), 15000)
+
         // eslint-disable-next-line
     }, [])
 

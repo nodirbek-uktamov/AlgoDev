@@ -42,3 +42,11 @@ export function getDate(date = new Date()) {
 export function getDateOtherFormat(date = new Date()) {
     return moment(date).format(DATE_AUTO_FORMAT)
 }
+
+export function convertTimestamp(unixTimestamp) {
+    const date = new Date(unixTimestamp * 1000);
+    const hours = date.getHours();
+    const minutes = "0" + date.getMinutes();
+    const seconds = "0" + date.getSeconds();
+    return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+}
