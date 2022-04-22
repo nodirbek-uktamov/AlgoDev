@@ -9,6 +9,6 @@ export function FilterPanel({handleFilter, allTradesCount, openTradeCount}) {
         <button onClick={handleFilter('orderStatus', 'filled')} className='filter-panel_btn'>filled</button>
         <button onClick={handleFilter('orderStatus', 'cancelled')} className='filter-panel_btn'>cancelled</button>
         <button onClick={handleFilter('orderStatus', 'closed')} className='filter-panel_btn'>closed</button>
-        <button onClick={handleFilter('orderStatus', 'stops')} className='filter-panel_btn filter-panel_btn-stops'>stops</button>
+        <button onClick={handleFilter('orderStatus', 'takeprofit')} className='filter-panel_btn filter-panel_btn-stops'>takeprofit</button>
     </div>
 }
