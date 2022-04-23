@@ -1,158 +1,80 @@
-import React, {useMemo, useRef, useState} from 'react'
-import {Table} from "../common/Table";
-import {convertTimestamp} from "../../utils/date";
+import React from 'react'
+import {Table as TradesTable} from "../common/Table";
 import {usePutRequest} from "../../hooks/request";
 import {TRADE_DETAIL} from "../../urls";
-import  './TradesList.scss'
-import {FilterPanel} from "../FilterPanel";
+import './TradesList.scss'
 
-const renderColumns = (handleCancelTrade) => {
+const renderColumns = (handleCancelTrade, tpp) => {
     return [
         {
-            title: "Status",
-            key: 'orderStatus',
-            hasSorting: true,
+            title: "ID",
+            key: 'id',
             render: (rowData) => {
-                return <span>{rowData.orderStatus}</span>;
-            }
-        },
-        {
-            title: "Type",
-            key: 'type',
-            hasSorting: true,
-            render: (rowData) => {
-                return <span className='has-text-grey-light'>{rowData.type}</span>;
+                return <span>{rowData.id}</span>;
             }
         },
         {
             title: "Symbol",
             key: 'symbol',
-            hasSorting: true,
             render: (rowData) => {
                 return <span className='is-uppercase'>{rowData.symbol}</span>;
             }
         },
         {
-            title: "Side",
-            key: 'eventType',
-            hasSorting: true,
-            render: (rowData) => {
-                return <span className='has-text-primary'>{rowData.eventType}</span>;
-            }
-        },
-        {
-            title: "Price",
-            key: 'orderPrice',
-            hasSorting: true,
-            render: (rowData) => {
-                return <span className='has-text-weight-bold'>{rowData.orderPrice}</span>;
-            }
-        },
-        {
             title: "Quantity",
-            key: 'orderSize',
-            hasSorting: true,
-            render: (rowData) => {
-                return <span className='has-text-weight-bold'>{rowData.orderSize}</span>;
+            key: 'quantity',
+            render: ({filledAmount, quantity}) => {
+                return <span
+                    className='has-text-weight-bold'>
+                    {Number(filledAmount).toFixed(tpp)} / {Number(quantity)}
+                </span>;
             }
         },
         {
-            title: "Time",
-            key: 'tradeTime',
-            hasSorting: true,
+            title: "Side",
+            key: 'tradeType',
             render: (rowData) => {
-                return <span className='has-text-grey-light is-size-7'>{convertTimestamp(rowData.tradeTime)}</span>;
+                return <span>{rowData.tradeType}</span>;
+            }
+        },
+        {
+            title: "Interval (seconds)",
+            key: 'timeInterval',
+            render: ({loop, timeInterval}) => {
+                return <span>{loop ? timeInterval : 'not loop'}</span>;
+            }
+        },
+        {
+            title: "Completed loops",
+            key: 'completedLoops',
+            render: (rowData) => {
+                return <span>{rowData.completedLoops}</span>;
             }
         },
         {
             title: "",
-            key: 'orderId',
-            render: ({orderId}) => {
-                return <button className='trades-list_cancel-btn' onClick={handleCancelTrade(orderId)}>&#10060;</button>
+            key: 'tradeId',
+            render: ({id: tradeId}) => {
+                return <button className='trades-list_cancel-btn' onClick={handleCancelTrade(tradeId)}>&#10060;</button>
             }
         }
     ];
 };
 
-const mockTableData = [
-    {
-        tradePrice: "76.000000000000000000",
-        tradeVolume: "1.013157894736842100",
-        tradeId: 301,
-        tradeTime: 1583854188883,
-        aggressor: true,
-        remainAmt: "0.000000000000000400000000000000000000",
-        execAmt: "2",
-        orderId: 27163536,
-        type: "sell-limit",
-        clientOrderId: "abc123",
-        orderSource: "spot-api",
-        orderPrice: "15000",
-        orderSize: "0.01",
-        orderStatus: "filled",
-        symbol: "btcusdt",
-        eventType: "trade"
-    },
-    {
-        tradePrice: "86.000000000000000000",
-        tradeVolume: "1.013157894736842100",
-        tradeId: 302,
-        tradeTime: 1583854188893,
-        aggressor: true,
-        remainAmt: "0.000000000000000400000000000000000000",
-        execAmt: "2",
-        orderId: 27163537,
-        type: "sell-limit",
-        clientOrderId: "abc123",
-        orderSource: "spot-api",
-        orderPrice: "16000",
-        orderSize: "0.02",
-        orderStatus: "closed",
-        symbol: "btcusdt",
-        eventType: "trade"
-    }
-];
-
-
-function TradesList({ trades, onCancel, tpp }) {
+function TradesList({trades, onCancel, tpp}) {
     const cancel = usePutRequest()
-    const initialData = useRef(mockTableData).current;
-    const [data, setData] = useState(initialData);
-    const [filter, setFilter] = useState("");
-
-    const handleFilter = (key, value) => {
-        if (filter === value) return;
-
-        return () => {
-            setFilter(value);
-
-            if (!value) return setData(initialData);
-
-            const filteredData = initialData.filter((data) => data[key] === value);
-            setData(filteredData);
-        };
-    };
 
     const cancelTrade = (tradeId) => async () => {
-        const { success } = await cancel.request({ url: TRADE_DETAIL.replace('{id}', tradeId) })
+        const {success} = await cancel.request({url: TRADE_DETAIL.replace('{id}', tradeId)})
 
         if (success) {
             onCancel()
         }
     }
 
-    const openTradeCount = useMemo(() => {
-        return initialData.filter((data) => data.orderStatus === 'open').length;
-    }, [initialData])
-
-    const allTradesCount = useMemo(() => {
-            return initialData.length;
-    }, [initialData])
-
     return (
         <div className="trades-list_container">
-            <FilterPanel handleFilter={handleFilter} openTradeCount={openTradeCount} allTradesCount={allTradesCount} />
-            <Table columns={renderColumns(cancelTrade)} tableData={data} />
+            <TradesTable columns={renderColumns(cancelTrade, tpp)} tableData={trades}/>
         </div>
     )
 }
