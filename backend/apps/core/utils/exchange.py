@@ -104,7 +104,7 @@ class Bot:
             trades_count = int(trade.twap_bot_duration / twap_bot_order_interval) or 1
             amount = trade.quantity / trades_count
 
-        return amount
+        return float(amount)
 
     def format_float(self, number, decimal_fields):
         return f'{number:.{decimal_fields}f}'
@@ -158,6 +158,9 @@ class Bot:
 
         amount = self.calc_amount(trade, precision, price)
 
+        if not (trade.twap_bot and trade.trade_type == 'buy'):
+            amount = amount / price
+
         try:
             if trade.twap_bot:
                 self.twap_bot_place(client, account_id, trade, amount, precision)
@@ -197,7 +200,7 @@ class Bot:
         try:
             data = client.place(
                 account_id=account_id,
-                amount=self.format_float(trade.quantity, precision.get('amount', 0)),
+                amount=self.format_float(float(trade.quantity) / price, precision.get('amount', 0)),
                 symbol=trade.symbol,
                 type=f'{trade_type}-limit',
                 price=self.format_float(price, precision.get('price', 0)),
@@ -215,7 +218,7 @@ class Bot:
         prices_array = random_array(
             float(trade.quantity),
             trade.grid_trades_count,
-            precision.get('min_price') / float(start_price),
+            precision.get('min_price'),
             10
         )
 
@@ -225,7 +228,7 @@ class Bot:
 
             client.place(
                 account_id=account_id,
-                amount=self.format_float(quantity, precision.get('amount', 0)),
+                amount=self.format_float(float(quantity) / float(price), precision.get('amount', 0)),
                 symbol=trade.symbol,
                 type=f'{trade.trade_type}-limit',
                 price=self.format_float(price, precision.get('price', 0)),
@@ -254,34 +257,16 @@ class Bot:
                 trade.hft_order_ids = '[]'
                 trade.save()
 
-        min_values = []
-        ask_prices = []
-        bid_prices = []
-
-        for i in range(trade.hft_orders_on_each_side):
-            percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(trade.hft_default_price_difference) + 100)
-            price = cost['ask'] * percent / 100
-            min_values.append(precision.get('min_price') / float(price))
-            ask_prices.append(price)
-
         ask_orders_q = random_array(
             float(trade.quantity) / 2,
             trade.hft_orders_on_each_side,
-            min_values
+            precision.get('min_price')
         )
-
-        min_values = []
-
-        for i in range(trade.hft_orders_on_each_side):
-            percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(trade.hft_default_price_difference))
-            price = cost['ask'] * percent / 100
-            min_values.append(precision.get('min_price') / float(price))
-            bid_prices.append(price)
 
         bid_orders_q = random_array(
             float(trade.quantity) / 2,
             trade.hft_orders_on_each_side,
-            min_values
+            precision.get('min_price')
         )
 
         client_order_ids = []
@@ -290,12 +275,14 @@ class Bot:
         try:
             # place orders:
             for i in range(trade.hft_orders_on_each_side):
+                percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(trade.hft_default_price_difference) + 100)
+                price = cost['ask'] * percent / 100
                 client_order_id = int(round(timezone.now().timestamp() * 100000))
 
                 order = client.place(
                     account_id=account_id,
-                    amount=self.format_float(ask_orders_q[i] - float(trade.filled), precision.get('amount', 0)),
-                    price=self.format_float(ask_prices[i], precision.get('price', 0)),
+                    amount=self.format_float(ask_orders_q[i] / price, precision.get('amount', 0)),
+                    price=self.format_float(price, precision.get('price', 0)),
                     symbol=trade.symbol,
                     type=f'sell-limit',
                     client_order_id=client_order_id
@@ -305,12 +292,14 @@ class Bot:
                 client_order_ids.append(client_order_id)
 
             for i in range(trade.hft_orders_on_each_side):
+                percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(trade.hft_default_price_difference))
+                price = cost['bid'] * percent / 100
                 client_order_id = int(round(timezone.now().timestamp() * 100000))
 
                 order = client.place(
                     account_id=account_id,
-                    amount=self.format_float(bid_orders_q[i], precision.get('amount', 0)),
-                    price=self.format_float(bid_prices[i], precision.get('price', 0)),
+                    amount=self.format_float(bid_orders_q[i] / price, precision.get('amount', 0)),
+                    price=self.format_float(price, precision.get('price', 0)),
                     symbol=trade.symbol,
                     type=f'buy-limit',
                     client_order_id=client_order_id
