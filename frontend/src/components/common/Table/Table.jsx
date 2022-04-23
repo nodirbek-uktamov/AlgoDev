@@ -1,5 +1,5 @@
 import React from 'react'
-import  './Table.scss'
+import './Table.scss'
 import {useSort} from "../../../hooks/useSort";
 
 function renderSortIcon(isSorting, sortDirection) {
@@ -8,8 +8,22 @@ function renderSortIcon(isSorting, sortDirection) {
     return sortDirection === 1 ? <>&uarr;</> : <>&darr;</>
 }
 
-export function Table({ columns, tableData }) {
-    const {sortData, sortProperty, sortDirection, sortDispatcher} = useSort(tableData)
+function renderHeaderCell(column, sortManager) {
+    if (!column.hasSorting) {
+        return <button className="th-cell_sort">{column.title}</button>;
+    }
+
+    const {sortDispatcher, sortProperty, sortDirection} = sortManager;
+
+    return <button className="th-cell_sort th-cell_enable-sort"
+                   onClick={() => sortDispatcher(column.key)}>
+        {column.title} {renderSortIcon(column.key === sortProperty, sortDirection)}
+    </button>;
+}
+
+export function Table({columns, tableData}) {
+    const sortManager = useSort(tableData);
+    const {sortData} = sortManager;
 
     return (
         <div>
@@ -20,7 +34,7 @@ export function Table({ columns, tableData }) {
                         <th
                             className="th-cell has-background-grey-dark is-size-7 has-text-light has-text-left py-2"
                             key={column.key}>
-                            {column.title && <button className="th-cell_sort" onClick={() => sortDispatcher(column.key)}>{column.title} {renderSortIcon(column.key === sortProperty, sortDirection)}</button>}
+                            {column.title && renderHeaderCell(column, sortManager)}
                         </th>
                     ))}
                 </tr>
