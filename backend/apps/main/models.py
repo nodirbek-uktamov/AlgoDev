@@ -76,7 +76,7 @@ class Trade(models.Model):
             trades_count = int(self.twap_bot_duration / twap_bot_order_interval) or 1
             amount = self.quantity / trades_count
 
-        return amount
+        return float(amount)
 
     def save(self, *args, **kwargs):
         channel_layer = get_channel_layer()
