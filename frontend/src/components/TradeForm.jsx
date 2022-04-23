@@ -139,7 +139,7 @@ export default React.memo(({ setTradeType, symbol, symbolSettings }) => {
                 name="quantity"
                 step="0.00000001"
                 type="number"
-                label={`Amount (${symbol.pair2 === 'USDT' ? symbol.pair2 : botType !== 'twap' ? symbol.pair1 : `buy: ${symbol.pair2}, sell: ${symbol.pair1}`})`}
+                label={`Amount (${symbol.pair2})`}
                 validate={required} />
 
             {botType === 'iceberg' || botType === 'mm' ? (

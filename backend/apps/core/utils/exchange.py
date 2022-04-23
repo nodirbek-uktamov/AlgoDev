@@ -158,7 +158,7 @@ class Bot:
 
         amount = self.calc_amount(trade, precision, price)
 
-        if trade.symbol.endswith("usdt") and not (trade.twap_bot and trade.trade_type == 'buy'):
+        if not (trade.twap_bot and trade.trade_type == 'buy'):
             amount = amount / price
 
         try:
