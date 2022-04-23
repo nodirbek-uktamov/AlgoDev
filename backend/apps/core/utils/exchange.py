@@ -17,7 +17,7 @@ from core.utils.helpers import random_array
 from core.utils.logs import bold, red
 from users.models import User
 
-twap_bot_order_interval = 6
+twap_bot_order_interval = 60
 
 
 def save_account_ids(user):
