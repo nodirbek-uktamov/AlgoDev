@@ -150,7 +150,7 @@ function TradesList({ trades, onCancel, tpp }) {
     }, [initialData])
 
     return (
-        <div>
+        <div className="trades-list_container">
             <FilterPanel handleFilter={handleFilter} openTradeCount={openTradeCount} allTradesCount={allTradesCount} />
             <Table columns={renderColumns(cancelTrade)} tableData={data} />
         </div>
