@@ -103,5 +103,22 @@ class TakeProfitOrder(models.Model):
     trade = models.ForeignKey(Trade, models.CASCADE, 'take_profit_orders')
     order_id = models.CharField(max_length=255)
 
+    def save(self, *args, **kwargs):
+        print('asd')
+        channel_layer = get_channel_layer()
+
+        t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
+            f'user_{self.user.id}',
+            {
+                'type': 'chat_message',
+                'message': "",
+                'action': {'take_profit_order': self.order_id}
+            }
+        ))
+        t.daemon = True
+        t.start()
+
+        super().save(*args, **kwargs)
+
     class Meta(AbstractUser.Meta):
         db_table = 'main_take_profit_orders'

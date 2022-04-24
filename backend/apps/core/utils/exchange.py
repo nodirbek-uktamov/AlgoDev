@@ -1,5 +1,7 @@
 import concurrent
 import json
+import os
+import sys
 import threading
 import time
 from os import system
@@ -127,6 +129,10 @@ class Bot:
             self.complete_trade(trade, client, account_id, precision)
 
     def handle_error(self, trade, e, cancel=True):
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+
         print(str(e))
 
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=30)
@@ -198,6 +204,9 @@ class Bot:
             trade_type = 'buy'
         else:
             price = price * (100 + trade.take_profit_percent) / 100
+
+        if price < 0:
+            price = price * 0.01
 
         try:
             data = client.place(

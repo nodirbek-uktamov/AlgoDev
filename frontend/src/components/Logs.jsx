@@ -42,7 +42,9 @@ export default function Logs({ setBotPrices, trades }) {
             if (log.action.delete) {
                 trades.setResponse((oldTrades) => (oldTrades || []).filter((i) => i.id !== log.action.delete))
                 setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.delete]: { price: 0 } }))
-            } else {
+            }
+            else if (log.action.take_profit_order) wsCallbacksRef.current.setTakeProfitOrderIds(oldIds => [log.action.take_profit_order, ...oldIds])
+            else {
                 if (log.action.price) {
                     setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.price.trade]: log.action }))
                 }

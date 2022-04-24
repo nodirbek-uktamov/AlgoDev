@@ -6,7 +6,7 @@ import {OPEN_ORDERS} from "../urls";
 export default React.memo(function MyOrders() {
     const {wsCallbacksRef, symbolValue} = useContext(MainContext)
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
-    const [takeProfitOrders, setTakeProfitOrders] = useState([]) // ["1", "123"] // orderId of ordersList
+    const [takeProfitOrderIds, setTakeProfitOrderIds] = useState(["3"]) // ["1", "123"] // orderId of ordersList
 
     const [orders, setOrders] = useState([
     {
@@ -37,6 +37,7 @@ export default React.memo(function MyOrders() {
 
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
+        wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
 
         wsCallbacksRef.current.updateInitialOrders = () => {
             setOrders([])
@@ -47,9 +48,14 @@ export default React.memo(function MyOrders() {
     useEffect(() => {
         if (initialOrders.response) {
             if (initialOrders.response.orders) setOrders(oldOrders => [...initialOrders.response.orders, ...oldOrders])
-            if (initialOrders.response.takeProfitOrders) setTakeProfitOrders(oldIds => [initialOrders.response.takeProfitOrders, ...oldIds])
+            if (initialOrders.response.takeProfitOrders) setTakeProfitOrderIds(oldIds => [...initialOrders.response.takeProfitOrders, ...oldIds])
         }
     }, [initialOrders.response])
+
+    const takeProfitOrders = orders.filter(i => takeProfitOrderIds.includes(String(i.orderId)) && i.orderStatus === 'submitted')
+    const openOrders = orders.filter(i => i.orderStatus === 'submitted')
+    const filledOrders = orders.filter(i => i.orderStatus === 'filled')
+    const canceledOrders = orders.filter(i => i.orderStatus === 'canceled')
 
     return (
         <div style={{marginTop: 100}}>
