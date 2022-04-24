@@ -1,45 +1,28 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {MainContext} from "../contexts/MainContext";
+import {useLoad} from "../hooks/request";
+import {OPEN_ORDERS} from "../urls";
 
 export default React.memo(function MyOrders() {
+    const initialOrders = useLoad({url: OPEN_ORDERS})
+
     const [openOrders, setOpenOrders] = useState([
     {
-        "orderSource": "spot-api",
-        "accountId": 45712554,
         "orderPrice": "0.06125",
         "orderSize": "86.37",
-        "orderCreateTime": 1650785441095,
         "symbol": "trxusdt",
-        "eventType": "creation",
-        "clientOrderId": "1650785441727",
-        "orderStatus": "submitted",
-        "orderId": 525989068023121,
         "type": "buy-limit"
     },
     {
-        "orderSource": "spot-api",
-        "accountId": 45712554,
         "orderPrice": "0.0625",
         "orderSize": "80.43",
-        "orderCreateTime": 1650785441431,
         "symbol": "trxusdt",
-        "eventType": "creation",
-        "clientOrderId": "1650785442061",
-        "orderStatus": "submitted",
-        "orderId": 525989119237707,
         "type": "buy-limit"
     },
     {
-        "orderSource": "spot-api",
-        "accountId": 45712554,
         "orderPrice": "0.06375",
         "orderSize": "89.15",
-        "orderCreateTime": 1650785441767,
         "symbol": "trxusdt",
-        "eventType": "creation",
-        "clientOrderId": "1650785442397",
-        "orderStatus": "submitted",
-        "orderId": 525989127856030,
         "type": "buy-limit"
     }
 ])
@@ -49,11 +32,21 @@ export default React.memo(function MyOrders() {
         wsCallbacksRef.current.setOpenOrders = setOpenOrders
     }, [])
 
+    useEffect(() => {
+        if (initialOrders.response) setOpenOrders(oldOrders => [...initialOrders.response, ...oldOrders])
+    }, [initialOrders.response])
+
     console.log(openOrders)
 
     return (
-        <div>
+        <div style={{marginTop: 100}}>
+            <p className="is-size-4">Orders:</p>
 
+            {openOrders.map(i => (
+                <div>
+                    {i.orderPrice}
+                </div>
+            ))}
         </div>
     )
 })

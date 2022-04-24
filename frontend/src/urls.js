@@ -5,9 +5,9 @@ export const RESET_PASSWORD = '/users/reset_password'
 
 export const TRADE = '/main/trades/'
 export const BALANCE = '/main/balance/'
+export const OPEN_ORDERS = '/main/open_orders/'
 export const TRADE_DETAIL = '/main/trades/{id}/'
 export const CANCEL_TRADES = '/main/trades/cancel/'
-
 
 export const HUOBI_DOMAIN = 'https://api.huobi.pro'
 export const HUOBI_SYMBOLS = `${HUOBI_DOMAIN}/v2/settings/common/symbols/`
