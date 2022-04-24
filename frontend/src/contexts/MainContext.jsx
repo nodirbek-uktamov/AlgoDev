@@ -20,6 +20,8 @@ export default function MainContextWrapper({children}) {
     const symbolSettings = symbolPreccions.response ? symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase()) : {}
     const balanceParams = useGetRequest({ url: BALANCE })
 
+    const symbolValue = symbol.value.toLowerCase()
+
     useEffect(() => {
         connectAccountWs()
 
@@ -113,7 +115,7 @@ export default function MainContextWrapper({children}) {
 
             accountWs.current.send(JSON.stringify({
                 action: 'sub',
-                ch: 'orders#trxusdt',
+                ch: 'orders#' + symbolValue,
             }))
         }
 
@@ -122,16 +124,16 @@ export default function MainContextWrapper({children}) {
         }
 
         if (data.ch && data.ch.includes("orders") && data.action === 'push') {
-            if (data.data.orderStatus === 'submitted') {
-                wsCallbacksRef.current.setOpenOrders(oldOrders => [...oldOrders, data.data])
-            }
+            wsCallbacksRef.current.setOrders(oldOrders => {
+                if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {
+                    return oldOrders.map(i => {
+                        if (i.orderId === data.data.orderId) return data.data
+                        return i
+                    })
+                }
 
-            else if (data.data.orderStatus === 'canceled' || data.data.orderStatus === 'filled') {
-                wsCallbacksRef.current.setOpenOrders(oldOrders => oldOrders.filter(i => i.orderId !== data.data.orderId))
-            }
-
-            // else if (data.data.orderStatus === 'filled') console.log('filled: ', data)
-            // else console.log(data)
+                return [data.data, ...oldOrders]
+            })
         }
 
         if (data.action === 'push' && data.data.accountId === user.spotAccountId) {
@@ -152,13 +154,14 @@ export default function MainContextWrapper({children}) {
         symbol,
         symbolSettings,
         user,
-        symbolValue: symbol.value.toLowerCase(),
+        symbolValue,
         huobiWs,
         disconnectHuobi,
         connectHuobi,
         wsCallbacksRef,
         depthType,
         setDepthType,
+        accountWs
     }
 
     return (

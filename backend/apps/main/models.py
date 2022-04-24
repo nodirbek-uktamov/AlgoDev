@@ -96,3 +96,12 @@ class Trade(models.Model):
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_trades'
+
+
+class TakeProfitOrder(models.Model):
+    user = models.ForeignKey('users.User', models.CASCADE, 'take_profit_orders')
+    trade = models.ForeignKey(Trade, models.CASCADE, 'take_profit_orders')
+    order_id = models.CharField(max_length=255)
+
+    class Meta(AbstractUser.Meta):
+        db_table = 'main_take_profit_orders'

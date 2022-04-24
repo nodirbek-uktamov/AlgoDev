@@ -28,7 +28,7 @@ const defaultOptions = {
 function Chart({ trades }) {
     const symbols = useLoad({ baseURL: HUOBI_SYMBOLS, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
 
-    const { symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi } = useContext(MainContext)
+    const { symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi, accountWs } = useContext(MainContext)
     const [interval, setInterval] = useState('60')
     const symbolsList = (symbols.response ? symbols.response.data || [] : []).map((i) => ({ value: i.bcdn + i.qcdn, label: i.dn, pair1: i.bcdn, pair2: i.qcdn }))
 
@@ -40,6 +40,17 @@ function Chart({ trades }) {
         localStorage.setItem('symbol', JSON.stringify(val))
         setSymbol(val)
         connectHuobi(val.value.toLowerCase())
+
+        accountWs.current.send(JSON.stringify({
+            action: 'unsub',
+            ch: 'orders#' + symbolValue,
+        }))
+
+        accountWs.current.send(JSON.stringify({
+            action: 'sub',
+            ch: 'orders#' + val.value.toLowerCase(),
+        }))
+        wsCallbacksRef.current.updateInitialOrders()
 
         // eslint-disable-next-line
     }, [symbolValue])

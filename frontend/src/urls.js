@@ -5,7 +5,7 @@ export const RESET_PASSWORD = '/users/reset_password'
 
 export const TRADE = '/main/trades/'
 export const BALANCE = '/main/balance/'
-export const OPEN_ORDERS = '/main/open_orders/'
+export const OPEN_ORDERS = '/main/orders/{symbol}/'
 export const TRADE_DETAIL = '/main/trades/{id}/'
 export const CANCEL_TRADES = '/main/trades/cancel/'
 

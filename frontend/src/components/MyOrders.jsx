@@ -4,45 +4,58 @@ import {useLoad} from "../hooks/request";
 import {OPEN_ORDERS} from "../urls";
 
 export default React.memo(function MyOrders() {
-    const initialOrders = useLoad({url: OPEN_ORDERS})
+    const {wsCallbacksRef, symbolValue} = useContext(MainContext)
+    const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
+    const [takeProfitOrders, setTakeProfitOrders] = useState([]) // ["1", "123"] // orderId of ordersList
 
-    const [openOrders, setOpenOrders] = useState([
+    const [orders, setOrders] = useState([
     {
+        "orderId": "1",
         "orderPrice": "0.06125",
         "orderSize": "86.37",
         "symbol": "trxusdt",
-        "type": "buy-limit"
+        "type": "buy-limit",
+        "orderStatus": 'canceled',
     },
     {
+        "orderId": "2",
         "orderPrice": "0.0625",
         "orderSize": "80.43",
         "symbol": "trxusdt",
-        "type": "buy-limit"
+        "type": "buy-limit",
+        "orderStatus": 'filled',
     },
     {
+        "orderId": "3",
         "orderPrice": "0.06375",
         "orderSize": "89.15",
         "symbol": "trxusdt",
-        "type": "buy-limit"
+        "type": "buy-limit",
+        "orderStatus": 'submitted',
     }
 ])
-    const {wsCallbacksRef} = useContext(MainContext)
 
     useEffect(() => {
-        wsCallbacksRef.current.setOpenOrders = setOpenOrders
+        wsCallbacksRef.current.setOrders = setOrders
+
+        wsCallbacksRef.current.updateInitialOrders = () => {
+            setOrders([])
+            initialOrders.request()
+        }
     }, [])
 
     useEffect(() => {
-        if (initialOrders.response) setOpenOrders(oldOrders => [...initialOrders.response, ...oldOrders])
+        if (initialOrders.response) {
+            if (initialOrders.response.orders) setOrders(oldOrders => [...initialOrders.response.orders, ...oldOrders])
+            if (initialOrders.response.takeProfitOrders) setTakeProfitOrders(oldIds => [initialOrders.response.takeProfitOrders, ...oldIds])
+        }
     }, [initialOrders.response])
-
-    console.log(openOrders)
 
     return (
         <div style={{marginTop: 100}}>
             <p className="is-size-4">Orders:</p>
 
-            {openOrders.map(i => (
+            {orders.map(i => (
                 <div>
                     {i.orderPrice}
                 </div>

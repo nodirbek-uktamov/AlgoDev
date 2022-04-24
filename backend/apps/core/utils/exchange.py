@@ -189,6 +189,8 @@ class Bot:
         trade.save()
 
     def take_profit_order(self, client, account_id, trade, price, precision):
+        from main.models import TakeProfitOrder
+
         trade_type = 'sell'
 
         if trade.trade_type == 'sell':
@@ -206,6 +208,8 @@ class Bot:
                 price=self.format_float(price, precision.get('price', 0)),
                 client_order_id=int(round(trade.completed_at.timestamp() * 1000))
             ).data
+
+            TakeProfitOrder.objects.create(user=trade.user, trade=trade, order_id=data.get('data'))
 
             # print('data:', data)
         except Exception as e:
