@@ -1,21 +1,27 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import {MainContext} from "../contexts/MainContext";
 
-export default function Orders({ symbol, wsCallbacksRef, symbolSettings }) {
+export default function Orders() {
+    const {wsCallbacksRef, symbol, symbolSettings} = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
 
     const onChangeData = (data) => {
         if (data && data.data) {
-            data.data.map((item) => {
-                if (item.amount < +amountLimit) return
+            let newOrders = []
 
-                setOrders((oldPurchases) => [item, ...oldPurchases].slice(0, 30))
+            data.data.map((item) => {
+                if (item.amount < +amountLimit) return []
+                newOrders = [item, ...newOrders]
+                return newOrders
             })
+
+            setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, 30))
         }
     }
 
     useEffect(() => {
-        wsCallbacksRef.current = { ...wsCallbacksRef.current, setOrdersData: onChangeData }
+        wsCallbacksRef.current.setOrdersData = onChangeData
         // eslint-disable-next-line
     }, [amountLimit])
 
@@ -27,10 +33,10 @@ export default function Orders({ symbol, wsCallbacksRef, symbolSettings }) {
         return (
             <div className="columns m-0 p-0" style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
                 <p style={{ width: 100 }} className="column is-narrow m-0 p-0">
-                    {item.price.toFixed(symbolSettings.tpp)}
+                    {item.price.toFixed(symbolSettings.tpp || 0)}
                 </p>
 
-                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(symbolSettings.tap)}</p>
+                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(symbolSettings.tap || 0)}</p>
             </div>
         )
     }

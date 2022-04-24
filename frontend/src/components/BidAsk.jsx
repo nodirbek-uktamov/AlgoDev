@@ -5,7 +5,7 @@ function BidAsk({ wsCallbacksRef, symbol }) {
     const data = rawData[symbol] || {}
 
     useEffect(() => {
-        wsCallbacksRef.current = { ...wsCallbacksRef.current, setBidAskData: setRawData }
+        wsCallbacksRef.current.setBidAskData = setRawData
         // eslint-disable-next-line
     }, [])
 

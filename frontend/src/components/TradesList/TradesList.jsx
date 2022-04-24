@@ -1,8 +1,9 @@
-import React from 'react'
+import React, {useContext} from 'react'
 import {Table as TradesTable} from "../common/Table";
 import {usePutRequest} from "../../hooks/request";
 import {TRADE_DETAIL} from "../../urls";
 import './TradesList.scss'
+import {MainContext} from "../../contexts/MainContext";
 
 const renderColumns = (handleCancelTrade, tpp) => {
     return [
@@ -61,8 +62,9 @@ const renderColumns = (handleCancelTrade, tpp) => {
     ];
 };
 
-function TradesList({trades, onCancel, tpp}) {
+function TradesList({trades, onCancel}) {
     const cancel = usePutRequest()
+    const {symbolSettings} = useContext(MainContext)
 
     const cancelTrade = (tradeId) => async () => {
         const {success} = await cancel.request({url: TRADE_DETAIL.replace('{id}', tradeId)})
@@ -74,7 +76,7 @@ function TradesList({trades, onCancel, tpp}) {
 
     return (
         <div className="trades-list_container">
-            <TradesTable columns={renderColumns(cancelTrade, tpp)} tableData={trades}/>
+            <TradesTable columns={renderColumns(cancelTrade, symbolSettings.tpp)} tableData={trades}/>
         </div>
     )
 }

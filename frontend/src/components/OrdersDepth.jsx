@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import { css, StyleSheet } from 'aphrodite'
 import cn from 'classnames'
+import {MainContext} from "../contexts/MainContext";
 
 
-function OrdersDepth({ wsCallbacksRef, botPrices, symbolSettings }) {
+function OrdersDepth({ botPrices }) {
+    const {symbolSettings, wsCallbacksRef} = useContext(MainContext)
     const { tpp, tap } = symbolSettings
     const [book, setBook] = useState(null)
 
     useEffect(() => {
-        wsCallbacksRef.current = { ...wsCallbacksRef.current, setBook }
+        wsCallbacksRef.current.setBook = setBook
         // eslint-disable-next-line
     }, [])
 

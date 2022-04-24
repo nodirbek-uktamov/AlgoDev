@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, {useState, useEffect, useRef, useContext} from 'react'
 import { LOGS_WS } from '../urls'
+import {MainContext} from "../contexts/MainContext";
 
-export default function Logs({ setBotPrices, trades, wsCallbacksRef }) {
+export default function Logs({ setBotPrices, trades }) {
+    const {wsCallbacksRef} = useContext(MainContext)
     const ws = useRef(null)
 
     const user = JSON.parse(localStorage.getItem('user'))
@@ -14,7 +16,7 @@ export default function Logs({ setBotPrices, trades, wsCallbacksRef }) {
     }
 
     useEffect(() => {
-        wsCallbacksRef.current = { ...wsCallbacksRef.current, setLogs }
+        wsCallbacksRef.current.setLogs = setLogs
         connect()
 
         return () => {

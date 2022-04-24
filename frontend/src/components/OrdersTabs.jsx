@@ -1,10 +1,12 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useContext } from 'react'
 import ReactSelect from './common/ReactSelect'
 import OrdersDepth from './OrdersDepth'
 import Orders from './Orders'
 import { WS_TYPES } from '../utils/websocket'
+import {MainContext} from "../contexts/MainContext";
 
-export default function OrdersTabs({ botPrices, ws, symbol, symbolSettings, wsCallbacksRef, setDepthType, depthType }) {
+export default function OrdersTabs({ botPrices }) {
+    const { symbolSettings, huobiWs,setDepthType, depthType, symbolValue } = useContext(MainContext)
     const [ordersTab, setOrdersTab] = useState('list')
     const { tpp } = symbolSettings
 
@@ -18,9 +20,9 @@ export default function OrdersTabs({ botPrices, ws, symbol, symbolSettings, wsCa
     ]
 
     function onChangeDepthType({ value }) {
-        ws.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', symbol).replace('{type}', depthType) }))
+        huobiWs.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', depthType) }))
         setDepthType(value)
-        ws.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', symbol).replace('{type}', value) }))
+        huobiWs.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value) }))
     }
 
     return (
@@ -37,17 +39,12 @@ export default function OrdersTabs({ botPrices, ws, symbol, symbolSettings, wsCa
                 </ul>
             </div>
 
-            {ordersTab === 'list' && (
-                <Orders
-                    wsCallbacksRef={wsCallbacksRef}
-                    symbolSettings={symbolSettings}
-                    symbol={symbol} />
-            )}
+            {ordersTab === 'list' && <Orders />}
 
             {ordersTab === 'depth' && (
                 <Fragment>
                     <ReactSelect options={depthSteps} onChange={onChangeDepthType} defaultValue={depthSteps[0].value} />
-                    <OrdersDepth symbolSettings={symbolSettings} botPrices={botPrices} wsCallbacksRef={wsCallbacksRef} />
+                    <OrdersDepth botPrices={botPrices}  />
                 </Fragment>
             )}
         </div>
