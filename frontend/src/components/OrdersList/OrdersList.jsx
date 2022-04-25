@@ -71,21 +71,15 @@ const renderColumns = (handleCancelOrder, tpp) => {
 function OrdersList() {
     const {wsCallbacksRef, symbolValue, symbolSettings: {tpp}} = useContext(MainContext)
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
-    const [takeProfitOrderIds, setTakeProfitOrderIds] = useState(["3"])
-    // ["1", "123"] // orderId of ordersList
+    const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
     const [orders, setOrders] = useState([]);
-    const [filteredOrders, setFilteredOrders] = useState([]);
-    const [filter, setFilter] = useState(undefined);
-
-    useEffect(() => {
-        setFilteredOrders(orders);
-        setFilter(undefined);
-    }, [orders]);
+    const [filter, setFilter] = useState({});
 
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
         wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
+
         wsCallbacksRef.current.updateInitialOrders = () => {
             setOrders([])
             initialOrders.request()
@@ -106,7 +100,7 @@ function OrdersList() {
 
     }, [initialOrders.response]);
 
-    const createNewFilteredData = (key, value) => {
+    const filteredOrders = ({ key, value }) => {
         switch (value) {
             case ORDERS_FILTER_TYPE.takeprofit:
                 return orders.filter(data => takeProfitOrderIds.includes(String(data.orderId)) && data.orderStatus === ORDERS_FILTER_TYPE.submitted);
@@ -116,15 +110,11 @@ function OrdersList() {
     }
 
     const handleFilter = (key, value) => {
+        console.log(key, value)
         if (filter === value) return;
 
         return () => {
-            setFilter(value);
-
-            if (!value) return setFilteredOrders(orders);
-
-            const filteredData = createNewFilteredData(key, value);
-            setFilteredOrders(filteredData);
+            setFilter({key, value});
         };
     };
 
@@ -143,7 +133,7 @@ function OrdersList() {
     return (
         <div className="orders-list_container">
             <FilterPanel handleFilter={handleFilter} openOrdersCount={openOrdersCount} allOrdersCount={allOrdersCount}/>
-            <OrdersTable columns={renderColumns(handleCancelOrder, tpp)} tableData={filteredOrders}/>
+            <OrdersTable columns={renderColumns(handleCancelOrder, tpp)} tableData={filteredOrders(filter)}/>
         </div>
     )
 }

@@ -126,7 +126,7 @@ export default function MainContextWrapper({children}) {
             const item = data.data
             item.side = item.type.split('-')[0]
             item.type = item.type.split('-')[0]
-            item.time = new Date(item.orderCreateTime).toLocaleString()
+            item.time = new Date(item.orderCreateTime).toLocaleTimeString()
 
             wsCallbacksRef.current.setOrders(oldOrders => {
                 if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {

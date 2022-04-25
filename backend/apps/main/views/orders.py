@@ -17,7 +17,7 @@ class OrdersListView(APIView):
                 'type': i.get('type').split('-')[1],
                 'orderId': i.get('id'),
                 'orderStatus': i.get('state'),
-                'time': datetime.datetime.fromtimestamp(i.get('created-at') / 1000.0).strftime("%d.%m.%Y, %H:%M:%S"),
+                'time': datetime.datetime.fromtimestamp(i.get('created-at') / 1000.0).strftime("%H:%M:%S"),
             })
 
         return new_orders
