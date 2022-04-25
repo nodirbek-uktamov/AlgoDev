@@ -91,7 +91,6 @@ export default function MainContextWrapper({children}) {
         })
     }
 
-
     const accountWs = useRef(null)
 
     async function connectAccountWs() {
@@ -124,10 +123,15 @@ export default function MainContextWrapper({children}) {
         }
 
         if (data.ch && data.ch.includes("orders") && data.action === 'push') {
+            const item = data.data
+            item.side = item.type.split('-')[0]
+            item.type = item.type.split('-')[0]
+            item.time = new Date(item.orderCreateTime).toLocaleString()
+
             wsCallbacksRef.current.setOrders(oldOrders => {
                 if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {
                     return oldOrders.map(i => {
-                        if (i.orderId === data.data.orderId) return data.data
+                        if (i.orderId === data.data.orderId) return {...data.data, time: i.time}
                         return i
                     })
                 }

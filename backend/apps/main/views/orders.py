@@ -1,9 +1,7 @@
-import json
-
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from core.exchange.client import CustomHuobiClient
+import datetime
 
 
 class OrdersListView(APIView):
@@ -15,9 +13,11 @@ class OrdersListView(APIView):
                 'orderPrice': i.get('price'),
                 'orderSize': float(i.get('amount')),
                 'symbol': i.get('symbol'),
-                'type': i.get('type'),
+                'side': i.get('type').split('-')[0],
+                'type': i.get('type').split('-')[1],
                 'orderId': i.get('id'),
-                'orderStatus': i.get('state')
+                'orderStatus': i.get('state'),
+                'time': datetime.datetime.fromtimestamp(i.get('created-at') / 1000.0).strftime("%d.%m.%Y, %H:%M:%S"),
             })
 
         return new_orders
