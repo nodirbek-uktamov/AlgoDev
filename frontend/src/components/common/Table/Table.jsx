@@ -21,7 +21,7 @@ function renderHeaderCell(column, sortManager) {
     </button>;
 }
 
-export function Table({columns, tableData}) {
+export function Table({columns, tableData, noDisplayDataMessage = 'No data to display'}) {
     const sortManager = useSort(tableData);
     const {sortData} = sortManager;
 
@@ -51,6 +51,7 @@ export function Table({columns, tableData}) {
                 ))}
                 </tbody>
             </table>
+            {sortData.length === 0 && <div className="table_no-data-container">{noDisplayDataMessage}</div>}
         </div>
     );
 }

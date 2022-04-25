@@ -1,5 +1,14 @@
 .table-container {
     width: 100%;
+    margin: 0 !important;
+}
+
+.table_no-data-container {
+    width: 100%;
+    padding: 16px;
+    text-align: center;
+    background-color: #363636;
+    color: #F7FEFF;
 }
 
 .th-cell {
