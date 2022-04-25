@@ -64,7 +64,7 @@ const renderColumns = (handleCancelTrade, tpp) => {
 
 function TradesList({trades, onCancel}) {
     const cancel = usePutRequest()
-    const {symbolSettings} = useContext(MainContext)
+    const {symbolSettings: {tpp}} = useContext(MainContext)
 
     const cancelTrade = (tradeId) => async () => {
         const {success} = await cancel.request({url: TRADE_DETAIL.replace('{id}', tradeId)})
@@ -76,7 +76,7 @@ function TradesList({trades, onCancel}) {
 
     return (
         <div className="trades-list_container">
-            <TradesTable columns={renderColumns(cancelTrade, symbolSettings.tpp)} tableData={trades}/>
+            <TradesTable columns={renderColumns(cancelTrade, tpp)} tableData={trades}/>
         </div>
     )
 }

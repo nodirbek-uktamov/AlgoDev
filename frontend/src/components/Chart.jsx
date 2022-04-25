@@ -7,7 +7,7 @@ import { intervals } from '../utils/intervals'
 import {TradesList} from '../components/TradesList'
 import { HUOBI_SYMBOLS } from '../urls'
 import {MainContext} from '../contexts/MainContext'
-import MyOrders from "./MyOrders";
+import {OrdersList} from "./OrdersList";
 
 const defaultOptions = {
     width: '100%',
@@ -70,7 +70,7 @@ function Chart({ trades }) {
 
             <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbolValue.toUpperCase()}`} interval={interval} />
             <TradesList onCancel={trades.request} trades={trades.response || []} />
-            <MyOrders />
+            <OrdersList />
         </div>
     )
 }

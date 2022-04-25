@@ -1,10 +1,13 @@
-import React, {useMemo, useRef, useState} from 'react'
+import React, {useMemo, useState, useContext, useEffect} from 'react'
 import {Table as OrdersTable} from "../common/Table";
-import {convertTimestamp} from "../../utils/date";
-import './OrdersList.scss'
 import {FilterPanel} from "../FilterPanel";
+import {MainContext} from "../../contexts/MainContext";
+import {useLoad} from "../../hooks/request";
+import {OPEN_ORDERS} from "../../urls";
+import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
+import './OrdersList.scss';
 
-const renderColumns = (handleCancelOrder) => {
+const renderColumns = (handleCancelOrder, tpp) => {
     return [
         {
             title: "Status",
@@ -32,10 +35,10 @@ const renderColumns = (handleCancelOrder) => {
         },
         {
             title: "Side",
-            key: 'eventType',
+            key: 'side',
             hasSorting: true,
             render: (rowData) => {
-                return <span className='has-text-primary'>{rowData.eventType}</span>;
+                return <span className='has-text-primary'>{rowData.side}</span>;
             }
         },
         {
@@ -43,7 +46,7 @@ const renderColumns = (handleCancelOrder) => {
             key: 'orderPrice',
             hasSorting: true,
             render: (rowData) => {
-                return <span className='has-text-weight-bold'>{rowData.orderPrice}</span>;
+                return <span className='has-text-weight-bold'>{Number(rowData.orderPrice).toFixed(tpp)}</span>;
             }
         },
         {
@@ -56,65 +59,61 @@ const renderColumns = (handleCancelOrder) => {
         },
         {
             title: "Time",
-            key: 'tradeTime',
+            key: 'time',
             hasSorting: true,
             render: (rowData) => {
-                return <span className='has-text-grey-light is-size-7'>{convertTimestamp(rowData.tradeTime)}</span>;
-            }
-        },
-        {
-            title: "",
-            key: 'orderId',
-            render: ({orderId}) => {
-                return <button className='orders-list_cancel-btn' onClick={handleCancelOrder(orderId)}>&#10060;</button>
+                return <span className='has-text-grey-light is-size-7'>{rowData.time}</span>;
             }
         }
     ];
 };
 
-const mockTableData = [
-    {
-        tradePrice: "76.000000000000000000",
-        tradeVolume: "1.013157894736842100",
-        tradeId: 301,
-        tradeTime: 1583854188883,
-        aggressor: true,
-        remainAmt: "0.000000000000000400000000000000000000",
-        execAmt: "2",
-        orderId: 27163536,
-        type: "sell-limit",
-        clientOrderId: "abc123",
-        orderSource: "spot-api",
-        orderPrice: "15000",
-        orderSize: "0.01",
-        orderStatus: "filled",
-        symbol: "btcusdt",
-        eventType: "trade"
-    },
-    {
-        tradePrice: "86.000000000000000000",
-        tradeVolume: "1.013157894736842100",
-        tradeId: 302,
-        tradeTime: 1583854188893,
-        aggressor: true,
-        remainAmt: "0.000000000000000400000000000000000000",
-        execAmt: "2",
-        orderId: 27163537,
-        type: "sell-limit",
-        clientOrderId: "abc123",
-        orderSource: "spot-api",
-        orderPrice: "16000",
-        orderSize: "0.02",
-        orderStatus: "closed",
-        symbol: "btcusdt",
-        eventType: "trade"
-    }
-];
-
 function OrdersList() {
-    const initialData = useRef(mockTableData).current;
-    const [data, setData] = useState(initialData);
-    const [filter, setFilter] = useState("");
+    const {wsCallbacksRef, symbolValue, symbolSettings: {tpp}} = useContext(MainContext)
+    const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
+    const [takeProfitOrderIds, setTakeProfitOrderIds] = useState(["3"])
+    // ["1", "123"] // orderId of ordersList
+
+    const [orders, setOrders] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState([]);
+    const [filter, setFilter] = useState(undefined);
+
+    useEffect(() => {
+        setFilteredOrders(orders);
+        setFilter(undefined);
+    }, [orders]);
+
+    useEffect(() => {
+        wsCallbacksRef.current.setOrders = setOrders
+        wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
+        wsCallbacksRef.current.updateInitialOrders = () => {
+            setOrders([])
+            initialOrders.request()
+        }
+
+    }, []);
+
+    useEffect(() => {
+        if (!initialOrders.response) return;
+
+        if (initialOrders.response.orders) {
+            setOrders(oldOrders => [...initialOrders.response.orders, ...oldOrders])
+        }
+
+        if (initialOrders.response.takeProfitOrders) {
+            setTakeProfitOrderIds(oldIds => [...initialOrders.response.takeProfitOrders, ...oldIds])
+        }
+
+    }, [initialOrders.response]);
+
+    const createNewFilteredData = (key, value) => {
+        switch (value) {
+            case ORDERS_FILTER_TYPE.takeprofit:
+                return orders.filter(data => takeProfitOrderIds.includes(String(data.orderId)) && data.orderStatus === ORDERS_FILTER_TYPE.submitted);
+            default:
+                return orders.filter((data) => data[key] === value);
+        }
+    }
 
     const handleFilter = (key, value) => {
         if (filter === value) return;
@@ -122,29 +121,29 @@ function OrdersList() {
         return () => {
             setFilter(value);
 
-            if (!value) return setData(initialData);
+            if (!value) return setFilteredOrders(orders);
 
-            const filteredData = initialData.filter((data) => data[key] === value);
-            setData(filteredData);
+            const filteredData = createNewFilteredData(key, value);
+            setFilteredOrders(filteredData);
         };
     };
 
-    const cancelOrder = (orderId) => async () => {
+    const handleCancelOrder = (orderId) => async () => {
         throw Error('Not implemented yet')
     }
 
     const openOrdersCount = useMemo(() => {
-        return initialData.filter((data) => data.orderStatus === 'open').length;
-    }, [initialData])
+        return orders.filter((data) => data.orderStatus === ORDERS_FILTER_TYPE.submitted).length;
+    }, [orders])
 
     const allOrdersCount = useMemo(() => {
-        return initialData.length;
-    }, [initialData])
+        return orders.length;
+    }, [orders])
 
     return (
         <div className="orders-list_container">
             <FilterPanel handleFilter={handleFilter} openOrdersCount={openOrdersCount} allOrdersCount={allOrdersCount}/>
-            <OrdersTable columns={renderColumns(cancelOrder)} tableData={data}/>
+            <OrdersTable columns={renderColumns(handleCancelOrder, tpp)} tableData={filteredOrders}/>
         </div>
     )
 }
