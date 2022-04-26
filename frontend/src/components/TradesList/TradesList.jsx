@@ -42,7 +42,7 @@ const renderColumns = (handleCancelTrade, tpp) => {
             title: "Active orders",
             key: 'tradeType',
             render: (rowData) => {
-                return <span>{rowData.hft_bot || rowData.grid_bot ? rowData.activeOrderIds.length : '—'}</span>;
+                return <span>{rowData.hftBot || rowData.gridBot ? rowData.activeOrderIds.length : '—'}</span>;
             }
         },
         {
