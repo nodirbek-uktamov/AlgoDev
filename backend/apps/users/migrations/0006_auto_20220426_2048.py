@@ -9,7 +9,7 @@ from users.models import User
 def update_decode_key_keys_and_secret_keys(*args, **kwargs):
     for user in User.objects.all():
         user.decode_key = hash.generate_key()
-        user._secret_key = hash.decode(user.decode_key, user._secret_key)
+        user.secret_key = hash.decode(user.decode_key, user.secret_key)
         user.save()
 
 
