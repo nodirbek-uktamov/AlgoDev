@@ -42,7 +42,7 @@ class TradeDetailView(APIView):
         trade.is_completed = True
         trade.save()
 
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user.secret_key)
+        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
         orders = client.open_orders().data
 
         active_orders = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
@@ -66,7 +66,7 @@ class CancelTradesView(APIView):
         trades.update(is_completed=True)
         channel_layer = get_channel_layer()
 
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user.secret_key)
+        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
         orders = client.open_orders().data
         orders_for_cancel = []
 

@@ -25,7 +25,7 @@ twap_bot_order_interval = 60
 def save_account_ids(user):
     try:
         if not user.spot_account_id or not user.margin_account_id:
-            client = HuobiRestClient(access_key=user.api_key, secret_key=user.secret_key)
+            client = HuobiRestClient(access_key=user.api_key, secret_key=user._secret_key)
             accounts = client.accounts().data
 
             for account in accounts.get('data', []):
@@ -415,7 +415,7 @@ class Bot:
         try:
             user, costs, precisions = args
 
-            client = CustomHuobiClient(access_key=user.api_key, secret_key=user.secret_key)
+            client = CustomHuobiClient(access_key=user.api_key, secret_key=user._secret_key)
             orders = client.open_orders().data
             account_id = user.spot_account_id
 

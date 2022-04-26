@@ -1,7 +1,4 @@
 import uuid
-from random import choice
-from string import digits, ascii_letters
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -9,6 +6,7 @@ from core.models import BaseModel
 from users.querysets.user import UsersManager
 from users.utils import tokens
 from users.utils.fields import expires_default, expires_hour
+from core.utils import hash
 
 
 class User(AbstractUser):
@@ -17,10 +15,19 @@ class User(AbstractUser):
     verified_at = models.DateTimeField(null=True, blank=True)
     expires_user_at = models.DateField(null=True, blank=True)
     objects = UsersManager()
+
     api_key = models.CharField(max_length=255, null=True, blank=True)
     secret_key = models.CharField(max_length=255, null=True, blank=True)
+
     spot_account_id = models.IntegerField(null=True, blank=True)
     margin_account_id = models.IntegerField(null=True, blank=True)
+
+    decode_key = models.CharField(null=True, blank=True, max_length=255)
+
+    @property
+    def _secret_key(self):
+        secret_key = hash.encode(self.decode_key, self.secret_key)
+        return secret_key
 
     class Meta(AbstractUser.Meta):
         db_table = 'user_users'

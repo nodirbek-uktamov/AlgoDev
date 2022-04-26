@@ -9,7 +9,6 @@ class OrdersListView(APIView):
         new_orders = []
 
         for i in orders.get('data', []):
-            print(i)
             new_orders.append({
                 'orderPrice': i.get('price'),
                 'orderSize': float(i.get('field-amount') if i.get('state') == 'filled' else i.get('amount')),
@@ -20,13 +19,12 @@ class OrdersListView(APIView):
                 'orderStatus': i.get('state'),
                 'time': datetime.datetime.fromtimestamp(i.get('created-at') / 1000.0).strftime("%H:%M:%S"),
             })
-            print(i.get('state'), float(i.get('field-amount') if i.get('status') == 'filled' else i.get('amount')))
 
         return new_orders
 
     def get(self, request, symbol):
         try:
-            client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user.secret_key)
+            client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
 
             open_orders = self._format_order(client.open_orders().data)
             canceled_orders = self._format_order(client.list_orders(symbol=symbol, states='canceled').data)
