@@ -1,13 +1,19 @@
+import json
+
 from rest_framework import serializers
 from main.models import Trade
 
 
 class TradesSerializer(serializers.ModelSerializer):
     completed_icebergs = serializers.IntegerField(read_only=True)
-    filled_amount = serializers.SerializerMethodField(read_only=True)
+        # filled_amount = serializers.SerializerMethodField(read_only=True)
+    active_order_ids = serializers.SerializerMethodField(read_only=True)
 
-    def get_filled_amount(self, obj):
-        return obj.filled_amount
+    def get_active_order_ids(self, obj):
+        return json.loads(obj.active_order_ids)
+
+    # def get_filled_amount(self, obj):
+    #     return obj.filled_amount
 
     def validate(self, data):
         if not data.get('loop'):
@@ -91,4 +97,5 @@ class TradesSerializer(serializers.ModelSerializer):
             'hft_orders_price_difference',
             'hft_orders_on_each_side',
             'hft_bot',
+            'active_order_ids',
         )

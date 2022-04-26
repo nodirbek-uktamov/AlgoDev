@@ -9,9 +9,10 @@ class OrdersListView(APIView):
         new_orders = []
 
         for i in orders.get('data', []):
+            print(i)
             new_orders.append({
                 'orderPrice': i.get('price'),
-                'orderSize': float(i.get('amount')),
+                'orderSize': float(i.get('field-amount') if i.get('state') == 'filled' else i.get('amount')),
                 'symbol': i.get('symbol'),
                 'side': i.get('type').split('-')[0],
                 'type': i.get('type').split('-')[1],
@@ -19,6 +20,7 @@ class OrdersListView(APIView):
                 'orderStatus': i.get('state'),
                 'time': datetime.datetime.fromtimestamp(i.get('created-at') / 1000.0).strftime("%H:%M:%S"),
             })
+            print(i.get('state'), float(i.get('field-amount') if i.get('status') == 'filled' else i.get('amount')))
 
         return new_orders
 

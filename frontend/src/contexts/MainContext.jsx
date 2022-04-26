@@ -125,8 +125,11 @@ export default function MainContextWrapper({children}) {
         if (data.ch && data.ch.includes("orders") && data.action === 'push') {
             const item = data.data
             item.side = item.type.split('-')[0]
-            item.type = item.type.split('-')[0]
+            item.type = item.type.split('-')[1]
             item.time = new Date(item.orderCreateTime).toLocaleTimeString()
+            item.orderSize = item.orderSize || item.tradeVolume
+            item.orderPrice = item.orderPrice || item.tradePrice
+            console.log(item)
 
             wsCallbacksRef.current.setOrders(oldOrders => {
                 if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {

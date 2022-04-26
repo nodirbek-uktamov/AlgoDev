@@ -39,6 +39,13 @@ const renderColumns = (handleCancelTrade, tpp) => {
             }
         },
         {
+            title: "Active orders",
+            key: 'tradeType',
+            render: (rowData) => {
+                return <span>{rowData.activeOrderIds.length}</span>;
+            }
+        },
+        {
             title: "Interval (seconds)",
             key: 'timeInterval',
             render: ({loop, timeInterval}) => {

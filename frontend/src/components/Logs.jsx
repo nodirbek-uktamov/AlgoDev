@@ -56,6 +56,13 @@ export default function Logs({ setBotPrices, trades }) {
                     }))
                 }
 
+                if (typeof log.action.active_order_ids === 'object') {
+                    trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
+                        if (i.id === log.action.trade) return { ...i, activeOrderIds: log.action.active_order_ids }
+                        return i
+                    }))
+                }
+
                 if (typeof log.action.completed_loops === 'number') {
                     trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
                         if (i.id === log.action.trade) return { ...i, completedLoops: log.action.completed_loops }

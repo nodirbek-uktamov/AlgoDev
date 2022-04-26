@@ -60,6 +60,8 @@ class Trade(models.Model):
     hft_orders_on_each_side = models.IntegerField(default=0)
     hft_order_ids = models.TextField(default='[]')
 
+    active_order_ids = models.TextField(default='[]')
+
     @property
     def filled_amount(self):
         amount = 0
@@ -80,13 +82,17 @@ class Trade(models.Model):
 
     def save(self, *args, **kwargs):
         channel_layer = get_channel_layer()
+        print(self.active_order_ids)
 
         t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
             f'user_{self.user.id}',
             {
                 'type': 'chat_message',
                 'message': "",
-                'action': {'filled_amount': self.filled_amount, 'trade': self.id}
+                'action': {
+                    'filled_amount': self.filled_amount, 'trade': self.id,
+                    'active_order_ids': json.loads(self.active_order_ids)
+                }
             }
         ))
         t.daemon = True

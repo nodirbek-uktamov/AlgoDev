@@ -110,7 +110,6 @@ function OrdersList() {
     }
 
     const handleFilter = (key, value) => {
-        console.log(key, value)
         if (filter === value) return;
 
         return () => {

@@ -220,11 +220,25 @@ class Bot:
 
             TakeProfitOrder.objects.create(user=trade.user, trade=trade, order_id=data.get('data'))
 
-            # print('data:', data)
         except Exception as e:
             self.handle_error(trade, e)
 
-    def grid_bot(self, client, trade, cost, account_id, precision):
+    def grid_bot(self, client, trade, cost, account_id, precision, orders):
+        order_ids = json.loads(trade.active_order_ids)
+
+        if len(order_ids) > 0:
+            active_orders = filter(lambda i: i.get('id') in order_ids, orders.get('data', []))
+            active_orders = list(map(lambda a: a['id'], active_orders))
+
+            if len(active_orders) != len(order_ids):
+                trade.active_order_ids = json.dumps(active_orders)
+                trade.save()
+
+            if len(active_orders) == 0:
+                self.complete_trade(trade, client, account_id, precision)
+
+            return
+
         start_price = min(trade.grid_end_price, trade.grid_start_price)
         end_price = max(trade.grid_end_price, trade.grid_start_price)
 
@@ -234,24 +248,32 @@ class Bot:
             precision.get('min_price'),
             10
         )
+        order_ids = []
 
         for i in range(1, trade.grid_trades_count + 1):
             price = start_price + i * (end_price - start_price) / (trade.grid_trades_count + 1)
             quantity = prices_array[i - 1]
 
-            client.place(
+            order = client.place(
                 account_id=account_id,
                 amount=self.format_float(float(quantity) / float(price), precision.get('amount', 0)),
                 symbol=trade.symbol,
                 type=f'{trade.trade_type}-limit',
                 price=self.format_float(price, precision.get('price', 0)),
                 client_order_id=int(round(timezone.now().timestamp() * 1000))
-            )
+            ).data
 
-        self.complete_trade(trade, client, account_id, precision)
+            order_ids.append(int(order.get('data')))
+
+        trade.active_order_ids = json.dumps(order_ids)
+        trade.save()
+
+        log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
+        self.send_log(trade.user.id, log_text)
 
     def hft_bot(self, client, trade, cost, account_id, precision, orders):
         old_order_ids = json.loads(trade.hft_order_ids)
+        active_order_ids = json.loads(trade.active_order_ids)
 
         if len(old_order_ids) > 0:
             active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
@@ -263,12 +285,16 @@ class Bot:
             else:
                 log_text = f'{trade.id}: {bold(f"{len(old_order_ids) - len(active_orders)} orders completed, replacing orders")}.'
 
+                if len(active_orders) != len(active_order_ids):
+                    trade.active_order_ids = json.dumps(active_orders)
+                    trade.save()
+
                 if active_orders:
                     client.batch_cancel(order_ids=active_orders)
                     self.send_log(trade.user.id, log_text)
 
                 trade.hft_order_ids = '[]'
-                trade.save()
+                trade.active_order_ids = '[]'
 
         ask_orders_q = random_array(
             float(trade.quantity) / 2,
@@ -288,7 +314,8 @@ class Bot:
         try:
             # place orders:
             for i in range(trade.hft_orders_on_each_side):
-                percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(trade.hft_default_price_difference) + 100)
+                percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(
+                    trade.hft_default_price_difference) + 100)
                 price = cost['ask'] * percent / 100
                 client_order_id = int(round(timezone.now().timestamp() * 100000))
 
@@ -305,7 +332,8 @@ class Bot:
                 client_order_ids.append(client_order_id)
 
             for i in range(trade.hft_orders_on_each_side):
-                percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(trade.hft_default_price_difference))
+                percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(
+                    trade.hft_default_price_difference))
                 price = cost['bid'] * percent / 100
                 client_order_id = int(round(timezone.now().timestamp() * 100000))
 
@@ -318,7 +346,7 @@ class Bot:
                     client_order_id=client_order_id
                 ).data
 
-                order_ids.append(order.get('data'))
+                order_ids.append(int(order.get('data')))
                 client_order_ids.append(client_order_id)
 
         except Exception as e:
@@ -328,6 +356,7 @@ class Bot:
                 client.batch_cancel(order_ids=order_ids)
 
         trade.hft_order_ids = json.dumps(client_order_ids)
+        trade.active_order_ids = json.dumps(order_ids)
         trade.save()
 
     def complete_trade(self, trade, client, account_id, precision):
@@ -401,7 +430,7 @@ class Bot:
                 price = cost.get('bid')
 
                 if trade.grid_bot:
-                    self.grid_bot(client, trade, cost, account_id, precision)
+                    self.grid_bot(client, trade, cost, account_id, precision, orders)
                     continue
 
                 if trade.hft_bot:
