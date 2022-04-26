@@ -10,29 +10,37 @@ function renderSortIcon(isSorting, sortDirection) {
 
 function renderHeaderCell(column, sortManager) {
     if (!column.hasSorting) {
-        return <button className="th-cell_sort">{column.title}</button>;
+        return <button>{column.title}</button>;
     }
 
     const {sortDispatcher, sortProperty, sortDirection} = sortManager;
 
-    return <button className="th-cell_sort th-cell_enable-sort"
-                   onClick={() => sortDispatcher(column.key)}>
+    const handleSort = () => sortDispatcher(column.key)
+
+    return <button data-sortable={true}
+                   onClick={handleSort}>
         {column.title} {renderSortIcon(column.key === sortProperty, sortDirection)}
     </button>;
 }
 
+function renderNoDataMessage(colSpan, noDisplayDataMessage) {
+    return <tr data-empty={true}>
+        <td colSpan={colSpan}>{noDisplayDataMessage}</td>
+    </tr>
+}
+
 export function Table({columns, tableData, noDisplayDataMessage = 'No data to display'}) {
     const sortManager = useSort(tableData);
-    const {sortData} = sortManager;
+    const {sortData, isEmpty} = sortManager;
 
     return (
-        <div>
-            <table className="table-container">
+        <div className="tableWrap">
+            <table>
                 <thead>
                 <tr>
                     {columns.map((column) => (
                         <th
-                            className="th-cell has-background-grey-dark is-size-7 has-text-light has-text-left py-2"
+                            className="has-background-grey-dark is-size-7 has-text-light has-text-left"
                             key={column.key}>
                             {column.title && renderHeaderCell(column, sortManager)}
                         </th>
@@ -40,10 +48,10 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                 </tr>
                 </thead>
                 <tbody>
-                {sortData.map((item, index) => (
+                {isEmpty ? renderNoDataMessage(columns.length, noDisplayDataMessage) : sortData.map((item, index) => (
                     <tr key={`row_${index}`}>
                         {columns.map((column, key) => (
-                            <td key={key} className="td-item has-background-grey-darker has-text-white py-2">
+                            <td key={key} className="has-background-grey-darker has-text-white">
                                 {column.render(item)}
                             </td>
                         ))}
@@ -51,7 +59,6 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                 ))}
                 </tbody>
             </table>
-            {sortData.length === 0 && <div className="table_no-data-container">{noDisplayDataMessage}</div>}
         </div>
     );
 }

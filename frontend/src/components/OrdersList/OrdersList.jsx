@@ -38,7 +38,8 @@ const renderColumns = (handleCancelOrder, tpp) => {
             key: 'side',
             hasSorting: true,
             render: (rowData) => {
-                return <span className='has-text-primary'>{rowData.side}</span>;
+                return <span
+                    className={`has-text-primary ${rowData.side === 'sell' ? 'has-text-danger' : 'has-text-success'}`}>{rowData.side}</span>;
             }
         },
         {
@@ -74,17 +75,15 @@ function OrdersList() {
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
     const [orders, setOrders] = useState([]);
-    const [filter, setFilter] = useState({});
+    const [filter, setFilter] = useState({key: "orderStatus", value: "all"});
 
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
         wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
-
         wsCallbacksRef.current.updateInitialOrders = () => {
             setOrders([])
             initialOrders.request()
         }
-
     }, []);
 
     useEffect(() => {
@@ -93,24 +92,21 @@ function OrdersList() {
         if (initialOrders.response.orders) {
             setOrders(oldOrders => [...initialOrders.response.orders, ...oldOrders])
         }
-
         if (initialOrders.response.takeProfitOrders) {
             setTakeProfitOrderIds(oldIds => [...initialOrders.response.takeProfitOrders, ...oldIds])
         }
-
     }, [initialOrders.response]);
 
-    const filteredOrders = ({ key, value }) => {
+    const filteredOrders = ({key, value}) => {
         switch (value) {
-            case ORDERS_FILTER_TYPE.takeprofit:
-                return orders.filter(data => takeProfitOrderIds.includes(String(data.orderId)) && data.orderStatus === ORDERS_FILTER_TYPE.submitted);
+            case ORDERS_FILTER_TYPE.all:
+                return orders;
             default:
                 return orders.filter((data) => data[key] === value);
         }
     }
 
     const handleFilter = (key, value) => {
-        console.log(key, value)
         if (filter === value) return;
 
         return () => {
@@ -132,7 +128,8 @@ function OrdersList() {
 
     return (
         <div className="orders-list_container">
-            <FilterPanel handleFilter={handleFilter} openOrdersCount={openOrdersCount} allOrdersCount={allOrdersCount}/>
+            <FilterPanel handleFilter={handleFilter} openOrdersCount={openOrdersCount} allOrdersCount={allOrdersCount}
+                         filter={filter}/>
             <OrdersTable columns={renderColumns(handleCancelOrder, tpp)} tableData={filteredOrders(filter)}/>
         </div>
     )
