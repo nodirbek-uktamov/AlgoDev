@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 
 const dir = Object.freeze({
     asc: 1,
@@ -27,9 +27,11 @@ export function useSort(data = [], direction = dir.none) {
         if (property !== sortProperty || sortProperty === undefined) setSortProperty(property)
     }
 
+    const isEmpty = useMemo(() => sortData.length === 0, [sortData]);
+
     useEffect(() => {
         setSortData(data)
-    }, [data])
+    }, [data]);
 
-    return {sortData, sortProperty, sortDirection, sortDispatcher}
+    return {sortData, sortProperty, sortDirection, sortDispatcher, isEmpty}
 }
