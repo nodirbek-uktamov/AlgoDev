@@ -7,9 +7,9 @@ def generate_key():
 
 def decode(key, value):
     f = Fernet(str.encode(key))
-    return f.encrypt(str.encode(value)).decode("utf-8")
+    return f.encrypt(str.encode(value or '')).decode("utf-8")
 
 
 def encode(key, value):
     f = Fernet(str.encode(key))
-    return f.decrypt(str.encode(value)).decode("utf-8")
+    return f.decrypt(str.encode(value or '')).decode("utf-8")
