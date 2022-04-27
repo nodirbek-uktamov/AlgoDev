@@ -13,6 +13,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Status",
             key: 'orderStatus',
             hasSorting: true,
+            width: '20%',
             render: (rowData) => {
                 return <span>{rowData.orderStatus}</span>;
             }
@@ -21,6 +22,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Type",
             key: 'type',
             hasSorting: true,
+            width: '10%',
             render: (rowData) => {
                 return <span className='has-text-grey-light'>{rowData.type}</span>;
             }
@@ -29,6 +31,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Symbol",
             key: 'symbol',
             hasSorting: true,
+            width: '20%',
             render: (rowData) => {
                 return <span className='is-uppercase'>{rowData.symbol}</span>;
             }
@@ -37,6 +40,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Side",
             key: 'side',
             hasSorting: true,
+            width: '10%',
             render: (rowData) => {
                 return <span
                     className={`has-text-primary ${rowData.side === 'sell' ? 'has-text-danger' : 'has-text-success'}`}>{rowData.side}</span>;
@@ -46,6 +50,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Price",
             key: 'orderPrice',
             hasSorting: true,
+            width: '10%',
             render: (rowData) => {
                 return <span className='has-text-weight-bold'>{Number(rowData.orderPrice).toFixed(tpp)}</span>;
             }
@@ -54,6 +59,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Quantity",
             key: 'orderSize',
             hasSorting: true,
+            width: '10%',
             render: (rowData) => {
                 return <span className='has-text-weight-bold'>{rowData.orderSize}</span>;
             }
@@ -75,7 +81,7 @@ function OrdersList() {
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
     const [orders, setOrders] = useState([]);
-    const [filter, setFilter] = useState({key: "orderStatus", value: "all"});
+    const [filter, setFilter] = useState({key: "orderStatus", value: ORDERS_FILTER_TYPE.submitted});
 
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders

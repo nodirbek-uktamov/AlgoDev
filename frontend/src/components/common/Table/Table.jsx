@@ -40,6 +40,7 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                 <tr>
                     {columns.map((column) => (
                         <th
+                            style={{width: column.width ?? undefined}}
                             className="has-background-grey-dark is-size-7 has-text-light has-text-left"
                             key={column.key}>
                             {column.title && renderHeaderCell(column, sortManager)}
