@@ -40,8 +40,8 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                 <tr>
                     {columns.map((column) => (
                         <th
-                            style={{width: column.width ?? undefined}}
-                            className="has-background-grey-dark is-size-7 has-text-light has-text-left"
+                            style={{width: column.width, textAlign: column.textAlign}}
+                            className="has-background-grey-dark is-size-7 has-text-light"
                             key={column.key}>
                             {column.title && renderHeaderCell(column, sortManager)}
                         </th>
@@ -52,7 +52,7 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                 {isEmpty ? renderNoDataMessage(columns.length, noDisplayDataMessage) : sortData.map((item, index) => (
                     <tr key={`row_${index}`}>
                         {columns.map((column, key) => (
-                            <td key={key} className="has-background-grey-darker has-text-white">
+                            <td style={{textAlign: column.textAlign}} key={key} className="has-background-grey-darker has-text-white">
                                 {column.render(item)}
                             </td>
                         ))}
