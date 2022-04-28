@@ -82,7 +82,6 @@ class Trade(models.Model):
 
     def save(self, *args, **kwargs):
         channel_layer = get_channel_layer()
-        print(self.active_order_ids)
 
         t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
             f'user_{self.user.id}',

@@ -35,9 +35,7 @@ export default function Main() {
                     <div className="column" />
 
                     <div className="column is-narrow" style={{ width: 200 }}>
-                        {(trades.response && trades.response.length > 0) && (
-                            <Button text="Cancel all orders" className="is-danger" onClick={cancelAllTrades} />
-                        )}
+                        <Button text="Cancel all orders" className="is-danger" onClick={cancelAllTrades} />
                     </div>
 
                     <div className="column is-narrow" style={{ width: 200 }}>

@@ -54,7 +54,6 @@ function Chart({ trades }) {
 
         // eslint-disable-next-line
     }, [symbolValue])
-
     return (
         <div>
             <div className="is-flex is-align-items-center mb-2">
@@ -68,7 +67,7 @@ function Chart({ trades }) {
                 <BidAsk wsCallbacksRef={wsCallbacksRef} symbol={symbolValue} />
             </div>
 
-            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbolValue.toUpperCase()}`} interval={interval} />
+            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbolValue.toUpperCase()}`} interval={interval.value} />
             <TradesList onCancel={trades.request} trades={trades.response || []} />
             <OrdersList />
         </div>
