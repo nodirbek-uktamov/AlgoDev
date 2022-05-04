@@ -92,7 +92,7 @@ function TradesList({trades, onCancel}) {
 
     return (
         <div className="trades-list_container">
-            <TradesTable columns={renderColumns(cancelTrade)} tableData={trades}/>
+            <TradesTable isBottomRounded={false} columns={renderColumns(cancelTrade)} tableData={trades}/>
         </div>
     )
 }

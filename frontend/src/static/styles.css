@@ -1,3 +1,15 @@
+*, button, input {
+    font-size: 18px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    color: #FFFFFF;
+}
+
+html {
+    background-color: #262626;
+}
+
+
 .pointer {
     cursor: pointer;
 }
@@ -10,6 +22,7 @@
 .is-blue {
     background: #45B4DC !important;
 }
+
 .tabs p {
     align-items: center;
     border-bottom-color: #dbdbdb;

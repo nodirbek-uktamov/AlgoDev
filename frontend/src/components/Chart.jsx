@@ -1,13 +1,14 @@
 import React, {useCallback, useContext, useState} from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
-import { useLoad } from '../hooks/request'
+import {useLoad} from '../hooks/request'
 import ReactSelect from './common/ReactSelect'
 import BidAsk from './BidAsk'
-import { intervals } from '../utils/intervals'
+import {intervals} from '../utils/intervals'
 import {TradesList} from '../components/TradesList'
-import { HUOBI_SYMBOLS } from '../urls'
+import {HUOBI_SYMBOLS} from '../urls'
 import {MainContext} from '../contexts/MainContext'
 import {OrdersList} from "./OrdersList";
+import {Card} from "./common/Card";
 
 const defaultOptions = {
     width: '100%',
@@ -25,12 +26,21 @@ const defaultOptions = {
     container_id: 'tradingview_1a5f8',
 }
 
-function Chart({ trades }) {
-    const symbols = useLoad({ baseURL: HUOBI_SYMBOLS, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
+function Chart({trades}) {
+    const symbols = useLoad({
+        baseURL: HUOBI_SYMBOLS,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        Referrer: ''
+    })
 
-    const { symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi, accountWs } = useContext(MainContext)
+    const {symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi, accountWs} = useContext(MainContext)
     const [interval, setInterval] = useState('60')
-    const symbolsList = (symbols.response ? symbols.response.data || [] : []).map((i) => ({ value: i.bcdn + i.qcdn, label: i.dn, pair1: i.bcdn, pair2: i.qcdn }))
+    const symbolsList = (symbols.response ? symbols.response.data || [] : []).map((i) => ({
+        value: i.bcdn + i.qcdn,
+        label: i.dn,
+        pair1: i.bcdn,
+        pair2: i.qcdn
+    }))
 
     const onChange = useCallback((val) => {
         wsCallbacksRef.current.setOrdersData('clear')
@@ -61,15 +71,18 @@ function Chart({ trades }) {
                     className="mr-2"
                     options={symbolsList}
                     onChange={onChange}
-                    defaultValue={symbolValue.toUpperCase()} />
+                    defaultValue={symbolValue.toUpperCase()}/>
 
-                <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval} />
-                <BidAsk wsCallbacksRef={wsCallbacksRef} symbol={symbolValue} />
+                <ReactSelect options={intervals} onChange={setInterval} defaultValue={interval}/>
+                <BidAsk wsCallbacksRef={wsCallbacksRef} symbol={symbolValue}/>
             </div>
 
-            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbolValue.toUpperCase()}`} interval={interval.value} />
-            <TradesList onCancel={trades.request} trades={trades.response || []} />
-            <OrdersList />
+            <TradingViewWidget {...defaultOptions} symbol={`HUOBI:${symbolValue.toUpperCase()}`}
+                               interval={interval.value}/>
+            <Card>
+                <TradesList onCancel={trades.request} trades={trades.response || []}/>
+                <OrdersList />
+            </Card>
         </div>
     )
 }

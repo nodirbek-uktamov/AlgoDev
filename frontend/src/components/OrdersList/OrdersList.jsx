@@ -7,6 +7,11 @@ import {OPEN_ORDERS} from "../../urls";
 import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
 import './OrdersList.scss';
 
+const SIDE_TEXT_STYLE = {
+    buy: 'has-text-danger',
+    sell: 'has-text-success'
+}
+
 const renderColumns = (handleCancelOrder, tpp) => {
     return [
         {
@@ -22,9 +27,9 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Type",
             key: 'type',
             hasSorting: true,
-            width: '10%',
+            width: '12%',
             render: (rowData) => {
-                return <span className='has-text-grey-light'>{rowData.type}</span>;
+                return <span>{rowData.type}</span>;
             }
         },
         {
@@ -43,7 +48,8 @@ const renderColumns = (handleCancelOrder, tpp) => {
             width: '10%',
             render: (rowData) => {
                 return <span
-                    className={`has-text-primary ${rowData.side === 'sell' ? 'has-text-danger' : 'has-text-success'}`}>{rowData.side}</span>;
+                    style={{textTransform: 'capitalize'}}
+                    className={`${SIDE_TEXT_STYLE[rowData.side]}`}>{rowData.side}</span>;
             }
         },
         {
@@ -52,7 +58,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             hasSorting: true,
             width: '10%',
             render: (rowData) => {
-                return <span className='has-text-weight-bold'>{Number(rowData.orderPrice).toFixed(tpp)}</span>;
+                return <span>{Number(rowData.orderPrice).toFixed(tpp)}</span>;
             }
         },
         {
@@ -61,7 +67,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             hasSorting: true,
             width: '10%',
             render: (rowData) => {
-                return <span className='has-text-weight-bold'>{rowData.orderSize}</span>;
+                return <span>{rowData.orderSize}</span>;
             }
         },
         {
@@ -69,7 +75,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             key: 'time',
             hasSorting: true,
             render: (rowData) => {
-                return <span className='has-text-grey-light is-size-7'>{rowData.time}</span>;
+                return <span>{rowData.time}</span>;
             }
         }
     ];
@@ -80,7 +86,38 @@ function OrdersList() {
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
-    const [orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState([
+        {
+            "orderPrice": "0.074800000000000000",
+            "orderSize": 80.21,
+            "symbol": "trxusdt",
+            "side": "sell",
+            "type": "limit",
+            "orderId": 525994370834954,
+            "orderStatus": "submitted",
+            "time": "22:48:02"
+        },
+        {
+            "orderPrice": "0.074800000000000000",
+            "orderSize": 80.21,
+            "symbol": "trxusdt",
+            "side": "sell",
+            "type": "limit",
+            "orderId": 525994353671480,
+            "orderStatus": "submitted",
+            "time": "22:47:14"
+        },
+        {
+            "orderPrice": "0.120000000000000000",
+            "orderSize": 50,
+            "symbol": "trxusdt",
+            "side": "sell",
+            "type": "limit",
+            "orderId": 525994201746181,
+            "orderStatus": "submitted",
+            "time": "22:36:37"
+        }
+    ]);
     const [filter, setFilter] = useState({key: "orderStatus", value: ORDERS_FILTER_TYPE.submitted});
 
     useEffect(() => {
