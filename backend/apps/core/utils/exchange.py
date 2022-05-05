@@ -14,6 +14,8 @@ from django.utils import timezone
 from huobi import HuobiRestClient
 from huobi.rest.error import HuobiRestiApiError
 
+from core.utils.background import background
+
 from core.exchange.client import CustomHuobiClient
 from core.utils.helpers import random_array
 from core.utils.logs import bold, red
@@ -51,7 +53,7 @@ class Bot:
 
         del symbols_settings
 
-        while not time.sleep(0.05):
+        while not time.sleep(0.3):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
             try:
@@ -68,9 +70,8 @@ class Bot:
 
             del costs_res
 
-            if users.count() > 0:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=users.count()) as pool:
-                    pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
+            for user in users:
+                self.bot_for_user(user, costs, precisions)
 
     def send_log(self, user_id, message, action=None):
         channel_layer = get_channel_layer()
@@ -411,10 +412,9 @@ class Bot:
         trade.save()
         self.send_log(trade.user.id, log_text, action)
 
-    def bot_for_user(self, args):
+    @background
+    def bot_for_user(self, user, costs, precisions):
         try:
-            user, costs, precisions = args
-
             client = CustomHuobiClient(access_key=user.api_key, secret_key=user._secret_key)
             orders = client.open_orders().data
             account_id = user.spot_account_id
@@ -425,48 +425,52 @@ class Bot:
             ).order_by('grid_bot')
 
             for trade in trades:
-                cost = costs[trade.symbol]
-                precision = precisions[trade.symbol]
-                price = cost.get('bid')
-
-                if trade.grid_bot:
-                    self.grid_bot(client, trade, cost, account_id, precision, orders)
-                    continue
-
-                if trade.hft_bot:
-                    self.hft_bot(client, trade, cost, account_id, precision, orders)
-                    continue
-
-                order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
-
-                if order:
-                    if float(trade.price) != price and (not trade.iceberg or trade.market_making):
-                        try:
-                            res = client.submit_cancel(order_id=order[0].get('id')).data
-                            filled = order[0].get('filled-amount')
-                            trade.filled = float(trade.filled) + float(filled)
-                            trade.save()
-
-                            self.send_log(
-                                trade.user.id,
-                                f'{trade.id}: Order canceled. Old price: {trade.price}',
-                                {'price': {'price': 0, 'trade': trade.id}}
-                            )
-                        except HuobiRestiApiError:
-                            self.complete_trade(trade, client, account_id, precision)
-                            continue
-
-                        if res.get('status'):
-                            self.place_order(client, trade, cost, price, account_id, precision)
-
-                    continue
-
-                if float(trade.price) > 0:
-                    # print('completed')
-                    self.complete_trade(trade, client, account_id, precision)
-                    continue
-
-                self.place_order(client, trade, cost, price, account_id, precision)
+                self.run_trade(costs, trade, precisions, client, account_id, orders)
 
         except Exception as e:
             print(str(e))
+
+    @background
+    def run_trade(self, costs, trade, precisions, client, account_id, orders):
+        cost = costs[trade.symbol]
+        precision = precisions[trade.symbol]
+        price = cost.get('bid')
+
+        if trade.grid_bot:
+            self.grid_bot(client, trade, cost, account_id, precision, orders)
+            return
+
+        if trade.hft_bot:
+            self.hft_bot(client, trade, cost, account_id, precision, orders)
+            return
+
+        order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+
+        if order:
+            if float(trade.price) != price and (not trade.iceberg or trade.market_making):
+                try:
+                    res = client.submit_cancel(order_id=order[0].get('id')).data
+                    filled = order[0].get('filled-amount')
+                    trade.filled = float(trade.filled) + float(filled)
+                    trade.save()
+
+                    self.send_log(
+                        trade.user.id,
+                        f'{trade.id}: Order canceled. Old price: {trade.price}',
+                        {'price': {'price': 0, 'trade': trade.id}}
+                    )
+                except HuobiRestiApiError:
+                    self.complete_trade(trade, client, account_id, precision)
+                    return
+
+                if res.get('status'):
+                    self.place_order(client, trade, cost, price, account_id, precision)
+
+            return
+
+        if float(trade.price) > 0:
+            # print('completed')
+            self.complete_trade(trade, client, account_id, precision)
+            return
+
+        self.place_order(client, trade, cost, price, account_id, precision)

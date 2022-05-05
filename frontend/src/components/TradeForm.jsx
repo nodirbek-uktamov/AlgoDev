@@ -37,7 +37,7 @@ const tradeInitialValues = {
 
 export default React.memo(({onUpdate}) => {
     const createTrade = usePostRequest({ url: TRADE })
-    const { symbol, symbolSettings, wsCallbacksRef } = useContext(MainContext)
+    const { symbol, symbolSettings, wsCallbacksRef, price } = useContext(MainContext)
 
     const [botType, setBotType] = useState('chase_bot')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -94,6 +94,22 @@ export default React.memo(({onUpdate}) => {
         }
 
         alert(error && error.data.message)
+    }
+
+    const initialPrice = price[symbol.value.toLowerCase()] ? price[symbol.value.toLowerCase()].ask : null
+
+    function calcPair1Amount(values) {
+        let amount = values.quantity
+
+        if (botType === 'iceberg') {
+            amount = values.iceberg_price ? amount / values.iceberg_price : 0
+        }
+
+        else {
+            amount = amount / initialPrice
+        }
+
+        return amount.toFixed(symbolSettings.tap || 0)
     }
 
     return (
@@ -156,12 +172,20 @@ export default React.memo(({onUpdate}) => {
                         </div>
                     </div>
 
-                    <Input
-                        name="quantity"
-                        step="0.00000001"
-                        type="number"
-                        label={`Amount (${symbol.pair2})`}
-                        validate={required}/>
+                    <div className="columns m-0 p-0 mb-2">
+                        <div className="column m-0 p-0">
+                            <Input
+                                name="quantity"
+                                step="0.00000001"
+                                type="number"
+                                label={`Amount (${symbol.pair2})`}
+                                validate={required}/>
+                        </div>
+
+                        <div className="column m-0 p-0 pt-7">
+                            {initialPrice ? calcPair1Amount(values) : '—'} {symbol.pair1}
+                        </div>
+                    </div>
 
                     {botType === 'iceberg' || botType === 'mm' ? (
                         <Fragment>

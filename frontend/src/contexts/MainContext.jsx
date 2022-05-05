@@ -15,6 +15,7 @@ export default function MainContextWrapper({children}) {
 
     const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : defaultSymbol)
     const [depthType, setDepthType] = useState('step0')
+    const [price, setPrice] = useState({})
 
     const symbolPreccions = useLoad({ baseURL: HUOBI_SYMBOL_SETTINGS, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, Referrer: '' })
     const symbolSettings = symbolPreccions.response ? symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase()) : {}
@@ -78,6 +79,11 @@ export default function MainContextWrapper({children}) {
             if (data.tick) {
                 if (data.ch.includes('bbo') && typeof wsCallbacksRef.current.setBidAskData === 'function') {
                     wsCallbacksRef.current.setBidAskData({ [data.ch.split('.')[1]]: data.tick })
+
+                    setPrice(oldValue => {
+                        if (oldValue[data.ch.split('.')[1]]) return oldValue
+                        return {[data.ch.split('.')[1]]: data.tick}
+                    })
                 }
 
                 if (data.ch.includes('trade.detail') && typeof wsCallbacksRef.current.setOrdersData === 'function') {
@@ -168,7 +174,8 @@ export default function MainContextWrapper({children}) {
         wsCallbacksRef,
         depthType,
         setDepthType,
-        accountWs
+        accountWs,
+        price
     }
 
     return (
