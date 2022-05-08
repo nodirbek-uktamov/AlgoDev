@@ -86,38 +86,7 @@ function OrdersList() {
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
-    const [orders, setOrders] = useState([
-        {
-            "orderPrice": "0.074800000000000000",
-            "orderSize": 80.21,
-            "symbol": "trxusdt",
-            "side": "sell",
-            "type": "limit",
-            "orderId": 525994370834954,
-            "orderStatus": "submitted",
-            "time": "22:48:02"
-        },
-        {
-            "orderPrice": "0.074800000000000000",
-            "orderSize": 80.21,
-            "symbol": "trxusdt",
-            "side": "sell",
-            "type": "limit",
-            "orderId": 525994353671480,
-            "orderStatus": "submitted",
-            "time": "22:47:14"
-        },
-        {
-            "orderPrice": "0.120000000000000000",
-            "orderSize": 50,
-            "symbol": "trxusdt",
-            "side": "sell",
-            "type": "limit",
-            "orderId": 525994201746181,
-            "orderStatus": "submitted",
-            "time": "22:36:37"
-        }
-    ]);
+    const [orders, setOrders] = useState([]);
     const [filter, setFilter] = useState({key: "orderStatus", value: ORDERS_FILTER_TYPE.submitted});
 
     useEffect(() => {
