@@ -4,7 +4,7 @@ import cn from 'classnames'
 import isEmpty from 'lodash/isEmpty'
 import ValidationErrorMessage from './ValidationErrorMessage'
 
-export default function Select({
+export default function SelectOld({
     info,
     name,
     className,
