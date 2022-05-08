@@ -1,0 +1,28 @@
+.input_main {
+  display: block;
+  background-color: transparent;
+  height: 51px;
+  border: 2px solid #4D4D4D;
+  border-radius: 60px;
+  padding: 15px 20px;
+}
+
+.input_main:focus, :hover {
+  border-color: #999999;
+  outline: none;
+}
+
+.input_main:disabled {
+  cursor: not-allowed;
+}
+
+.input_main.has-error {
+  border-color: #E61739;
+}
+
+.input_icon {
+  cursor: pointer;
+  position: absolute;
+  top: 11px;
+  right: 23px;
+}

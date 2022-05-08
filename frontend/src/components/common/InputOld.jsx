@@ -3,7 +3,10 @@ import cn from 'classnames'
 import { Field, useFormikContext } from 'formik'
 import ValidationErrorMessage from './ValidationErrorMessage'
 
-export default function Input({
+/**
+ * @deprecated  use Input instead
+ */
+export default function InputOld({
     br = false,
     name,
     className,
