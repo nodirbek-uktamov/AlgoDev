@@ -4,7 +4,7 @@ import { Field, useFormikContext } from 'formik'
 import React, { useEffect, useState } from 'react'
 import remove from 'lodash/remove'
 import { DAYS } from '../../utils/date'
-import Button from './Button'
+import {Button} from './Button'
 import ValidationErrorMessage from './ValidationErrorMessage'
 
 export default function WeekDayPicker({ name, validate, label, optional = false }) {

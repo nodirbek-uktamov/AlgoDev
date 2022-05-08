@@ -5,7 +5,7 @@ import TradeForm from '../components/TradeForm'
 import {useLoad, usePutRequest} from '../hooks/request'
 import {CANCEL_TRADES, TRADE} from '../urls'
 import {signOut} from '../utils/auth'
-import Button from '../components/common/Button'
+import {Button} from '../components/common/Button'
 import Logs from '../components/Logs'
 import OrdersTabs from '../components/OrdersTabs'
 import MainContextWrapper from "../contexts/MainContext";
@@ -13,13 +13,13 @@ import MainContextWrapper from "../contexts/MainContext";
 
 export default function Main() {
     const history = useHistory()
-    const trades = useLoad({ url: TRADE })
+    const trades = useLoad({url: TRADE})
     const cancelTrades = usePutRequest()
 
     const [botPrices, setBotPrices] = useState({})
 
     async function cancelAllTrades() {
-        const { success } = await cancelTrades.request({ url: CANCEL_TRADES })
+        const {success} = await cancelTrades.request({url: CANCEL_TRADES})
 
         if (success) {
             trades.setResponse([])
@@ -32,34 +32,35 @@ export default function Main() {
         <MainContextWrapper>
             <div className="mx-5 pb-6 mt-1">
                 <div className="columns mb-4 mt-2">
-                    <div className="column" />
+                    <div className="column"/>
 
-                    <div className="column is-narrow" style={{ width: 200 }}>
-                        <Button text="Cancel all orders" className="is-danger" onClick={cancelAllTrades} />
+                    <div className="column is-narrow" style={{width: 200}}>
+                        <Button text={'Cancel all orders'} onClick={cancelAllTrades}/>
                     </div>
 
-                    <div className="column is-narrow" style={{ width: 200 }}>
+                    <div className="column is-narrow" style={{width: 200}}>
                         <Button
-                            className="pointer is-info"
+                            color={'white'}
+                            text={'Log out'}
                             onClick={() => signOut(history)}
-                            text="Logout" />
+                        />
                     </div>
                 </div>
 
                 <div className="columns">
-                    <div className="column is-narrow" style={{ width: 320 }}>
-                        <TradeForm onUpdate={onUpdate} />
+                    <div className="column is-narrow" style={{width: 320}}>
+                        <TradeForm onUpdate={onUpdate}/>
 
-                        <Logs setBotPrices={setBotPrices} trades={trades} />
+                        <Logs setBotPrices={setBotPrices} trades={trades}/>
                     </div>
 
-                    <div className="column mr-4" style={{ minWidth: 670 }}>
+                    <div className="column mr-4" style={{minWidth: 670}}>
                         <Chart
-                            trades={trades} />
+                            trades={trades}/>
                     </div>
 
                     <div className="column is-narrow">
-                        <OrdersTabs botPrices={botPrices} />
+                        <OrdersTabs botPrices={botPrices}/>
                     </div>
                 </div>
             </div>

@@ -2,8 +2,8 @@ import { css, StyleSheet } from 'aphrodite'
 import { Form, Formik } from 'formik'
 import React from 'react'
 import { useHistory, useParams } from 'react-router-dom'
-import Button from '../components/common/Button'
-import Input from '../components/common/Input'
+import {Button} from '../components/common/Button'
+import InputOld from '../components/common/InputOld'
 import ServerError from '../components/common/ServerError'
 import { useMessage } from '../hooks/message'
 import { RESET_PASSWORD } from '../urls'
@@ -39,14 +39,14 @@ export default function ResetPassword() {
 
                 <ServerError error={resetPassword.error} />
 
-                <Input
+                <InputOld
                     name="password"
                     label="Новый Пароль"
                     validate={required}
                     placeholder="********"
                     type="password" />
 
-                <Input
+                <InputOld
                     name="confirmPassword"
                     type="password"
                     label="Повторите пароль"

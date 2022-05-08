@@ -1,6 +1,9 @@
 import React from 'react'
 import { Field } from 'formik'
 
+/**
+ * @deprecated
+ */
 export default function Checkbox({
     name,
     className,

@@ -3,7 +3,7 @@ import { Field, Form, Formik } from 'formik'
 import { css, StyleSheet } from 'aphrodite'
 import cn from 'classnames'
 import { usePutRequest } from '../../hooks/request'
-import Button from './Button'
+import {Button} from './Button'
 import { SHOP_DETAIL } from '../../urls'
 import useTrans from '../../hooks/trans'
 

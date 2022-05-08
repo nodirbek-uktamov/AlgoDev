@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { css, StyleSheet } from 'aphrodite'
 import { NavLink } from 'react-router-dom'
 import { categories } from '../../utils/emoji'
-import Button from './Button'
+import {Button} from './Button'
 import ValidationErrorMessage from './ValidationErrorMessage'
 
 

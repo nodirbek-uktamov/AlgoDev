@@ -3,7 +3,7 @@
 import { Field } from 'formik'
 import React, { useState } from 'react'
 import cn from 'classnames'
-import Button from './Button'
+import {Button} from './Button'
 import ValidationErrorMessage from './ValidationErrorMessage'
 
 const colors = [

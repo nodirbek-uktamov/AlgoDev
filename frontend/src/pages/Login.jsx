@@ -3,8 +3,8 @@ import { css, StyleSheet } from 'aphrodite'
 import { Form, Formik } from 'formik'
 import { NavLink, Redirect, useHistory } from 'react-router-dom'
 import cn from 'classnames'
-import Button from '../components/common/Button'
-import Input from '../components/common/Input'
+import {Button} from '../components/common/Button'
+import InputOld from '../components/common/InputOld'
 import ServerError from '../components/common/ServerError'
 import { usePostRequest } from '../hooks/request'
 import { SIGNIN } from '../urls'
@@ -51,7 +51,7 @@ export default function Login() {
             <Formik onSubmit={onSubmit} initialValues={{ email: '', password: '' }}>
                 <Form>
                     <ServerError error={signIn.error} />
-                    <Input name="email" validate={validator(required, email)} placeholder="Email" />
+                    <InputOld name="email" validate={validator(required, email)} placeholder="Email" />
                     <Password name="password" validate={required} placeholder="Password" />
 
                     <div className="field">

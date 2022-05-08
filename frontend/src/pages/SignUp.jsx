@@ -2,8 +2,8 @@ import { css, StyleSheet } from 'aphrodite'
 import { Form, Formik } from 'formik'
 import React from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import Button from '../components/common/Button'
-import Input from '../components/common/Input'
+import {Button} from '../components/common/Button'
+import InputOld from '../components/common/InputOld'
 import ServerError from '../components/common/ServerError'
 import { usePostRequest } from '../hooks/request'
 import { SIGNUP } from '../urls'
@@ -54,12 +54,12 @@ export default function SignUp() {
 
                     <div className="field is-horizontal">
                         <div className="field-body">
-                            <Input name="firstName" label="First name" validate={required} placeholder="Ivan" />
-                            <Input name="lastName" label="Last name" validate={required} placeholder="Ivanov" />
+                            <InputOld name="firstName" label="First name" validate={required} placeholder="Ivan" />
+                            <InputOld name="lastName" label="Last name" validate={required} placeholder="Ivanov" />
                         </div>
                     </div>
 
-                    <Input
+                    <InputOld
                         name="email"
                         label="Email"
                         validate={validator(required, email)}
@@ -67,13 +67,13 @@ export default function SignUp() {
 
                     <Password name="password" validate={required} placeholder="********" label="Password" />
 
-                    <Input
+                    <InputOld
                         name="apiKey"
                         label="Api key"
                         validate={validator(required)}
                         placeholder="*********************************" />
 
-                    <Input
+                    <InputOld
                         name="secretKey"
                         label="Secret key"
                         validate={validator(required)}

@@ -1,8 +1,8 @@
 import { Form, Formik } from 'formik'
 import React from 'react'
 import { required } from '../utils/validators'
-import Button from './common/Button'
-import Input from './common/Input'
+import {Button} from './common/Button'
+import InputOld from './common/InputOld'
 import useTrans from '../hooks/trans'
 
 export default function ChangePassword({ updatePassword }) {
@@ -15,21 +15,21 @@ export default function ChangePassword({ updatePassword }) {
             confirmPassword: '',
         }} onSubmit={updatePassword}>
             <Form>
-                <Input
+                <InputOld
                     name="oldPassword"
                     type="password"
                     label={t('oldPassword')}
                     placeholder={t('enterOldPassword')}
                     validate={required} />
 
-                <Input
+                <InputOld
                     name="newPassword"
                     type="password"
                     label={t('newPassword')}
                     placeholder={t('enterNewPassword')}
                     validate={required} />
 
-                <Input
+                <InputOld
                     name="confirmPassword"
                     type="password"
                     label={t('newPasswordConfirm')}
