@@ -1,14 +1,15 @@
 import React, {useState, Fragment, useEffect, useRef, useContext} from 'react'
-import { Form, Formik } from 'formik'
+import {Form, Formik} from 'formik'
 import cn from 'classnames'
-import Input from './common/Input'
-import { required } from '../utils/validators'
-import Button from './common/Button'
+import InputOld from './common/InputOld'
+import {required} from '../utils/validators'
+import {Button} from './common/Button';
 import Checkbox from './common/Checkbox'
 import {usePostRequest} from '../hooks/request'
-import { TRADE} from '../urls'
+import {TRADE} from '../urls'
 import {MainContext} from "../contexts/MainContext";
-
+import {InputField, ToggleSwitchField} from "../forms";
+import {Slider} from "./common/Slider";
 
 const botTypes = {
     chase_bot: 'Chase bot',
@@ -36,14 +37,16 @@ const tradeInitialValues = {
 }
 
 export default React.memo(({onUpdate}) => {
-    const createTrade = usePostRequest({ url: TRADE })
-    const { symbol, symbolSettings, wsCallbacksRef } = useContext(MainContext)
+    const createTrade = usePostRequest({url: TRADE})
+    const {symbol, symbolSettings, wsCallbacksRef} = useContext(MainContext)
 
     const [botType, setBotType] = useState('chase_bot')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [balance, setBalance] = useState({})
 
     const [tradeType, setTradeType] = useState('buy')
+
+    const [sliderValue, setSliderValue] = useState(40);
 
     function changeTab(tab) {
         setBotType(tab)
@@ -55,7 +58,7 @@ export default React.memo(({onUpdate}) => {
     }, [])
 
     async function onSubmit(data) {
-        localStorage.setItem('savedForms', JSON.stringify({ ...formValues, [symbol.value]: data }))
+        localStorage.setItem('savedForms', JSON.stringify({...formValues, [symbol.value]: data}))
 
         const newData = {
             ...data,
@@ -86,7 +89,7 @@ export default React.memo(({onUpdate}) => {
             newData.hft_bot = true
         }
 
-        const { success, error } = await createTrade.request({ data: newData })
+        const {success, error} = await createTrade.request({data: newData})
 
         if (success) {
             onUpdate()
@@ -156,23 +159,24 @@ export default React.memo(({onUpdate}) => {
                         </div>
                     </div>
 
-                    <Input
+                    <InputOld
                         name="quantity"
                         step="0.00000001"
                         type="number"
                         label={`Amount (${symbol.pair2})`}
                         validate={required}/>
+                    <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair2})`} />
 
                     {botType === 'iceberg' || botType === 'mm' ? (
                         <Fragment>
-                            <Input
+                            <InputOld
                                 validate={required}
                                 name="icebergs_count"
                                 type="number"
                                 label="Icebergs count"/>
 
                             {botType === 'iceberg' && (
-                                <Input
+                                <InputOld
                                     name="iceberg_price"
                                     step="0.00000001"
                                     type="number"
@@ -183,7 +187,7 @@ export default React.memo(({onUpdate}) => {
                             <Checkbox name="take_profit" label="TakeProfit"/>
 
                             {values.take_profit && (
-                                <Input
+                                <InputOld
                                     name="take_profit_percent"
                                     step="0.1"
                                     type="number"
@@ -193,11 +197,15 @@ export default React.memo(({onUpdate}) => {
                         </Fragment>
                     ) : null}
 
+                    <Slider defaultValue={sliderValue} onValueChange={setSliderValue} valueType="percent" />
+
                     {botType !== 'twap' && botType !== 'grid' && botType !== 'hft' &&
-                        <Checkbox name="loop" label="Is loop"/>}
+                        <ToggleSwitchField name="loop" text="Loop"/>
+
+                    }
 
                     {values.loop && botType !== 'twap' && botType !== 'grid' && botType !== 'hft' ? (
-                        <Input
+                        <InputOld
                             validate={required}
                             name="time_interval"
                             type="number"
@@ -206,7 +214,7 @@ export default React.memo(({onUpdate}) => {
 
                     {botType === 'twap' ? (
                         <Fragment>
-                            <Input
+                            <InputOld
                                 validate={required}
                                 name="twap_bot_duration"
                                 type="number"
@@ -219,20 +227,20 @@ export default React.memo(({onUpdate}) => {
 
                     {botType === 'grid' ? (
                         <Fragment>
-                            <Input
+                            <InputOld
                                 validate={required}
                                 name="grid_trades_count"
                                 type="number"
                                 label="Trades count"/>
 
-                            <Input
+                            <InputOld
                                 name="grid_start_price"
                                 step="0.00000001"
                                 type="number"
                                 label="Start price"
                                 validate={required}/>
 
-                            <Input
+                            <InputOld
                                 name="grid_end_price"
                                 step="0.00000001"
                                 type="number"
@@ -245,7 +253,7 @@ export default React.memo(({onUpdate}) => {
                         <Fragment>
                             <div className="columns mb-0">
                                 <div className="column">
-                                    <Input
+                                    <InputOld
                                         name="hft_default_price_difference"
                                         validate={required}
                                         step="0.1"
@@ -254,7 +262,7 @@ export default React.memo(({onUpdate}) => {
                                 </div>
 
                                 <div className="column">
-                                    <Input
+                                    <InputOld
                                         name="hft_orders_price_difference"
                                         step="0.1"
                                         type="number"
@@ -263,7 +271,7 @@ export default React.memo(({onUpdate}) => {
                                 </div>
                             </div>
 
-                            <Input
+                            <InputOld
                                 validate={required}
                                 name="hft_orders_on_each_side"
                                 type="number"
@@ -281,14 +289,17 @@ export default React.memo(({onUpdate}) => {
 
                     {botType !== 'hft' ? (
                         <div className="is-flex">
-                            <Button onClick={() => setTradeType('buy')} type="submit" className="is-success"
-                                    text="Long start"/>
+                            <Button color={'success'} text={'Buy / Long'} onClick={() => setTradeType('buy')}
+                                    type="submit"
+                            />
 
                             <Button
+                                color={'danger'}
+                                text={'Sell / Short'}
                                 onClick={() => setTradeType('sell')}
                                 type="submit"
-                                className="is-danger ml-1"
-                                text="Short start"/>
+                                className="ml-1"
+                            />
                         </div>
                     ) : null}
                 </Form>
