@@ -1,6 +1,8 @@
 import React, {useState} from 'react'
 import './FilterPanel.scss'
 import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
+import {Button} from "../common/Button";
+import {capitalizeFirstLetter} from "../../utils/string";
 
 export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filter: filterState}) {
     const filterKey = useState('orderStatus')[0];
@@ -9,12 +11,12 @@ export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filt
         {
             displayTitle: ORDERS_FILTER_TYPE.all,
             filterValue: ORDERS_FILTER_TYPE.all,
-            renderCount: () => <span>({allOrdersCount})</span>
+            renderCount: () => <>({allOrdersCount})</>
         },
         {
             displayTitle: ORDERS_FILTER_TYPE.open,
             filterValue: ORDERS_FILTER_TYPE.submitted,
-            renderCount: () => <span>({openOrdersCount})</span>
+            renderCount: () => <>({openOrdersCount})</>
         },
         {
             displayTitle: ORDERS_FILTER_TYPE.filled,
@@ -29,8 +31,16 @@ export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filt
 
     return <div className='filter-panel_container'>
         {filterConfig.map((filter, idx) => {
-            return <button onClick={handleFilter(filterKey, filter.filterValue)}
-                           className={`filter-panel_btn${filter.filterValue === filterState.value ? ' filter-panel_btn-selected' : ''}`}>{filter.displayTitle} {filter.renderCount && filter.renderCount()}</button>
+            const color = filter.filterValue === filterState.value ? 'white' : 'gray';
+            const text = <span
+                style={{color: 'inherit', textTransform: 'capitalize'}}>{filter.displayTitle} {filter.renderCount && filter.renderCount()}</span>;
+
+            return <Button onClick={handleFilter(filterKey, filter.filterValue)}
+                           className="filter-btn"
+                           size="M"
+                           text={text}
+                           color={color}
+            />
         })}
     </div>
 }

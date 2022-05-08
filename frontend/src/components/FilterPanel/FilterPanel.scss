@@ -1,23 +1,6 @@
 .filter-panel_container {
   display: flex;
-  gap: 12px;
-  padding: 40px 20px;
-}
-
-.filter-panel_btn {
-  background-color: #4B4A4C;
-  color: #F7FEFF;
-  padding: 2px 8px;
-  border: 0;
-  border-radius: 16px;
-  cursor: pointer;
-  outline: 0;
-}
-
-.filter-panel_btn-selected {
-  background-color: #577594;
-}
-
-.filter-panel_btn-stops {
-  background-color: #CE2829;
+  max-width: 560px;
+  gap: 10px;
+  padding: 35px 20px;
 }
