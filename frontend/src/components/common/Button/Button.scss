@@ -1,0 +1,58 @@
+.button_main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  border-radius: 60px;
+  cursor: pointer;
+  outline: 0;
+  border: 0;
+  overflow: hidden;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.button_main:hover {
+  opacity: 0.9;
+}
+
+.button_main:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+
+.button_small {
+  height: 31px;
+  padding: 5px 20px;
+}
+
+.button_medium {
+  height: 41px;
+  padding: 10px 20px;
+}
+
+.button_large {
+  height: 51px;
+  padding: 15px 20px;
+}
+
+.button_success {
+  background-color: #12B247;
+}
+
+
+.button_danger {
+  background-color: #E61739;
+}
+
+.button_gray {
+  background-color: #4D4D4D;
+}
+
+.button_white {
+  background-color: #FFFFFF;
+  color: #333333;
+}
