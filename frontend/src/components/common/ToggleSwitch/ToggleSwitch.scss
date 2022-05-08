@@ -1,0 +1,104 @@
+$bg-color-off: #D3D3D3;
+$bg-color-on: #FFFFFF;
+$toggle-color: #333333;
+$disabled-color: #DDD;
+
+.toggleWrap {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-switch {
+  position: relative;
+  margin-right: 10px;
+  width: 35px;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: left;
+  &-checkbox {
+    display: none;
+  }
+  &-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: 0 solid $bg-color-off;
+    border-radius: 20px;
+    margin: 0;
+    &:focus {
+      outline: none;
+      > span {
+        box-shadow: 0 0 2px 5px red;
+      }
+    }
+    > span:focus {
+      outline: none;
+    }
+  }
+  &-inner {
+    display: block;
+    width: 200%;
+    margin-left: -100%;
+    transition: margin 0.2s ease-in 0s;
+    &:before,
+    &:after {
+      display: block;
+      float: left;
+      width: 50%;
+      height: 20px;
+      padding: 0;
+      line-height: 34px;
+      font-size: 14px;
+      color: white;
+      font-weight: bold;
+      box-sizing: border-box;
+    }
+    &:before {
+      content: '';
+      padding-left: 10px;
+      background-color: $bg-color-on;
+      color: $toggle-color;
+    }
+  }
+  &-disabled {
+    background-color: $disabled-color;
+    cursor: not-allowed;
+    &:before {
+      background-color: $disabled-color;
+      cursor: not-allowed;
+    }
+  }
+  &-inner:after {
+    content: '';
+    padding-right: 10px;
+    background-color: $bg-color-off;
+    color: $toggle-color;
+    text-align: right;
+  }
+  &-switch {
+    display: block;
+    width: 12px;
+    margin: 4px;
+    background: $toggle-color;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 14px;
+    border: 0 solid $bg-color-off;
+    border-radius: 20px;
+    transition: all 0.2s ease-in 0s;
+  }
+
+  &-checkbox:checked + &-label {
+    .toggle-switch-inner {
+      margin-left: 0;
+    }
+    .toggle-switch-switch {
+      right: 0px;
+    }
+  }
+
+  &-labelText {
+    cursor: pointer;
+  }
+}
