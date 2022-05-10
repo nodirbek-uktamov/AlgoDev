@@ -1,8 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react'
 import { css, StyleSheet } from 'aphrodite'
 import cn from 'classnames'
-import {MainContext} from "../contexts/MainContext";
-
+import {MainContext} from "../../contexts/MainContext";
 
 function OrdersDepth({ botPrices }) {
     const {symbolSettings, wsCallbacksRef} = useContext(MainContext)

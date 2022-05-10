@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react'
 import {MainContext} from "../contexts/MainContext";
 
+/**
+ * @deprecated
+ */
 export default function Orders() {
     const {wsCallbacksRef, symbol, symbolSettings} = useContext(MainContext)
     const [orders, setOrders] = useState([])

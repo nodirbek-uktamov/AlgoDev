@@ -1,14 +1,17 @@
 import React, { useState, Fragment, useContext } from 'react'
 import ReactSelect from './common/ReactSelect'
-import OrdersDepth from './OrdersDepth'
+import OrdersDepth from './OrdersTabsSection/OrdersDepth'
 import Orders from './Orders'
 import { WS_TYPES } from '../utils/websocket'
 import {MainContext} from "../contexts/MainContext";
 
+/**
+ * @deprecated
+ */
 export default function OrdersTabs({ botPrices }) {
     const { symbolSettings, huobiWs,setDepthType, depthType, symbolValue } = useContext(MainContext)
     const [ordersTab, setOrdersTab] = useState('list')
-    const { tpp } = symbolSettings
+    const { tpp  } = symbolSettings
 
     const depthSteps = [
         { label: (0.1 ** tpp).toFixed(tpp), value: 'step0' },
@@ -38,6 +41,7 @@ export default function OrdersTabs({ botPrices }) {
                     </li>
                 </ul>
             </div>
+
 
             {ordersTab === 'list' && <Orders />}
 

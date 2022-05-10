@@ -43,7 +43,7 @@ const renderColumns = (handleCancelTrade) => {
         },
         {
             title: "Active orders",
-            key: 'tradeType',
+            key: 'activeOrderIds',
             width: '15%',
             textAlign: 'center',
             render: (rowData) => {
