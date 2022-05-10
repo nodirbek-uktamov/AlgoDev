@@ -39,7 +39,7 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
         <div className="tableWrap">
             <table className="tableContainer">
                 <thead>
-                <tr>
+                <tr key={`thead`}>
                     {columns.map((column) => (
                         <th
                             className="table_headerCell table_stickyHeader"

@@ -12,7 +12,7 @@ export function Row({item, renderRow, ...props}) {
             className={classnames(['row', item.index % 2 === 0 && 'secondary'])}
             onClick={() => onItemSelect(item.data)}
         >
-            <div>{renderRow(item.data)}</div>
+            {renderRow(item.data)}
         </div>
     );
 

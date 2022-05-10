@@ -1,8 +1,3 @@
-
-li {
-  list-style: none;
-}
-
 .selectWrap {
   position: relative;
 }
@@ -15,19 +10,32 @@ li {
 
 .select_input-styled {
   width: 100%;
-  background-color: #333333;
   color: inherit;
   cursor: pointer;
-  border: 0;
 }
 
 .select_input-styled.select_input-gray {
   background-color: #333333;
+  border: 1px solid #333333;
   color: #FFFFFF;
+
+  &:focus {
+    border: 1px solid #FFFFFF;
+  }
+}
+.select_input-styled.select_input-lightgray {
+  background-color: #4D4D4D;
+  border: 1px solid #4D4D4D;
+  color: #FFFFFF;
+
+  &:focus {
+    border: 1px solid #FFFFFF;
+  }
 }
 
 .select_input-styled.select_input-white {
   background-color: #FFFFFF;
+  border: 1px solid #FFFFFF;
   color: #333333;
 }
 

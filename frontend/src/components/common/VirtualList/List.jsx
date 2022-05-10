@@ -2,6 +2,7 @@ import React, {useContext} from "react";
 import ListContext from "./ListContext";
 import './List.scss';
 import {Row} from "./Row";
+import {classnames} from "../../../utils/string";
 
 export function List() {
     const {
@@ -27,7 +28,7 @@ export function List() {
 
     return <>
         <div
-            className="list_main"
+            className={classnames(["list_main", viewportHeight < 400 && 'no-scroll'])}
             style={{height: viewportHeight}}
             onScroll={(e) => setScrollTop(e.target.scrollTop)}
         >

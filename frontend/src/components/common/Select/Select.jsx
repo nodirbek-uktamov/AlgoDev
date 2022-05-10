@@ -4,6 +4,7 @@ import {Input} from "../Input";
 import './Select.scss';
 import {classnames} from "../../../utils/string";
 import {VirtualList} from "../VirtualList";
+import {isEmpty} from "../../../utils/common";
 
 const SelectIcon = ({color, className = ''}) => {
     return <svg className={className} width="12" height="7" viewBox="0 0 12 7" fill="none"
@@ -23,7 +24,7 @@ function searchFilter(searchValue, list, searchBy) {
         : list;
 }
 
-function renderOptions(value, options, enableSearch, searchBy) {
+function renderOptions(value = '', options, enableSearch, searchBy) {
     if (enableSearch) return searchFilter(value, options, searchBy);
 
     return options;
@@ -31,39 +32,45 @@ function renderOptions(value, options, enableSearch, searchBy) {
 
 const SELECT_COLOR_TYPE = {
     gray: {input: 'select_input-gray', svg: 'white'},
+    lightgray: {input: 'select_input-lightgray', svg: 'white'},
     white: {input: 'select_input-white', svg: 'black'}
 }
 
 export const Select = ({
-                           options,
-                           renderSelectedOption,
-                           renderMenuOption,
+                           options = [],
+                           renderSelectedOption = (opt) => opt,
+                           renderMenuOption = (opt) => opt,
                            selectedOption,
-                           setSelectedOption,
+                           defaultValue,
+                           setSelectedOption = (_) => undefined,
                            color = 'gray',
                            enableSearch = false,
                            searchBy = undefined
                        }) => {
     const dropdownRef = useRef(null);
+    const inputRef = useRef(null);
     useOnClickOutside(dropdownRef, handleClick);
 
+    const [items, setItems] = useState([]);
     const [visible, setVisible] = useState(false);
     const [value, setValue] = useState("");
 
     useEffect(() => {
-        if (selectedOption) {
-            onItemSelect(selectedOption);
+        if (options) {
+            setItems(options)
+
+            if (defaultValue && isEmpty(selectedOption)) onItemSelect(defaultValue)
         }
-    }, []);
+    }, [options]);
 
     function handleClick(e) {
         if (!visible) return;
 
         if (selectedOption) {
-            if (value.length > 0) {
+            if (value && value.length > 0) {
                 setValue(renderSelectedOption(selectedOption));
             } else {
-                setSelectedOption("");
+                setSelectedOption({});
             }
         } else {
             setValue("");
@@ -89,12 +96,18 @@ export const Select = ({
         <div className="selectWrap">
             <div tabIndex="0" className="select_input_container">
                 <Input
+                    ref={inputRef}
                     readOnly={enableSearch ? undefined : "readonly"}
                     className={classnames(["select_input-styled", SELECT_COLOR_TYPE[color].input])}
                     type="text"
+                    disabled={!items}
                     value={value}
                     onChange={onChange}
-                    onFocus={() => setVisible(true)}
+                    onFocus={() => {
+                        setVisible(true)
+                        enableSearch && value && inputRef.current.select()
+
+                    }}
                     renderIcon={<SelectIcon className={classnames([visible && 'select_input-icon-visible'])}
                                             color={SELECT_COLOR_TYPE[color].svg}/>}
                 />
@@ -102,22 +115,8 @@ export const Select = ({
 
             <div ref={dropdownRef} className={classnames(['dropdown', visible && 'visible'])}>
                 {visible && (
-                    <VirtualList items={renderOptions(value, options, enableSearch, searchBy)}
+                    <VirtualList items={renderOptions(value, items, enableSearch, searchBy)}
                                  renderRow={renderMenuOption} onItemSelect={onItemSelect}/>
-                    // <ul>
-                    //     {options &&
-                    //         renderOptions(value, options, enableSearch, searchBy).map(
-                    //             (option) => (
-                    //                 <li
-                    //                     key={renderSelectedOption(option)}
-                    //                     onClick={() => onItemSelect(option)}
-                    //                     className="dropdown_item"
-                    //                 >
-                    //                     {renderMenuOption(option)}
-                    //                 </li>
-                    //             )
-                    //         )}
-                    // </ul>
                 )}
             </div>
         </div>

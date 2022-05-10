@@ -13,16 +13,17 @@ const BUTTON_COLOR = {
     success: 'button_success',
     danger: 'button_danger',
     gray: 'button_gray',
+    darkgray: 'button_darkgray',
     white: 'button_white',
 }
 
 export function Button({
-                           text,
+                           text = '',
                            size = 'L',
                            color = 'gray',
                            type = 'button',
                            isLoading = false,
-                           disabled,
+                           disabled = false,
                            className = '',
                            ...rest
                        }) {
