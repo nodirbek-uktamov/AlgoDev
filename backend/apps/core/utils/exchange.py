@@ -71,7 +71,7 @@ class Bot:
 
         del symbols_settings
 
-        while not time.sleep(0.3):
+        while not time.sleep(3):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
             try:
@@ -144,6 +144,14 @@ class Bot:
         if trade.twap_bot_completed_trades == trades_count:
             self.complete_trade(trade, client, account_id, precision)
 
+    def send_error_log(self, error, trade, additional_text='', action=None):
+        try:
+            error = error.splitlines()[0].split('error: ')[1]
+        except Exception:
+            pass
+
+        self.send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
+
     def handle_error(self, trade, e, cancel=True):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -164,12 +172,7 @@ class Bot:
 
         error = str(e)
 
-        try:
-            error = error.splitlines()[0].split('error: ')[1]
-        except Exception:
-            pass
-
-        self.send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
+        self.send_error_log(error, trade, additional_text, action)
 
     def place_order(self, client, trade, cost, price, account_id, precision):
         if trade.trade_type == 'sell':
@@ -235,9 +238,11 @@ class Bot:
             ).data
 
             TakeProfitOrder.objects.create(user=trade.user, trade=trade, order_id=data.get('data'))
+            return data
 
         except Exception as e:
             self.handle_error(trade, e)
+            return {'data': 0}
 
     def grid_bot(self, client, trade, cost, account_id, precision, orders):
         order_ids = json.loads(trade.active_order_ids)
@@ -450,6 +455,15 @@ class Bot:
         except Exception as e:
             print(str(e))
 
+    def stop_order(self, client, account_id, amount, precision, trade, trade_type):
+        return client.place(
+            account_id=account_id,
+            amount=format_float(amount, precision.get('amount', 0)),
+            price=format_float(trade.stop_price, precision.get('price', 0)),
+            symbol=trade.symbol,
+            type=f'{trade_type}-limit',
+        ).data
+
     def base_order(self, client, trade, account_id, precision, orders, price):
         amount = self.calc_amount(trade, precision, trade.limit_price)
         order_type = 'limit'
@@ -458,37 +472,67 @@ class Bot:
             order_type = 'market'
             trade.price = price
 
-        if not (order_type == 'market' and trade.trade_type == 'buy'):
-            amount = amount / price
-
         if trade.order_id:
-            print('order already created')
             order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
-            print(order)
 
             if not order:
+                amount = amount / (float(trade.stop_price) or price)
                 trade_type = 'buy' if trade.trade_type == 'sell' else 'sell'
 
                 if trade.stop and trade.take_profit:
-                    print('double')
+                    order_ids = json.loads(trade.active_order_ids)
+                    active_orders = filter(lambda i: str(i.get('id')) in order_ids, orders.get('data', []))
+                    active_orders = list(map(lambda a: a['id'], active_orders))
+
+                    if len(active_orders) == 1:
+                        client.batch_cancel(order_ids=active_orders)
+                        trade.is_completed = True
+                        trade.save()
+                        log_text = f'{trade.id}: take profit or stop order is {bold(f"completed")}.'
+                        self.send_log(trade.user.id, log_text, {'delete': trade.id})
+                        return
+
+                    if not active_orders:
+                        stop_order = {}
+
+                        try:
+                            stop_order = self.stop_order(client, account_id, amount, precision, trade, trade_type)
+                        except Exception as e:
+                            self.send_error_log(e, trade)
+
+                        tp_order = self.take_profit_order(client, account_id, trade, float(trade.price), precision)
+
+                        if tp_order.get('data') and stop_order.get('data'):
+                            trade.active_order_ids = json.dumps([tp_order['data'], stop_order['data']])
+                        else:
+                            trade.is_completed = True
+
+                        trade.save()
+
+                        log_text = f'{trade.id}: order {bold(f"completed")}, stop and TP orders placed.'
+                        self.send_log(trade.user.id, log_text, {'delete': trade.id})
                     return
 
+                order_type = ''
+
                 if trade.stop:
-                    client.place(
-                        account_id=account_id,
-                        amount=format_float(amount, precision.get('amount', 0)),
-                        price=format_float(trade.stop_price, precision.get('price', 0)),
-                        symbol=trade.symbol,
-                        type=f'{trade_type}-limit',
-                    )
+                    self.stop_order(client, account_id, amount, precision, trade, trade_type)
                     trade.is_completed = True
+                    order_type = 'stop'
 
                 if trade.take_profit:
                     self.take_profit_order(client, account_id, trade, float(trade.price), precision)
                     trade.is_completed = True
+                    order_type = 'TP'
+
+                log_text = f'{trade.id}: order {bold(f"completed")}, {order_type} order placed.'
+                self.send_log(trade.user.id, log_text, {'delete': trade.id})
 
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
             return
+
+        if not (order_type == 'market' and trade.trade_type == 'buy'):
+            amount = amount / price
 
         data = client.place(
             account_id=account_id,

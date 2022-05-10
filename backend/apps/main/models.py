@@ -118,7 +118,6 @@ class TakeProfitOrder(models.Model):
     order_id = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        print('asd')
         channel_layer = get_channel_layer()
 
         t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
