@@ -33,13 +33,18 @@ export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filt
         {filterConfig.map((filter, idx) => {
             const color = filter.filterValue === filterState.value ? 'white' : 'gray';
             const text = <span
-                style={{color: 'inherit', textTransform: 'capitalize'}}>{filter.displayTitle} {filter.renderCount && filter.renderCount()}</span>;
+                style={{
+                    color: 'inherit',
+                    textTransform: 'capitalize'
+                }}>{filter.displayTitle} {filter.renderCount && filter.renderCount()}</span>;
 
-            return <Button onClick={handleFilter(filterKey, filter.filterValue)}
-                           className="filter-btn"
-                           size="M"
-                           text={text}
-                           color={color}
+            return <Button
+                key={filter.filterValue}
+                onClick={handleFilter(filterKey, filter.filterValue)}
+                className="filter-btn"
+                size="M"
+                text={text}
+                color={color}
             />
         })}
     </div>

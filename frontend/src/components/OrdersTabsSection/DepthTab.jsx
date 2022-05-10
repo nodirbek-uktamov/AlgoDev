@@ -35,7 +35,7 @@ export function DepthTab({botPrices}) {
             selectedOption={depthStep}
             setSelectedOption={o => {
                 setDepthStep(o)
-                onChangeDepthType(o.value)
+                huobiWs.current.readyState === 1 && onChangeDepthType(o.value)
             }}
             defaultValue={depthSteps[0]}
             renderMenuOption={o => o.label}

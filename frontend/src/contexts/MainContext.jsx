@@ -82,7 +82,7 @@ export default function MainContextWrapper({children}) {
 
             huobiWs.current.addEventListener('message', handleMessageMarketData)
             huobiWs.current.onclose = onClose
-        }, 11000)
+        }, 1000)
     }
 
     function handleMessageMarketData(event) {
@@ -122,7 +122,7 @@ export default function MainContextWrapper({children}) {
 
         accountWs.current = new WebSocket(response.url)
         accountWs.current.onopen = () => connect(response.params)
-        accountWs.current.onclose = setTimeout(connectAccountWs, 15000)
+        accountWs.current.onclose = connectAccountWs
         accountWs.current.addEventListener('message', handleMessageAccount)
     }
 
