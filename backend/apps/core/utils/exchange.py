@@ -14,6 +14,7 @@ from django.utils import timezone
 from huobi import HuobiRestClient
 from huobi.rest.error import HuobiRestiApiError
 
+from core.exchange.utils import format_float
 from core.utils.background import background
 
 from core.exchange.client import CustomHuobiClient
@@ -44,12 +45,29 @@ def save_account_ids(user):
 
 class Bot:
     def run_bot(self):
+        from main.models import SymbolSetting
         symbols_settings = requests.get('https://api.huobi.pro/v1/common/symbols').json()
         precisions = {}
+        symbol_precisions = []
 
         for i in symbols_settings.get('data', []):
-            precisions[i.get('symbol')] = {'amount': i.get('amount-precision'), 'price': i.get('price-precision'),
-                                           'min_price': i.get('min-order-value')}
+            amount_precision = i.get('amount-precision')
+            price_precision = i.get('price-precision')
+            min_price = i.get('min-order-value')
+
+            precisions[i.get('symbol')] = {'amount': amount_precision, 'price': price_precision, 'min_price': min_price}
+
+            symbol_precisions.append(
+                SymbolSetting(
+                    amount_precision=amount_precision,
+                    price_precision=price_precision,
+                    min_price=min_price,
+                    symbol=i.get('symbol')
+                )
+            )
+
+        SymbolSetting.objects.all().delete()
+        SymbolSetting.objects.bulk_create(symbol_precisions)
 
         del symbols_settings
 
@@ -109,13 +127,10 @@ class Bot:
 
         return float(amount)
 
-    def format_float(self, number, decimal_fields):
-        return f'{number:.{decimal_fields}f}'
-
     def twap_bot_place(self, client, account_id, trade, amount, precision):
         client.place(
             account_id=account_id,
-            amount=self.format_float(amount, precision.get('amount', 0)),
+            amount=format_float(amount, precision.get('amount', 0)),
             symbol=trade.symbol,
             type=f'{trade.trade_type}-market',
         )
@@ -172,11 +187,11 @@ class Bot:
             if trade.twap_bot:
                 self.twap_bot_place(client, account_id, trade, amount, precision)
             else:
-                readable_price = self.format_float(price, precision.get('price', 0))
+                readable_price = format_float(price, precision.get('price', 0))
 
                 client.place(
                     account_id=account_id,
-                    amount=self.format_float(amount - float(trade.filled), precision.get('amount', 0)),
+                    amount=format_float(amount - float(trade.filled), precision.get('amount', 0)),
                     price=readable_price,
                     symbol=trade.symbol,
                     type=f'{trade.trade_type}-limit',
@@ -212,10 +227,10 @@ class Bot:
         try:
             data = client.place(
                 account_id=account_id,
-                amount=self.format_float(float(trade.quantity) / price, precision.get('amount', 0)),
+                amount=format_float(float(trade.quantity) / price, precision.get('amount', 0)),
                 symbol=trade.symbol,
                 type=f'{trade_type}-limit',
-                price=self.format_float(price, precision.get('price', 0)),
+                price=format_float(price, precision.get('price', 0)),
                 client_order_id=int(round(trade.completed_at.timestamp() * 1000))
             ).data
 
@@ -251,23 +266,28 @@ class Bot:
         )
         order_ids = []
 
-        for i in range(1, trade.grid_trades_count + 1):
-            price = start_price + i * (end_price - start_price) / (trade.grid_trades_count + 1)
-            quantity = prices_array[i - 1]
+        try:
+            for i in range(1, trade.grid_trades_count + 1):
+                price = start_price + i * (end_price - start_price) / (trade.grid_trades_count + 1)
+                quantity = prices_array[i - 1]
 
-            order = client.place(
-                account_id=account_id,
-                amount=self.format_float(float(quantity) / float(price), precision.get('amount', 0)),
-                symbol=trade.symbol,
-                type=f'{trade.trade_type}-limit',
-                price=self.format_float(price, precision.get('price', 0)),
-                client_order_id=int(round(timezone.now().timestamp() * 1000))
-            ).data
+                order = client.place(
+                    account_id=account_id,
+                    amount=format_float(float(quantity) / float(price), precision.get('amount', 0)),
+                    symbol=trade.symbol,
+                    type=f'{trade.trade_type}-limit',
+                    price=format_float(price, precision.get('price', 0)),
+                    client_order_id=int(round(timezone.now().timestamp() * 1000))
+                ).data
 
-            order_ids.append(int(order.get('data')))
+                order_ids.append(int(order.get('data')))
 
-        trade.active_order_ids = json.dumps(order_ids)
-        trade.save()
+            trade.active_order_ids = json.dumps(order_ids)
+            trade.save()
+
+        except Exception as e:
+            self.handle_error(trade, e)
+            print('grid error')
 
         log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
         self.send_log(trade.user.id, log_text)
@@ -322,8 +342,8 @@ class Bot:
 
                 order = client.place(
                     account_id=account_id,
-                    amount=self.format_float(ask_orders_q[i] / price, precision.get('amount', 0)),
-                    price=self.format_float(price, precision.get('price', 0)),
+                    amount=format_float(ask_orders_q[i] / price, precision.get('amount', 0)),
+                    price=format_float(price, precision.get('price', 0)),
                     symbol=trade.symbol,
                     type=f'sell-limit',
                     client_order_id=client_order_id
@@ -340,8 +360,8 @@ class Bot:
 
                 order = client.place(
                     account_id=account_id,
-                    amount=self.format_float(bid_orders_q[i] / price, precision.get('amount', 0)),
-                    price=self.format_float(price, precision.get('price', 0)),
+                    amount=format_float(bid_orders_q[i] / price, precision.get('amount', 0)),
+                    price=format_float(price, precision.get('price', 0)),
                     symbol=trade.symbol,
                     type=f'buy-limit',
                     client_order_id=client_order_id
@@ -430,6 +450,59 @@ class Bot:
         except Exception as e:
             print(str(e))
 
+    def base_order(self, client, trade, account_id, precision, orders, price):
+        amount = self.calc_amount(trade, precision, trade.limit_price)
+        order_type = 'limit'
+
+        if trade.market:
+            order_type = 'market'
+            trade.price = price
+
+        if not (order_type == 'market' and trade.trade_type == 'buy'):
+            amount = amount / price
+
+        if trade.order_id:
+            print('order already created')
+            order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+            print(order)
+
+            if not order:
+                trade_type = 'buy' if trade.trade_type == 'sell' else 'sell'
+
+                if trade.stop and trade.take_profit:
+                    print('double')
+                    return
+
+                if trade.stop:
+                    client.place(
+                        account_id=account_id,
+                        amount=format_float(amount, precision.get('amount', 0)),
+                        price=format_float(trade.stop_price, precision.get('price', 0)),
+                        symbol=trade.symbol,
+                        type=f'{trade_type}-limit',
+                    )
+                    trade.is_completed = True
+
+                if trade.take_profit:
+                    self.take_profit_order(client, account_id, trade, float(trade.price), precision)
+                    trade.is_completed = True
+
+            trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
+            return
+
+        data = client.place(
+            account_id=account_id,
+            amount=format_float(amount, precision.get('amount', 0)),
+            price=format_float(trade.limit_price, precision.get('price', 0)),
+            symbol=trade.symbol,
+            type=f'{trade.trade_type}-{order_type}',
+            client_order_id=trade.id,
+        ).data
+
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
+        trade.order_id = data['data']
+        trade.price = trade.price or trade.limit_price
+
     @background
     def run_trade(self, costs, trade, precisions, client, account_id, orders):
         cost = costs[trade.symbol]
@@ -442,6 +515,16 @@ class Bot:
 
         if trade.hft_bot:
             self.hft_bot(client, trade, cost, account_id, precision, orders)
+            return
+
+        if trade.limit or trade.market:
+            try:
+                self.base_order(client, trade, account_id, precision, orders, price)
+            except Exception as e:
+                self.handle_error(trade, e)
+
+            trade.save()
+
             return
 
         order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))

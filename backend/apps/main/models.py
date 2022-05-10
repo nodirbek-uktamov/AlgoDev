@@ -60,6 +60,15 @@ class Trade(models.Model):
     hft_orders_on_each_side = models.IntegerField(default=0)
     hft_order_ids = models.TextField(default='[]')
 
+    stop = models.BooleanField(default=False)
+    stop_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+
+    limit = models.BooleanField(default=False)
+    limit_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    market = models.BooleanField(default=False)
+
+    order_id = models.CharField(max_length=255, null=True, blank=True)
+
     active_order_ids = models.TextField(default='[]')
 
     @property
@@ -127,3 +136,10 @@ class TakeProfitOrder(models.Model):
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_take_profit_orders'
+
+
+class SymbolSetting(models.Model):
+    amount_precision = models.IntegerField()
+    price_precision = models.IntegerField()
+    min_price = models.DecimalField(max_digits=20, decimal_places=10)
+    symbol = models.CharField(max_length=255)

@@ -36,12 +36,18 @@ class CustomHuobiClient(HuobiRestClient):
             },
             'type': {
                 'required': True,
-                'choices': [
-                    'buy-market',
-                    'sell-market',
-                    'buy-limit',
-                    'sell-limit',
-                ]
             },
+        }
+    )
+
+    get_order = Endpoint(
+        method='GET',
+        path='/v1/order/orders/{order-id}',
+        auth_required=True,
+        params={
+            'order_id': {
+                'required': True,
+                'url': 'order-id'
+            }
         }
     )
