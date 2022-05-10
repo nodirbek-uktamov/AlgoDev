@@ -31,3 +31,7 @@ def generate_auth_params_ws(access_key, secret_key):
     params["authType"] = "api"
 
     return {'url': url, 'params': params}
+
+
+def format_float(number, decimal_fields):
+    return f'{number:.{decimal_fields}f}'

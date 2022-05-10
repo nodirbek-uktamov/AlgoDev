@@ -1,12 +1,15 @@
 import json
 
+import requests
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from asgiref.sync import async_to_sync
 
 from core.exchange.client import CustomHuobiClient
+from core.exchange.utils import format_float
 from main.models import Trade
+from main.serializers.orders import OrderValidatorSerializer
 from main.serializers.trade import TradesSerializer
 from channels.layers import get_channel_layer
 
@@ -74,21 +77,22 @@ class CancelTradesView(APIView):
         orders = client.open_orders().data
         orders_for_cancel = []
 
-        # for trade in trades_list:
-        #     order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
-        #
-        #     if order:
-        #         orders_for_cancel.append(str(order[0].get('id')))
-        #
-        #     if trade.hft_bot:
-        #         old_order_ids = json.loads(trade.hft_order_ids)
-        #         active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
-        #         active_orders = list(map(lambda a: a['id'], active_orders))
-        #         orders_for_cancel = [*orders_for_cancel, *active_orders]
+        for trade in trades_list:
+            order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
-        for i in orders.get('data', []):
-            if i['client-order-id']:
-                orders_for_cancel.append(str(i['id']))
+            if order:
+                orders_for_cancel.append(str(order[0].get('id')))
+
+            if trade.hft_bot:
+                old_order_ids = json.loads(trade.hft_order_ids)
+                active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
+                active_orders = list(map(lambda a: a['id'], active_orders))
+                orders_for_cancel = [*orders_for_cancel, *active_orders]
+
+            if trade.grid_bot:
+                old_order_ids = json.loads(trade.active_order_ids)
+                active_orders = filter(lambda i: int(i.get('id')) in old_order_ids, orders.get('data', []))
+                orders_for_cancel = [*orders_for_cancel, *active_orders]
 
         if orders_for_cancel:
             client.batch_cancel(order_ids=orders_for_cancel)
@@ -99,5 +103,56 @@ class CancelTradesView(APIView):
                 'type': 'chat_message',
                 'message': "Orders canceled"
             }
+        )
+        return Response({'ok': True})
+
+
+class MarketOrderView(APIView):
+    def post(self, request):
+        data = OrderValidatorSerializer.check(request.data)
+        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+
+        if data['side'] == 'buy':
+            tickers = requests.get('https://api.huobi.pro/market/tickers').json()
+            price = 0
+
+            for cost in tickers.get('data', []):
+                if cost['symbol'] == data['symbol']:
+                    price = cost['ask']
+
+            data['orderSize'] *= price
+
+        client.place(
+            account_id=request.user.spot_account_id,
+            amount=format_float(data['orderSize'], data['amount_precision']),
+            symbol=data['symbol'],
+            type=f'{data["side"]}-market',
+        )
+
+        return Response({'ok': True})
+
+
+class LimitOrderView(APIView):
+    def post(self, request):
+        data = OrderValidatorSerializer.check(request.data)
+        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+
+        tickers = requests.get('https://api.huobi.pro/market/tickers').json()
+        price = 0
+
+        for cost in tickers.get('data', []):
+            if cost['symbol'] == data['symbol']:
+                if data['side'] == 'buy':
+                    price = cost['bid']
+
+                if data['side'] == 'sell':
+                    price = cost['ask']
+
+        client.place(
+            account_id=request.user.spot_account_id,
+            amount=format_float(data['orderSize'], data['amount_precision']),
+            symbol=data['symbol'],
+            type=f'{data["side"]}-limit',
+            price=format_float(price, data['price_precision'])
         )
         return Response({'ok': True})

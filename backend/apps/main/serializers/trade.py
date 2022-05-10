@@ -6,14 +6,10 @@ from main.models import Trade
 
 class TradesSerializer(serializers.ModelSerializer):
     completed_icebergs = serializers.IntegerField(read_only=True)
-        # filled_amount = serializers.SerializerMethodField(read_only=True)
     active_order_ids = serializers.SerializerMethodField(read_only=True)
 
     def get_active_order_ids(self, obj):
         return json.loads(obj.active_order_ids)
-
-    # def get_filled_amount(self, obj):
-    #     return obj.filled_amount
 
     def validate(self, data):
         if not data.get('loop'):
@@ -21,7 +17,6 @@ class TradesSerializer(serializers.ModelSerializer):
 
         if not data.get('iceberg'):
             data['icebergs_count'] = 0
-            data['take_profit'] = False
             data['market_making'] = False
             data['iceberg_price'] = 0
 
@@ -98,4 +93,12 @@ class TradesSerializer(serializers.ModelSerializer):
             'hft_orders_on_each_side',
             'hft_bot',
             'active_order_ids',
+
+            'stop',
+            'stop_price',
+
+            'limit',
+            'limit_price',
+
+            'market',
         )
