@@ -7,6 +7,7 @@ import Logs from '../components/Logs'
 import OrdersTabs from '../components/OrdersTabs'
 import MainContextWrapper from "../contexts/MainContext";
 import {OrdersTabsSection} from "../components/OrdersTabsSection";
+import {Card} from "../components/common/Card";
 
 export default function Main() {
     const [botPrices, setBotPrices] = useState({})
@@ -26,18 +27,18 @@ export default function Main() {
 
     return (
         <MainContextWrapper>
-            <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: '320px 1fr 567px', padding: '20px'}}>
-                {/*<div className="columns mb-4 mt-2">*/}
-                {/*    <div className="column"/>*/}
-
-                {/*    <div className="column is-narrow" style={{width: 200}}>*/}
-                {/*        <Button text={'Cancel all orders'} onClick={cancelAllTrades}/>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
-
+            <div style={{display: 'grid', gap: '20px', gridTemplateColumns: '320px 1fr 567px', padding: '20px'}}>
                 <div>
-                    <TradeForm onUpdate={onUpdate}/>
-                    <Logs setBotPrices={setBotPrices} trades={trades}/>
+                    <div style={{display: "flex", flexDirection: 'column', gap: 20}}>
+                        <Card>
+                            <TradeForm onUpdate={onUpdate}/>
+                        </Card>
+
+                        <Card>
+                            <Logs setBotPrices={setBotPrices} trades={trades}/>
+                        </Card>
+                    </div>
+
                 </div>
 
                 <div>

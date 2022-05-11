@@ -77,12 +77,12 @@ export default function Logs({setBotPrices, trades}) {
     }
 
     return (
-        <Card>
+
             <div style={{height: 426, overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit'}}>
                 {logs.map((message, index) => {
                     return <p key={index}>{message}</p>
                 })}
             </div>
-        </Card>
+
     )
 }

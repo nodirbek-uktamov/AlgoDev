@@ -73,7 +73,7 @@ function Chart({trades}) {
     return (
         <div>
             <Card color='black'>
-                <div className="is-flex is-align-items-center mb-2">
+                <div style={{display: 'flex', gap: 20, marginBottom: 20}}>
                     <Select
                         enableSearch
                         searchBy={o => o.label}
@@ -95,8 +95,6 @@ function Chart({trades}) {
                         options={intervals}
                         selectedOption={interval}
                         setSelectedOption={setInterval}/>
-
-                    <BidAsk wsCallbacksRef={wsCallbacksRef} symbol={symbolValue}/>
                 </div>
 
                 <div style={{height: 387}}>
