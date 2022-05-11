@@ -77,6 +77,15 @@ const renderColumns = (handleCancelOrder, tpp) => {
             render: (rowData) => {
                 return <span>{rowData.time}</span>;
             }
+        },
+        {
+            title: "Close",
+            key: 'close',
+            renderHeaderCell: (column) => <span>{column.title}</span>,
+            hasSorting: false,
+            render: (rowData) => {
+                return <span>{rowData.time}</span>;
+            }
         }
     ];
 };
