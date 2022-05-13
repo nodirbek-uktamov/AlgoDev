@@ -45,7 +45,7 @@ export default function Login() {
             </div>
         )}>
             <div id="login-title-panel" className="has-text-centered mb-4">
-                <h2 className="is-size-4 has-text-weight-bold mb-4">Sign in</h2>
+                <h2 className="is-size-4 has-text-weight-bold mb-4 has-text-black">Sign in</h2>
             </div>
 
             <Formik onSubmit={onSubmit} initialValues={{ email: '', password: '' }}>
@@ -57,8 +57,7 @@ export default function Login() {
                     <div className="field">
                         <div className="control">
                             <Button
-                                loading={signIn.loading}
-                                className="is-primary is-blue is-medium is-fullwidth"
+                                isLoading={signIn.loading}
                                 text="Login"
                                 type="submit" />
                         </div>

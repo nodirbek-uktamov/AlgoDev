@@ -2,7 +2,6 @@ import React, {useState} from 'react'
 import './FilterPanel.scss'
 import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
 import {Button} from "../common/Button";
-import {capitalizeFirstLetter} from "../../utils/string";
 
 export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filter: filterState}) {
     const filterKey = useState('orderStatus')[0];
@@ -27,7 +26,18 @@ export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filt
             displayTitle: ORDERS_FILTER_TYPE.canceled,
             filterValue: ORDERS_FILTER_TYPE.canceled,
             renderCount: null
-        }];
+        },
+        {
+            displayTitle: ORDERS_FILTER_TYPE.closed,
+            filterValue: ORDERS_FILTER_TYPE.closed,
+            renderCount: null
+        },
+        {
+            displayTitle: ORDERS_FILTER_TYPE.stops,
+            filterValue: ORDERS_FILTER_TYPE.stops,
+            renderCount: null
+        }
+    ];
 
     return <div className='filter-panel_container'>
         {filterConfig.map((filter, idx) => {
@@ -39,6 +49,7 @@ export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filt
                 }}>{filter.displayTitle} {filter.renderCount && filter.renderCount()}</span>;
 
             return <Button
+                scale={false}
                 key={filter.filterValue}
                 onClick={handleFilter(filterKey, filter.filterValue)}
                 className="filter-btn"

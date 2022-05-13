@@ -14,6 +14,10 @@
   cursor: pointer;
 }
 
+.select_input-styled_open {
+  cursor: default;
+}
+
 .select_input-styled.select_input-gray {
   background-color: #333333;
   border: 1px solid #333333;
@@ -39,9 +43,12 @@
   color: #333333;
 }
 
+.select_input-icon {
+  transition: all 0.2s;
+}
+
 .select_input-icon-visible {
   transform: rotate(180deg);
-  transition: all 0.2s;
 }
 
 .dropdown {

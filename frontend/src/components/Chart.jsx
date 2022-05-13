@@ -1,8 +1,6 @@
 import React, {useCallback, useContext, useState} from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
 import {useLoad} from '../hooks/request'
-import ReactSelect from './common/ReactSelect'
-import BidAsk from './BidAsk'
 import {intervals} from '../utils/intervals'
 import {TradesList} from '../components/TradesList'
 import {HUOBI_SYMBOLS} from '../urls'
@@ -26,7 +24,7 @@ const defaultOptions = {
     container_id: 'tradingview_1a5f8',
 }
 
-function Chart({trades}) {
+function Chart({trades, cancelAllTrades}) {
     const symbols = useLoad({
         baseURL: HUOBI_SYMBOLS,
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -47,12 +45,12 @@ function Chart({trades}) {
     const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0];
 
     const onChange = useCallback((val) => {
-        console.log(val, 'val')
+
         wsCallbacksRef.current.setOrdersData('clear')
 
         disconnectHuobi()
 
-        localStorage.setItem('symbol', JSON.stringify(val))
+        //localStorage.setItem('symbol', JSON.stringify(val))
         setSymbol(val)
         connectHuobi(val.value.toLowerCase())
 
@@ -80,7 +78,7 @@ function Chart({trades}) {
                         options={symbolsList}
                         setSelectedOption={o => {
                             setSelectedSymbol(o)
-                            //onChange(o.value)
+                            onChange(o.value)
                         }}
                         defaultValue={defaultSymbol}
                         selectedOption={selectedSymbol}
@@ -106,7 +104,7 @@ function Chart({trades}) {
             </Card>
 
             <Card dense={false}>
-                <TradesList onCancel={trades.request} trades={trades.response || []}/>
+                <TradesList cancelAllTrades={cancelAllTrades} onCancel={trades.request} trades={trades.response || []}/>
                 <OrdersList/>
             </Card>
 

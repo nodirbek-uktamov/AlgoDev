@@ -5,5 +5,6 @@ export const ORDERS_FILTER_TYPE = {
     filled: 'filled',
     canceled: 'canceled',
     closed: 'closed',
+    stops: 'stops',
     takeprofit: 'takeprofit',
 }

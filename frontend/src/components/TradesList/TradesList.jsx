@@ -4,8 +4,9 @@ import {usePutRequest} from "../../hooks/request";
 import {TRADE_DETAIL} from "../../urls";
 import './TradesList.scss'
 import {MainContext} from "../../contexts/MainContext";
+import {Button} from "../common/Button";
 
-const renderColumns = (handleCancelTrade) => {
+const renderColumns = (handleCancelTrade, cancelAllTrades) => {
     return [
         {
             title: "ID",
@@ -71,15 +72,20 @@ const renderColumns = (handleCancelTrade) => {
         {
             title: "",
             key: 'tradeId',
-            textAlign: 'center',
+            renderHeaderCell: (_) => <Button scale={false} size='S' text='Cancel all' color='danger' onClick={cancelAllTrades}/>,
+            width: '20%',
             render: ({id: tradeId}) => {
-                return <button className='trades-list_cancel-btn' onClick={handleCancelTrade(tradeId)}>&#10060;</button>
+                return <div style={{display: 'flex', justifyContent: 'flex-end', marginRight: 20}}>
+                    <Button scale={false} size='S'
+                            text='Cancel' color='danger'
+                            onClick={handleCancelTrade(tradeId)}/>
+                </div>
             }
         }
     ];
 };
 
-function TradesList({trades, onCancel}) {
+function TradesList({trades, onCancel, cancelAllTrades}) {
     const cancel = usePutRequest()
 
     const cancelTrade = (tradeId) => async () => {
@@ -92,7 +98,7 @@ function TradesList({trades, onCancel}) {
 
     return (
         <div className="trades-list_container">
-            <TradesTable isBottomRounded={false} columns={renderColumns(cancelTrade)} tableData={trades}/>
+            <TradesTable isBottomRounded={false} columns={renderColumns(cancelTrade, cancelAllTrades)} tableData={trades}/>
         </div>
     )
 }

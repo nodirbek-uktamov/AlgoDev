@@ -2,17 +2,18 @@ import React, {useMemo, useState, useContext, useEffect} from 'react'
 import {Table as OrdersTable} from "../common/Table";
 import {FilterPanel} from "../FilterPanel";
 import {MainContext} from "../../contexts/MainContext";
-import {useLoad} from "../../hooks/request";
-import {OPEN_ORDERS} from "../../urls";
+import {useLoad, usePostRequest} from "../../hooks/request";
+import {LIMIT, MARKET, OPEN_ORDERS} from "../../urls";
 import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
 import './OrdersList.scss';
+import {Button} from "../common/Button";
 
 const SIDE_TEXT_STYLE = {
     buy: 'has-text-danger',
     sell: 'has-text-success'
 }
 
-const renderColumns = (handleCancelOrder, tpp) => {
+const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
     return [
         {
             title: "Status",
@@ -27,7 +28,7 @@ const renderColumns = (handleCancelOrder, tpp) => {
             title: "Type",
             key: 'type',
             hasSorting: true,
-            width: '12%',
+            width: '15%',
             render: (rowData) => {
                 return <span>{rowData.type}</span>;
             }
@@ -81,10 +82,17 @@ const renderColumns = (handleCancelOrder, tpp) => {
         {
             title: "Close",
             key: 'close',
-            renderHeaderCell: (column) => <span>{column.title}</span>,
+            renderHeaderCell: (column) => <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <span style={{fontWeight: 600}}>{column.title}</span>
+                <Button size='S' color='danger' text='Cancel all' onClick={() => {
+                }}/>
+            </div>,
             hasSorting: false,
             render: (rowData) => {
-                return <span>{rowData.time}</span>;
+                return <div className="is-flex" style={{gap: 10}}>
+                    <Button scale={false} size='S' color='white' text='Market' onClick={() => onCloseMarket(rowData)}/>
+                    <Button scale={false} size='S' color='white' text='Limit' onClick={() => onCloseLimit(rowData)}/>
+                </div>;
             }
         }
     ];
@@ -97,6 +105,17 @@ function OrdersList() {
 
     const [orders, setOrders] = useState([]);
     const [filter, setFilter] = useState({key: "orderStatus", value: ORDERS_FILTER_TYPE.submitted});
+
+    const closeMarket = usePostRequest({url: MARKET});
+    const closeLimit = usePostRequest({url: LIMIT});
+
+    const onCloseMarket = async (rowData) => {
+        return closeMarket.request({data: rowData})
+    }
+
+    const onCloseLimit = async (rowData) => {
+        return closeLimit.request({data: rowData})
+    }
 
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
@@ -151,7 +170,8 @@ function OrdersList() {
         <div className="orders-list_container">
             <FilterPanel handleFilter={handleFilter} openOrdersCount={openOrdersCount} allOrdersCount={allOrdersCount}
                          filter={filter}/>
-            <OrdersTable columns={renderColumns(handleCancelOrder, tpp)} tableData={filteredOrders(filter)}/>
+            <OrdersTable columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, tpp)}
+                         tableData={filteredOrders(filter)}/>
         </div>
     )
 }

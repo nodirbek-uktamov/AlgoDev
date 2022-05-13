@@ -8,6 +8,8 @@ export const BALANCE = '/main/balance/'
 export const OPEN_ORDERS = '/main/orders/{symbol}/'
 export const TRADE_DETAIL = '/main/trades/{id}/'
 export const CANCEL_TRADES = '/main/trades/cancel/'
+export const MARKET = '/main/market'
+export const LIMIT = '/main/limit'
 
 export const HUOBI_DOMAIN = 'https://api.huobi.pro'
 export const HUOBI_SYMBOLS = `${HUOBI_DOMAIN}/v2/settings/common/symbols/`

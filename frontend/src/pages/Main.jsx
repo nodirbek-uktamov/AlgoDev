@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react'
 import Chart from '../components/Chart'
-import TradeForm from '../components/TradeForm'
+import TradeForm from '../components/TradeForm/TradeForm'
 import {useLoad, usePutRequest} from '../hooks/request'
 import {CANCEL_TRADES, TRADE} from '../urls'
 import Logs from '../components/Logs'
@@ -27,7 +27,7 @@ export default function Main() {
 
     return (
         <MainContextWrapper>
-            <div style={{display: 'grid', gap: '20px', gridTemplateColumns: '320px 1fr 567px', padding: '20px'}}>
+            <div style={{display: 'grid', gap: 20, gridTemplateColumns: '320px 1fr 567px', padding: 20}}>
                 <div>
                     <div style={{display: "flex", flexDirection: 'column', gap: 20}}>
                         <Card>
@@ -42,12 +42,11 @@ export default function Main() {
                 </div>
 
                 <div>
-                    <Chart trades={trades}/>
+                    <Chart cancelAllTrades={cancelAllTrades} trades={trades}/>
                 </div>
 
                 <div>
                     <OrdersTabsSection botPrices={botPrices}/>
-                    {/*<OrdersTabs botPrices={botPrices}/>*/}
                 </div>
             </div>
         </MainContextWrapper>

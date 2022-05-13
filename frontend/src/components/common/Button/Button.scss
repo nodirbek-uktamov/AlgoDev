@@ -3,8 +3,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  width: 100%;
+  font-size: 16px;
   border-radius: 60px;
   cursor: pointer;
   outline: 0;
@@ -21,6 +20,10 @@
 .button_main:disabled {
   cursor: not-allowed;
   opacity: 1;
+}
+
+.button_main-scale {
+  width: 100%;
 }
 
 
@@ -51,6 +54,7 @@
 .button_gray {
   background-color: #4D4D4D;
 }
+
 .button_darkgray {
   background-color: #333333;
 }

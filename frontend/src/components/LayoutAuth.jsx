@@ -5,7 +5,7 @@ import cn from 'classnames'
 
 export default function LayoutAuth({ children, sidebar }) {
     return (
-        <div className="login-wrapper columns is-gapless">
+        <div className="login-wrapper columns is-gapless has-background-white">
             <div className="column is-7">
                 <div className="hero form-hero is-fullheight">
                     <div className={cn('hero-body', css(styles.noPadding))}>
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
         },
     },
     sidebar: {
-        backgroundColor: 'rgb(84, 164, 193) !important',
+        backgroundColor: '#262626;',
     },
     developmentSidebar: {
         background: '#004d40',

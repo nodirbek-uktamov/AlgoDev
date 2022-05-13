@@ -25,10 +25,11 @@ export function Button({
                            isLoading = false,
                            disabled = false,
                            className = '',
+                           scale = true,
                            ...rest
                        }) {
     return <button type={type}
                    disabled={isLoading || disabled}
-                   className={classnames(['button_main', BUTTON_SIZE[size], BUTTON_COLOR[color], className])}
-                   {...rest}>{isLoading ? <Spinner className="button_spinner"/> : text}</button>
+                   className={classnames(['button_main', scale && 'button_main-scale', BUTTON_SIZE[size], BUTTON_COLOR[color], className])}
+                   {...rest}>{isLoading ? <Spinner color={color === 'white' ? 'black' : undefined}/> : text}</button>
 }
