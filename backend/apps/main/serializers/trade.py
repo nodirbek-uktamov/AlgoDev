@@ -95,7 +95,7 @@ class TradesSerializer(serializers.ModelSerializer):
             'active_order_ids',
 
             'stop',
-            'stop_price',
+            'stop_percent',
 
             'limit',
             'limit_price',
