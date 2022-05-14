@@ -80,7 +80,7 @@ function Chart({trades, cancelAllTrades}) {
                         options={symbolsList}
                         setSelectedOption={o => {
                             setSelectedSymbol(o)
-                            onChange(o.value)
+                            onChange(o)
                         }}
                         defaultValue={defaultSymbol}
                         selectedOption={selectedSymbol}
