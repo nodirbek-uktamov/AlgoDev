@@ -45,14 +45,16 @@ function Chart({trades, cancelAllTrades}) {
     const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0];
 
     const onChange = useCallback((val) => {
+        if (!wsCallbacksRef.current) return;
+        if (!accountWs.current) return;
 
         wsCallbacksRef.current.setOrdersData('clear')
 
         disconnectHuobi()
 
-        //localStorage.setItem('symbol', JSON.stringify(val))
+        localStorage.setItem('symbol', JSON.stringify(val))
         setSymbol(val)
-        connectHuobi(val.value.toLowerCase())
+        connectHuobi(val?.value?.toLowerCase())
 
         accountWs.current.send(JSON.stringify({
             action: 'unsub',
