@@ -3,8 +3,6 @@ from django.urls import path
 from main.views.balance import BalanceView
 from main.views.orders import OrdersListView
 from main.views.trade import TradeView, TradeDetailView, CancelTradesView, MarketOrderView, LimitOrderView
-from django.conf import settings
-from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -18,5 +16,3 @@ urlpatterns = [
     path('limit/', LimitOrderView.as_view(), name='limit'),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_URL)
