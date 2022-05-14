@@ -171,7 +171,7 @@ AUTH_USER_MODEL = 'users.User'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-STATIC_URL = '/static/'
+STATIC_URL = 'api/v1/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'files/static')
 MEDIA_URL = '/files/uploads/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'files/uploads')
