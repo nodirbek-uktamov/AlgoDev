@@ -3,6 +3,9 @@ from django.urls import path
 from main.views.balance import BalanceView
 from main.views.orders import OrdersListView
 from main.views.trade import TradeView, TradeDetailView, CancelTradesView, MarketOrderView, LimitOrderView
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('trades/', TradeView.as_view(), name='trade'),
@@ -14,3 +17,6 @@ urlpatterns = [
     path('market/', MarketOrderView.as_view(), name='market'),
     path('limit/', LimitOrderView.as_view(), name='limit'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
