@@ -1,10 +1,10 @@
 import json
 
 import requests
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from asgiref.sync import async_to_sync
+from rest_framework.views import APIView
 
 from core.exchange.client import CustomHuobiClient
 from core.exchange.utils import format_float
@@ -14,7 +14,9 @@ from main.serializers.trade import TradesSerializer
 from channels.layers import get_channel_layer
 
 
-class TradeView(APIView):
+class TradeView(GenericAPIView):
+    serializer_class = TradesSerializer
+
     def get(self, request):
         queryset = Trade.objects.filter(is_completed=False, user=request.user).order_by('-id')
         data = TradesSerializer(instance=queryset, many=True).data
@@ -107,7 +109,9 @@ class CancelTradesView(APIView):
         return Response({'ok': True})
 
 
-class MarketOrderView(APIView):
+class MarketOrderView(GenericAPIView):
+    serializer_class = OrderValidatorSerializer
+
     def post(self, request):
         data = OrderValidatorSerializer.check(request.data)
         client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
@@ -120,11 +124,11 @@ class MarketOrderView(APIView):
                 if cost['symbol'] == data['symbol']:
                     price = cost['ask']
 
-            data['orderSize'] *= price
+            data['order_size'] *= price
 
         client.place(
             account_id=request.user.spot_account_id,
-            amount=format_float(data['orderSize'], data['amount_precision']),
+            amount=format_float(data['order_size'], data['amount_precision']),
             symbol=data['symbol'],
             type=f'{data["side"]}-market',
         )
@@ -132,7 +136,9 @@ class MarketOrderView(APIView):
         return Response({'ok': True})
 
 
-class LimitOrderView(APIView):
+class LimitOrderView(GenericAPIView):
+    serializer_class = OrderValidatorSerializer
+
     def post(self, request):
         data = OrderValidatorSerializer.check(request.data)
         client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
@@ -150,7 +156,7 @@ class LimitOrderView(APIView):
 
         client.place(
             account_id=request.user.spot_account_id,
-            amount=format_float(data['orderSize'], data['amount_precision']),
+            amount=format_float(data['order_size'], data['amount_precision']),
             symbol=data['symbol'],
             type=f'{data["side"]}-limit',
             price=format_float(price, data['price_precision'])
