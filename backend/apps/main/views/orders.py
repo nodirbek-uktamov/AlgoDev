@@ -1,10 +1,10 @@
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from core.exchange.client import CustomHuobiClient
 import datetime
 
 
-class OrdersListView(APIView):
+class OrdersListView(GenericAPIView):
     def _format_order(self, orders):
         new_orders = []
 

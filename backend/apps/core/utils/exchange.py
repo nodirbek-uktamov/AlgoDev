@@ -455,20 +455,22 @@ class Bot:
         except Exception as e:
             print(str(e))
 
-    def stop_order(self, client, account_id, amount, precision, trade, trade_type):
+    def stop_order(self, client, account_id, amount, precision, trade, trade_type, stop_price, operator):
         return client.place(
             account_id=account_id,
             amount=format_float(amount, precision.get('amount', 0)),
-            price=format_float(trade.stop_price, precision.get('price', 0)),
+            stop_price=format_float(stop_price, precision.get('price', 0)),
+            price=format_float(stop_price, precision.get('price', 0)),
             symbol=trade.symbol,
-            type=f'{trade_type}-limit',
+            type=f'{trade_type}-stop-limit',
+            operator=operator
         ).data
 
     def base_order(self, client, trade, account_id, precision, orders, price):
         amount = self.calc_amount(trade, precision, trade.limit_price)
         order_type = 'limit'
 
-        if trade.market:
+        if trade.market and not trade.price:
             order_type = 'market'
             trade.price = price
 
@@ -476,8 +478,17 @@ class Bot:
             order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
             if not order:
-                amount = amount / (float(trade.stop_price) or price)
-                trade_type = 'buy' if trade.trade_type == 'sell' else 'sell'
+                amount = amount / float(trade.price)
+
+                if trade.trade_type == 'sell':
+                    trade_type = 'buy'
+                    stop_price = float(trade.price) * (100 + trade.stop_percent) / 100
+                    stop_operator = 'gte'
+
+                else:
+                    trade_type = 'sell'
+                    stop_price = float(trade.price) * (100 - trade.stop_percent) / 100
+                    stop_operator = 'lte'
 
                 if trade.stop and trade.take_profit:
                     order_ids = json.loads(trade.active_order_ids)
@@ -496,7 +507,7 @@ class Bot:
                         stop_order = {}
 
                         try:
-                            stop_order = self.stop_order(client, account_id, amount, precision, trade, trade_type)
+                            stop_order = self.stop_order(client, account_id, amount, precision, trade, trade_type, stop_price, stop_operator)
                         except Exception as e:
                             self.send_error_log(e, trade)
 
@@ -516,7 +527,7 @@ class Bot:
                 order_type = ''
 
                 if trade.stop:
-                    self.stop_order(client, account_id, amount, precision, trade, trade_type)
+                    self.stop_order(client, account_id, amount, precision, trade, trade_type, stop_price, stop_operator)
                     trade.is_completed = True
                     order_type = 'stop'
 

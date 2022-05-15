@@ -4,8 +4,8 @@ from main.models import SymbolSetting
 
 
 class OrderValidatorSerializer(ValidatorSerializer):
-    orderPrice = serializers.FloatField()
-    orderSize = serializers.FloatField()
+    order_price = serializers.FloatField()
+    order_size = serializers.FloatField()
     symbol = serializers.CharField()
     side = serializers.CharField()
 

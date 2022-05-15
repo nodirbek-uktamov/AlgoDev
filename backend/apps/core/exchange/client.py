@@ -18,6 +18,13 @@ class CustomHuobiClient(HuobiRestClient):
                 'required': True,
                 'name': 'account-id'
             },
+            'stop_price': {
+                'required': False,
+                'name': 'stop-price'
+            },
+            'operator': {
+                'required': False,
+            },
             'amount': {
                 'required': True,
             },

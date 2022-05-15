@@ -61,7 +61,7 @@ class Trade(models.Model):
     hft_order_ids = models.TextField(default='[]')
 
     stop = models.BooleanField(default=False)
-    stop_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    stop_percent = models.FloatField(default=0)
 
     limit = models.BooleanField(default=False)
     limit_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
