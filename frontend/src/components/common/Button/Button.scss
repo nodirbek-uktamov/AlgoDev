@@ -4,13 +4,15 @@
   justify-content: center;
   align-items: center;
   font-size: 1rem;
-  border-radius: 60px;
+  border-radius: 3.3rem;
   cursor: pointer;
   outline: 0;
   border: 0;
   overflow: hidden;
   font-weight: 700;
   line-height: 1.1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .button_main:hover {
