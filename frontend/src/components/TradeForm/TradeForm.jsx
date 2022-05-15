@@ -245,7 +245,7 @@ export const LimitOptionsRenderer = {
     }
 }
 
-const BotDataCreator = {
+const BotDataFactory = {
     limit: {
         create(newData) {
             newData.limit = true;
@@ -335,7 +335,7 @@ export default React.memo(({onUpdate}) => {
             iceberg_price: data.iceberg_price || 0,
         }
 
-        const extendedData = BotDataCreator[botType.key].create(newData);
+        const extendedData = BotDataFactory[botType.key].create(newData);
 
         const {success, error} = await createTrade.request({data: extendedData})
 

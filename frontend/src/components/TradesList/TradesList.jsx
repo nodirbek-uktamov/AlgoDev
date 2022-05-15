@@ -75,7 +75,7 @@ const renderColumns = (handleCancelTrade, cancelAllTrades) => {
             renderHeaderCell: (_) => <Button scale={false} size='S' text='Cancel all' color='danger' onClick={cancelAllTrades}/>,
             width: '20%',
             render: ({id: tradeId}) => {
-                return <div style={{display: 'flex', justifyContent: 'flex-end', marginRight: 20}}>
+                return <div style={{display: 'flex', justifyContent: 'flex-end', marginRight: '1.1rem'}}>
                     <Button scale={false} size='S'
                             text='Cancel' color='danger'
                             onClick={handleCancelTrade(tradeId)}/>

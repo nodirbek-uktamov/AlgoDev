@@ -27,9 +27,9 @@ export default function Main() {
 
     return (
         <MainContextWrapper>
-            <div style={{display: 'grid', gap: 20, gridTemplateColumns: '320px 1fr 567px', padding: 20}}>
+            <div style={{display: 'grid', gap: '1.1rem', gridTemplateColumns: 'repeat(3, auto)', padding: '1.1rem'}}>
                 <div>
-                    <div style={{display: "flex", flexDirection: 'column', gap: 20}}>
+                    <div style={{display: "flex", flexDirection: 'column', gap: '1.1rem' , minWidth: '17.8rem'}}>
                         <Card>
                             <TradeForm onUpdate={onUpdate}/>
                         </Card>

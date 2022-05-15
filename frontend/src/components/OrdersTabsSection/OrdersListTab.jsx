@@ -48,7 +48,7 @@ export function OrdersListTab() {
         )
     }
 
-    return <>
+    return <div style={{minWidth: '15.4rem'}}>
         <Input
             label="Amount from"
             labelPosition="row"
@@ -63,5 +63,5 @@ export function OrdersListTab() {
                 <RenderItem key={index} item={item} />
             ))}
         </div>
-    </>
+    </div>
 }

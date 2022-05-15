@@ -11,9 +11,9 @@ export function renderHeaderCell(column, sortManager) {
 }
 
 export function renderSortIcon(isSorting, sortDirection) {
-    if (!isSorting) return null;
+    return <span
+        style={{minWidth: '0.5rem'}}>{!isSorting ? null : sortDirection === 1 ? <>&uarr;</> : <>&darr;</>}</span>
 
-    return sortDirection === 1 ? <>&uarr;</> : <>&darr;</>
 }
 
 export function renderNoDataMessage(colSpan, displayConfig) {
@@ -29,7 +29,7 @@ export function renderSortingCell(column, sortManager) {
     const handleSort = () => sortDispatcher(column.key)
 
     return <button
-        className="table_headerCell__item"
+        className="table_headerCell__title-container"
         data-sortable={true}
         onClick={handleSort}>
         {column.title} {renderSortIcon(column.key === sortProperty, sortDirection)}
@@ -38,7 +38,7 @@ export function renderSortingCell(column, sortManager) {
 
 export function handleHeaderCellRender(column, sortManager) {
     if (!column.hasSorting) {
-        return <button className="table_headerCell__item">{column.title}</button>;
+        return <button className="table_headerCell__title-container">{column.title}</button>;
     }
 
     return renderSortingCell(column, sortManager)

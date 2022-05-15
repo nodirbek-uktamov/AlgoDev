@@ -1,11 +1,11 @@
 .sliderWrap {
   display: flex;
   align-items: center;
-  gap: 21px;
+  gap: 1.1rem;
 }
 
 input[type=range].slider_main {
-  height: 21px;
+  height: 1.1rem;
   -webkit-appearance: none;
 }
 
@@ -14,7 +14,7 @@ input[type=range].slider_main.slider-progress {
   background-color: inherit;
   --range: calc(var(--max) - var(--min));
   --ratio: calc((var(--value) - var(--min)) / var(--range));
-  --sx: calc(0.5 * 12px + var(--ratio) * (100% - 12px));
+  --sx: calc(0.5 * 0.6rem + var(--ratio) * (100% - 0.6rem));
 }
 
 input[type=range].slider_main:focus {
@@ -24,17 +24,17 @@ input[type=range].slider_main:focus {
 /*webkit*/
 input[type=range].slider_main::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 0.6rem;
+  height: 0.6rem;
   border-radius: 50%;
   background: #FFFFFF;
   border: none;
   box-shadow: none;
-  margin-top: calc(6px * 0.5 - 12px * 0.5);
+  margin-top: calc(0.3rem * 0.5 - 0.6rem * 0.5);
 }
 
 input[type=range].slider_main::-webkit-slider-runnable-track {
-  height: 6px;
+  height: 0.3rem;
   border: none;
   border-radius: 0.5em;
   background: #4C4C4C;
@@ -63,8 +63,8 @@ input[type=range].slider_main.slider-progress:active::-webkit-slider-runnable-tr
 
 /*mozilla*/
 input[type=range].slider_main::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 0.6rem;
+  height: 0.6rem;
   border-radius: 50%;
   background: #FFFFFF;
   border: none;
@@ -72,7 +72,7 @@ input[type=range].slider_main::-moz-range-thumb {
 }
 
 input[type=range].slider_main::-moz-range-track {
-  height: 6px;
+  height: 0.3rem;
   border: none;
   border-radius: 0.5em;
   background: #4C4C4C;
@@ -111,8 +111,8 @@ input[type=range].slider_main::-ms-fill-lower {
 }
 
 input[type=range].slider_main::-ms-thumb {
-  width: 12px;
-  height: 12px;
+  width: 0.6rem;
+  height: 0.6rem;
   border-radius: 50%;
   background: #FFFFFF;
   border: none;
@@ -122,7 +122,7 @@ input[type=range].slider_main::-ms-thumb {
 }
 
 input[type=range].slider_main::-ms-track {
-  height: 6px;
+  height: 0.3rem;
   border-radius: 0.5em;
   background: #4C4C4C;
   border: none;
@@ -139,7 +139,7 @@ input[type=range].slider_main:hover::-ms-track {
 }
 
 input[type=range].slider_main.slider-progress::-ms-fill-lower {
-  height: 6px;
+  height: 0.3rem;
   border-radius: 0.5em 0 0 0.5em;
   margin: 0;
   background: #FFFFFF;

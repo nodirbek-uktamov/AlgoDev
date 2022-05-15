@@ -1,10 +1,9 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {Select} from "../common/Select";
-import {InputField, ToggleSwitchField} from "../../forms";
+import {InputField} from "../../forms";
 import {Slider} from "../common/Slider";
 import {Button} from "../common/Button";
 import {MainContext} from "../../contexts/MainContext";
-import Checkbox from "../common/Checkbox";
 import {LimitOptionsRenderer} from "./TradeForm";
 
 const BOT_TYPES_LIMIT = [
@@ -57,9 +56,9 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
         setBotType(BOT_TYPES_LIMIT[0])
     }, []);
 
-    return <div style={{display: 'grid', gap: 20}}>
+    return <div style={{display: 'grid', gap: '1.1rem'}}>
         <Select
-            style={{marginTop: 20}}
+            style={{marginTop: '1.1rem'}}
             options={BOT_TYPES_LIMIT}
             selectedOption={botType}
             setSelectedOption={setBotType}
@@ -90,7 +89,7 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
         {botType.key && LimitOptionsRenderer[botType.key].render(values, botType.key)}
 
         {botType.key !== 'hft' && (
-            <div className="is-flex" style={{gap: 20}}>
+            <div className="is-flex" style={{gap: '1.1rem'}}>
                 <Button color={'success'} text={'Buy / Long'} onClick={() => setTradeType('buy')}
                         type="submit"
                 />

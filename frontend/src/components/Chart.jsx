@@ -73,7 +73,7 @@ function Chart({trades, cancelAllTrades}) {
     return (
         <div>
             <Card color='black'>
-                <div style={{display: 'flex', gap: 20, marginBottom: 20}}>
+                <div style={{display: 'flex', gap: '1.1rem', marginBottom: '1.1rem'}}>
                     <Select
                         enableSearch
                         searchBy={o => o.label}
@@ -97,7 +97,7 @@ function Chart({trades, cancelAllTrades}) {
                         setSelectedOption={setInterval}/>
                 </div>
 
-                <div style={{height: 387}}>
+                <div style={{height: '21.5rem'}}>
                     <TradingViewWidget
                         {...defaultOptions}
                         symbol={`HUOBI:${symbolValue.toUpperCase()}`}

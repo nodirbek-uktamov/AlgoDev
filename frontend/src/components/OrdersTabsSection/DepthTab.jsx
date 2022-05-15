@@ -29,7 +29,7 @@ export function DepthTab({botPrices}) {
         huobiWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value)}))
     }
 
-    return <>
+    return <div style={{minWidth: '14.9rem'}}>
         <Select
             options={depthSteps}
             selectedOption={depthStep}
@@ -43,5 +43,5 @@ export function DepthTab({botPrices}) {
             color='lightgray'
         />
         <OrdersDepth botPrices={botPrices}  />
-    </>
+    </div>
 }

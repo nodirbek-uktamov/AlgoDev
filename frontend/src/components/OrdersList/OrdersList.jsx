@@ -19,7 +19,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             title: "Status",
             key: 'orderStatus',
             hasSorting: true,
-            width: '20%',
+            width: '5%',
             render: (rowData) => {
                 return <span>{rowData.orderStatus}</span>;
             }
@@ -49,8 +49,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             width: '10%',
             render: (rowData) => {
                 return <span
-                    style={{textTransform: 'capitalize'}}
-                    className={`${SIDE_TEXT_STYLE[rowData.side]}`}>{rowData.side}</span>;
+                    className={`${SIDE_TEXT_STYLE[rowData.side]} is-capitalized`}>{rowData.side}</span>;
             }
         },
         {
@@ -59,7 +58,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             hasSorting: true,
             width: '10%',
             render: (rowData) => {
-                return <span>{Number(rowData.orderPrice).toFixed(tpp)}</span>;
+                return <span>{Number(rowData.orderPrice).toFixed(2)}</span>;
             }
         },
         {
@@ -68,7 +67,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             hasSorting: true,
             width: '10%',
             render: (rowData) => {
-                return <span>{rowData.orderSize}</span>;
+                return <span>{rowData.orderSize.toFixed(2)}</span>;
             }
         },
         {
@@ -82,14 +81,14 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
         {
             title: "Close",
             key: 'close',
-            renderHeaderCell: (column) => <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            renderHeaderCell: (column) => <div className="is-flex is-justify-content-space-between">
                 <span style={{fontWeight: 600}}>{column.title}</span>
-                <Button size='S' color='danger' text='Cancel all' onClick={() => {
+                <Button scale={false} size='S' color='danger' text='Cancel all' onClick={() => {
                 }}/>
             </div>,
             hasSorting: false,
             render: (rowData) => {
-                return <div className="is-flex" style={{gap: 10}}>
+                return <div className="is-flex" style={{gap: '0.5rem'}}>
                     <Button scale={false} size='S' color='white' text='Market' onClick={() => onCloseMarket(rowData)}/>
                     <Button scale={false} size='S' color='white' text='Limit' onClick={() => onCloseLimit(rowData)}/>
                 </div>;

@@ -1,5 +1,5 @@
 *, button, input {
-    font-size: 18px;
+    font-size: 1em;
     font-family: Roboto, sans-serif;
     font-weight: 400;
     color: #FFFFFF;
@@ -7,8 +7,54 @@
 
 html {
     background-color: #262626;
+    font-size: 18px;
 }
 
+@media (max-width: 1800px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1600px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 1400px) {
+    html {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 1200px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 1000px) {
+    html {
+        font-size: 8px;
+    }
+}
+
+*::-webkit-scrollbar {
+    width: 0.3rem;
+    height: 0.2rem;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #AEB5BD;
+    outline: 0 solid slategrey;
+    border-radius: 100px;
+    border-right: 2px #ffffff solid;
+    background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+}
 
 .pointer {
     cursor: pointer;

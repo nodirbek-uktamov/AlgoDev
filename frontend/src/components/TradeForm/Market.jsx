@@ -40,9 +40,9 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
         setBotType(BOT_TYPES_MARKET[0])
     }, [tab]);
 
-    return <div style={{display: 'grid', gap: 20}}>
+    return <div style={{display: 'grid', gap: '1.1rem'}}>
         <Select
-            style={{marginTop: 20}}
+            style={{marginTop: '1.1rem'}}
             options={BOT_TYPES_MARKET}
             selectedOption={botType}
             setSelectedOption={setBotType}
@@ -73,7 +73,7 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
         {botType.key && LimitOptionsRenderer[botType.key].render(values, botType.key)}
 
         {botType.key !== 'hft' && (
-            <div className="is-flex" style={{gap: 20}}>
+            <div className="is-flex" style={{gap: '1.1rem'}}>
                 <Button color={'success'} text={'Buy / Long'} onClick={() => setTradeType('buy')}
                         type="submit"
                 />

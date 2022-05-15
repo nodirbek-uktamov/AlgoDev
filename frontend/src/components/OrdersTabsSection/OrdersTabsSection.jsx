@@ -9,11 +9,11 @@ import {DepthTab} from "./DepthTab";
 export function OrdersTabsSection({botPrices}) {
     const history = useHistory();
 
-    return <div style={{height: '100%', width: '100%', display: 'flex', gap: '20px'}}>
+    return <div style={{height: '100%', width: '100%', display: 'flex', gap: '1.1rem'}}>
             <Card>
                 <DepthTab botPrices={botPrices}/>
             </Card>
-            <div style={{height: '100%', gap: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+            <div style={{height: '100%', gap: '1.1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
                 <Card>
                     <OrdersListTab/>
                 </Card>
