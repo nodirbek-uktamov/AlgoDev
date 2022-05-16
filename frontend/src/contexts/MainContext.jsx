@@ -29,7 +29,6 @@ export default function MainContextWrapper({children}) {
 
     const symbolValue = symbol.value.toLowerCase()
 
-
     useEffect(() => {
 
         if (symbolPreccions.response) {

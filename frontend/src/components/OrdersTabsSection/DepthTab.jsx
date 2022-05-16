@@ -23,7 +23,7 @@ export function DepthTab({botPrices}) {
     const depthSteps = createDepthSteps(tpp)
     const [depthStep, setDepthStep] = useState(null);
 
-    function onChangeDepthType({value}) {
+    function onChangeDepthType(value) {
         huobiWs.current.send(JSON.stringify({unsub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', depthType)}))
         setDepthType(value)
         huobiWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value)}))

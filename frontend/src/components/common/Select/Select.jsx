@@ -19,6 +19,8 @@ export const Select = ({
                            color = 'gray',
                            enableSearch = false,
                            searchBy = undefined,
+                           dependencies=[],
+                           update = true,
                            ...rest
                        }) => {
     const dropdownRef = useRef(null);
@@ -38,7 +40,7 @@ export const Select = ({
             setItems(options)
 
             if (defaultValue && isEmpty(selectedOption)) {
-                onItemSelect(defaultValue)
+                setValue(renderSelectedOption(defaultValue))
             }
         }
     }, [options]);
