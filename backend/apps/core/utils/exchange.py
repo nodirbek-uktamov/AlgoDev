@@ -536,7 +536,13 @@ class Bot:
                     trade.is_completed = True
                     order_type = 'TP'
 
-                log_text = f'{trade.id}: order {bold(f"completed")}, {order_type} order placed.'
+                log_text = f'{trade.id}: order {bold(f"completed")}'
+
+                if order_type:
+                    log_text += f', {order_type} order placed.'
+                else:
+                    trade.is_completed = True
+
                 self.send_log(trade.user.id, log_text, {'delete': trade.id})
 
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
