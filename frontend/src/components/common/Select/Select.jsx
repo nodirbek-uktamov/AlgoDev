@@ -47,11 +47,7 @@ export const Select = ({
         if (!visible) return;
 
         if (selectedOption) {
-            if (value && value.length > 0) {
-                setValue(renderSelectedOption(selectedOption));
-            } else {
-                setSelectedOption({});
-            }
+            setValue(renderSelectedOption(selectedOption));
         } else {
             setValue("");
         }
@@ -85,8 +81,8 @@ export const Select = ({
                     onChange={onChange}
                     onFocus={() => {
                         setVisible(true)
+                        setValue('')
                         enableSearch && value && inputRef.current.select()
-
                     }}
                     renderIcon={<SelectIcon className={classnames(['select_input-icon' ,visible && 'select_input-icon-visible'])}
                                             color={SELECT_COLOR_TYPE[color].svg}/>}

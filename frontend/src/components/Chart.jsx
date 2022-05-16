@@ -85,8 +85,7 @@ function Chart({trades, cancelAllTrades}) {
                         defaultValue={defaultSymbol}
                         selectedOption={selectedSymbol}
                         renderSelectedOption={o => o.label}
-                        renderMenuOption={o => o.label}
-                    />
+                        renderMenuOption={o => o.label} />
 
                     <Select
                         defaultValue={{label: "1 hour", value: 60}}

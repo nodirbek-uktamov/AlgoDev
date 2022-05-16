@@ -59,6 +59,9 @@ class TradesSerializer(serializers.ModelSerializer):
 
         data['symbol'] = data['symbol'].lower()
 
+        if data.get('limit') or data.get('market'):
+           data['loop'] = False
+
         return data
 
     class Meta:

@@ -25,7 +25,6 @@ export default function MainContextWrapper({children}) {
         Referrer: ''
     })
 
-
     const balanceParams = useGetRequest({url: BALANCE})
 
     const symbolValue = symbol.value.toLowerCase()
@@ -35,7 +34,7 @@ export default function MainContextWrapper({children}) {
 
         if (symbolPreccions.response) {
             let data = symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase());
-            setSymbolSettings(data)
+            setSymbolSettings(data || {})
         }
 
     }, [symbolPreccions.response])
@@ -94,8 +93,10 @@ export default function MainContextWrapper({children}) {
             }
 
             if (data.tick) {
-                if (data.ch.includes('bbo') && typeof wsCallbacksRef.current.setBidAskData === 'function') {
-                    wsCallbacksRef.current.setBidAskData({[data.ch.split('.')[1]]: data.tick})
+                if (data.ch.includes('bbo')) {
+                    if (typeof wsCallbacksRef.current.setBidAskData === 'function') {
+                        wsCallbacksRef.current.setBidAskData({[data.ch.split('.')[1]]: data.tick})
+                    }
 
                     setPrice(oldValue => {
                         if (oldValue[data.ch.split('.')[1]]) return oldValue
@@ -152,7 +153,6 @@ export default function MainContextWrapper({children}) {
             item.time = new Date(item.orderCreateTime).toLocaleTimeString()
             item.orderSize = item.orderSize || item.tradeVolume
             item.orderPrice = item.orderPrice || item.tradePrice
-            console.log(item)
 
             wsCallbacksRef.current.setOrders(oldOrders => {
                 if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {

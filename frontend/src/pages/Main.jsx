@@ -38,7 +38,6 @@ export default function Main() {
                             <Logs setBotPrices={setBotPrices} trades={trades}/>
                         </Card>
                     </div>
-
                 </div>
 
                 <div>

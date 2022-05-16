@@ -67,7 +67,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             hasSorting: true,
             width: '10%',
             render: (rowData) => {
-                return <span>{rowData.orderSize.toFixed(2)}</span>;
+                return <span>{Number(rowData.orderSize).toFixed(2)}</span>;
             }
         },
         {
