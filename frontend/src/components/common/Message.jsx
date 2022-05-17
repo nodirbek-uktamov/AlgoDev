@@ -17,7 +17,7 @@ export default function Message({ text, className, closeMessage, delay = 3 }) {
 
     return (
         <article className={cn('message', className, css(styles.message), { [css(styles.hide)]: hiding })}>
-            <div className="message-body">
+            <div className="message-body" style={{ ...(className.includes('is-danger') ? {borderColor: '#E61739'} : {}) }}>
                 <span>{text}</span> &nbsp; &nbsp;
                 <button className="delete is-pulled-right" onClick={closeMessage} />
             </div>
@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
         },
         animationDuration: '1s',
         zIndex: 1000,
+        background: '#1a1a1a'
     },
     hide: {
         animationName: {

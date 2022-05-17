@@ -83,7 +83,7 @@ export const Select = ({
                     onChange={onChange}
                     onFocus={() => {
                         setVisible(true)
-                        setValue('')
+                        if (enableSearch) setValue('')
                         enableSearch && value && inputRef.current.select()
                     }}
                     renderIcon={<SelectIcon className={classnames(['select_input-icon' ,visible && 'select_input-icon-visible'])}

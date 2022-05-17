@@ -51,12 +51,12 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
             </div>
         </div>
 
-        <div>
-            <div>
+        <div className={"columns"}>
+            <div className={"column is-narrow"} style={{width: '60%'}}>
                 <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair2})`}/>
             </div>
 
-            <div className="">
+            <div className={"column is-narrow"} style={{paddingTop: 50}}>
                 {initialPrice ? calcPair1Amount(values, botType, symbolSettings, initialPrice) : '—'} {symbol.pair1}
             </div>
         </div>

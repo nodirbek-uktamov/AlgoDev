@@ -19,7 +19,6 @@ export default function SelectOld({
     help,
     ...attributes
 }) {
-    console.log(options)
     const { setFieldValue, values, errors, touched } = useFormikContext()
     const value = values[name]
     const error = errors[name]

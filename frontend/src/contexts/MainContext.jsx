@@ -30,13 +30,12 @@ export default function MainContextWrapper({children}) {
     const symbolValue = symbol.value.toLowerCase()
 
     useEffect(() => {
-
         if (symbolPreccions.response) {
             let data = symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase());
             setSymbolSettings(data || {})
         }
 
-    }, [symbolPreccions.response])
+    }, [symbolPreccions.response, symbol])
 
     useEffect(() => {
         connectAccountWs()

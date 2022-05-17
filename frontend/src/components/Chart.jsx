@@ -44,7 +44,7 @@ function Chart({trades, cancelAllTrades}) {
 
     const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0];
 
-    const onChange = useCallback((val) => {
+    const onChange = (val) => {
         if (!wsCallbacksRef.current) return;
         if (!accountWs.current) return;
 
@@ -68,7 +68,7 @@ function Chart({trades, cancelAllTrades}) {
         wsCallbacksRef.current.updateInitialOrders()
 
         // eslint-disable-next-line
-    }, [symbolValue])
+    }
 
     return (
         <div>

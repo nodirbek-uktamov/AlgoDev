@@ -5,7 +5,7 @@ import {MainContext} from "../../contexts/MainContext";
 export function OrdersListTab() {
     const {wsCallbacksRef, symbol, symbolSettings} = useContext(MainContext)
     const [orders, setOrders] = useState([])
-    const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
+    const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
 
     useEffect(() => {
         wsCallbacksRef.current.setOrdersData = onChangeData
@@ -21,7 +21,7 @@ export function OrdersListTab() {
             let newOrders = []
 
             data.data.map((item) => {
-                if (item.amount < +amountLimit) return []
+                if (item.amount * item.price < +amountLimit) return []
                 newOrders = [item, ...newOrders]
                 return newOrders
             })
@@ -36,31 +36,65 @@ export function OrdersListTab() {
         localStorage.setItem('amountLimit', event.target.value)
     }
 
-    function RenderItem({ item }) {
-        return (
-            <div className="columns m-0 p-0" style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
-                <p style={{ width: 100 }} className="column is-narrow m-0 p-0">
-                    {item.price.toFixed(symbolSettings.tpp || 0)}
-                </p>
+    function RenderItem({item}) {
+        const color = item.direction === 'sell' ? '#FA4D56' : '#00B464'
 
-                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(symbolSettings.tap || 0)}</p>
+        return (
+            <div className="columns p-0 m-0">
+                <div style={{color: '#808080'}} className="column p-0">
+                    {new Date(item.ts).toLocaleTimeString()}
+                </div>
+
+                <div style={{color}} className="column p-0">
+                    {item.price.toFixed(symbolSettings.tpp || 0)}
+                </div>
+
+                <div className="column p-0" style={{color, textAlign: 'end'}}>
+                    {parseFloat(item.amount).toFixed(symbolSettings.tap || 0)}
+                </div>
             </div>
         )
     }
 
-    return <div style={{minWidth: '15.4rem'}}>
-        <Input
-            label="Amount from"
-            labelPosition="row"
-            step="0.00000001"
-            type="number"
-            value={amountLimit}
-            onChange={onChangeAmountLimit}
-        />
+    const columns = [
+        {
+            width: '1%',
+            title: "Date"
+        },
+        {
+            width: '1%',
+            title: `Price (${symbol.pair2})`
+        },
+        {
+            width: '1%',
+            title: `Value (${symbol.pair1})`
+        },
+    ]
 
-        <div className="p-3 mt-2" style={{ backgroundColor: orders.length > 0 ? '#141826' : null }}>
+    return <div style={{minWidth: '15.4rem'}}>
+        <div className="mb-4">
+            <Input
+                label={`Amount from (${symbol.pair2})`}
+                step="0.00000001"
+                type="number"
+                value={amountLimit}
+                onChange={onChangeAmountLimit}/>
+        </div>
+
+        <tr className="table_head">
+            {columns.map((column) => (
+                <th
+                    className="table_headerCell"
+                    style={{width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700}}
+                    key={column.key}>
+                    {column.title}
+                </th>
+            ))}
+        </tr>
+
+        <div className="p-3" style={{backgroundColor: orders.length > 0 ? '#141826' : null}}>
             {orders.map((item, index) => (
-                <RenderItem key={index} item={item} />
+                <RenderItem key={index} item={item}/>
             ))}
         </div>
     </div>

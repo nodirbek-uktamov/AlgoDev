@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react'
-import { css, StyleSheet } from 'aphrodite'
+import {css, StyleSheet} from 'aphrodite'
 import cn from 'classnames'
 import {MainContext} from "../../contexts/MainContext";
 
-function OrdersDepth({ botPrices }) {
-    const {symbolSettings, wsCallbacksRef} = useContext(MainContext)
-    const { tpp, tap } = symbolSettings
+function OrdersDepth({botPrices}) {
+    const {symbolSettings, symbol, wsCallbacksRef} = useContext(MainContext)
+    const {tpp, tap} = symbolSettings
     const [book, setBook] = useState(null)
 
     useEffect(() => {
@@ -17,32 +17,63 @@ function OrdersDepth({ botPrices }) {
         return Object.values(botPrices).filter((i) => Number(i.price.price) === price && i.price.trade_type === tradeType).length > 0
     }
 
-    function RenderItem({ item, tradeType }) {
+    function RenderItem({item, tradeType, color}) {
         return (
             <div className={cn('columns m-0 p-0', isActive(item[0], tradeType) && css(styles.activePrice))}>
-                <p style={{ width: 90 }} className="column is-narrow m-0 p-0">{item[0].toFixed(tpp)}</p>
-                <p className="column m-0 p-0">{item[1].toFixed(tap)}</p>
+                <p style={{color}} className="column m-0 p-0">{item[0].toFixed(tpp)}</p>
+                <p className="column m-0 p-0 is-narrow">{item[1].toFixed(tap)}</p>
             </div>
         )
     }
 
-    return book ? (
-        <div className="mt-3 p-4" style={{ backgroundColor: '#141826' }}>
-            <div>
-                <div style={{ color: '#FA4D56' }}>
-                    {book.asks.slice(0, 10).reverse().map((item) => (
-                        <RenderItem tradeType="sell" item={item} />
-                    ))}
-                </div>
+    const columns = [
+        {
+            width: '50%',
+            title: `Price (${symbol.pair2})`
+        },
+        {
+            width: '50%',
+            title: `Value (${symbol.pair1})`
+        },
+    ]
 
-                <div className="mt-2" style={{ color: '#00B464' }}>
-                    {book.bids.slice(0, 10).map((item) => (
-                        <RenderItem tradeType="buy" item={item} />
-                    ))}
+    const asks = book ? book.asks.slice(0, 10).reverse() : []
+    const bids = book ? book.bids.slice(0, 10) : []
+
+    return (
+        <div>
+            <tr className="table_head">
+                {columns.map((column) => (
+                    <th
+                        className="table_headerCell"
+                        style={{width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700}}
+                        key={column.key}>
+                        {column.title}
+                    </th>
+                ))}
+            </tr>
+
+            {book && <div className="p-4" style={{backgroundColor: '#141826'}}>
+                <div>
+                    <div>
+                        {asks.map((item) => (
+                            <RenderItem color="#FA4D56" tradeType="sell" item={item}/>
+                        ))}
+                    </div>
+
+                    <div className="my-2 has-text-weight-bold is-size-5">
+                        {((asks[9][0] + bids[0][0]) / 2).toFixed(tpp)}
+                    </div>
+
+                    <div>
+                        {bids.map((item) => (
+                            <RenderItem color="#00B464" tradeType="buy" item={item}/>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </div>}
         </div>
-    ) : null
+    )
 }
 
 const styles = StyleSheet.create({
