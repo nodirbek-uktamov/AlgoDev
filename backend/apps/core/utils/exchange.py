@@ -71,7 +71,8 @@ class Bot:
 
         del symbols_settings
 
-        while not time.sleep(0.4):
+        while not time.sleep(0.1):
+            started_at = timezone.now()
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
             try:
@@ -88,8 +89,13 @@ class Bot:
 
             del costs_res
 
-            for user in users:
-                self.bot_for_user(user, costs, precisions)
+            users_count = users.count()
+
+            if users_count > 0:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=users_count) as pool:
+                    pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
+
+                print('bots work time: ', (timezone.now() - started_at).total_seconds())
 
     def send_log(self, user_id, message, action=None):
         channel_layer = get_channel_layer()
@@ -293,11 +299,9 @@ class Bot:
 
         except Exception as e:
             self.handle_error(trade, e)
-            print('grid error')
 
         log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
         self.send_log(trade.user.id, log_text)
-        print('grid bot:', (timezone.now() - started_at).total_seconds())
 
     def hft_bot(self, client, trade, cost, account_id, precision, orders):
         started_at = timezone.now()
@@ -387,7 +391,6 @@ class Bot:
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps(order_ids)
         trade.save()
-        print('grid bot:', (timezone.now() - started_at).total_seconds())
 
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False
@@ -441,8 +444,9 @@ class Bot:
         trade.save()
         self.send_log(trade.user.id, log_text, action)
 
-    @background
-    def bot_for_user(self, user, costs, precisions):
+    def bot_for_user(self, args):
+        user, costs, precisions = args
+
         try:
             client = CustomHuobiClient(access_key=user.api_key, secret_key=user._secret_key)
             orders = client.open_orders().data
@@ -453,8 +457,11 @@ class Bot:
                 is_completed=False
             ).order_by('grid_bot')
 
-            for trade in trades:
-                self.run_trade(costs, trade, precisions, client, account_id, orders)
+            trades_count = trades.count()
+
+            if trades_count > 0:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=trades_count) as pool:
+                    pool.map(self.run_trade, [(costs, trade, precisions, client, account_id, orders) for trade in trades])
 
         except Exception as e:
             print(str(e))
@@ -569,8 +576,9 @@ class Bot:
         trade.price = trade.price or trade.limit_price
         self.send_log(trade.user.id, f'{trade.id}: order placed')
 
-    @background
-    def run_trade(self, costs, trade, precisions, client, account_id, orders):
+    def run_trade(self, args):
+        costs, trade, precisions, client, account_id, orders = args
+
         cost = costs[trade.symbol]
         precision = precisions[trade.symbol]
         price = cost.get('bid')
