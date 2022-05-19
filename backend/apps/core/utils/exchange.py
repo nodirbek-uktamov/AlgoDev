@@ -96,7 +96,9 @@ class Bot:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users_count) as pool:
                     pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
 
-                logger.info(f'bots work time: {(timezone.now() - started_at).total_seconds()}')
+                work_time = (timezone.now() - started_at).total_seconds()
+
+                logger.info(f'bots work time: {work_time}')
 
     def send_log(self, user_id, message, action=None):
         channel_layer = get_channel_layer()
