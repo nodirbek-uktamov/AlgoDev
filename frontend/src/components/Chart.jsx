@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from 'react'
+import React, {useContext, useState} from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
 import {useLoad} from '../hooks/request'
 import {intervals} from '../utils/intervals'
@@ -19,8 +19,8 @@ const defaultOptions = {
     locale: 'en',
     toolbar_bg: '#f1f3f6',
     enable_publishing: false,
-    hide_top_toolbar: true,
-    allow_symbol_change: true,
+    hide_top_toolbar: false,
+    allow_symbol_change: false,
     container_id: 'tradingview_1a5f8',
 }
 
@@ -51,6 +51,7 @@ function Chart({trades, cancelAllTrades}) {
         wsCallbacksRef.current.setOrdersData('clear')
 
         disconnectHuobi()
+        wsCallbacksRef.current.setOrders([])
 
         localStorage.setItem('symbol', JSON.stringify(val))
         setSymbol(val)
@@ -65,7 +66,7 @@ function Chart({trades, cancelAllTrades}) {
             action: 'sub',
             ch: 'orders#' + val.value.toLowerCase(),
         }))
-        wsCallbacksRef.current.updateInitialOrders()
+        wsCallbacksRef.current.updateInitialOrders(val.value.toLowerCase())
 
         // eslint-disable-next-line
     }

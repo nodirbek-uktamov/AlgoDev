@@ -37,7 +37,7 @@ export default function SignUp() {
             </div>
         )}>
             <div className="has-text-centered mb-4">
-                <h2 className="is-size-4 has-text-weight-bold">Register</h2>
+                <h2 className="is-size-4 has-text-weight-bold mb-4 has-text-black">Register</h2>
             </div>
 
             <Formik onSubmit={onSubmit}
@@ -54,26 +54,29 @@ export default function SignUp() {
 
                     <div className="field is-horizontal">
                         <div className="field-body">
-                            <InputOld name="firstName" label="First name" validate={required} placeholder="Ivan" />
-                            <InputOld name="lastName" label="Last name" validate={required} placeholder="Ivanov" />
+                            <InputOld name="firstName" labelClass="has-text-black" label="First name" validate={required} placeholder="Ivan" />
+                            <InputOld name="lastName" labelClass="has-text-black" label="Last name" validate={required} placeholder="Ivanov" />
                         </div>
                     </div>
 
                     <InputOld
                         name="email"
                         label="Email"
+                        labelClass="has-text-black"
                         validate={validator(required, email)}
                         placeholder="mail@gmail.com" />
 
-                    <Password name="password" validate={required} placeholder="********" label="Password" />
+                    <Password labelClass="has-text-black" name="password" validate={required} placeholder="********" label="Password" />
 
                     <InputOld
+                        labelClass="has-text-black"
                         name="apiKey"
                         label="Api key"
                         validate={validator(required)}
                         placeholder="*********************************" />
 
                     <InputOld
+                        labelClass="has-text-black"
                         name="secretKey"
                         label="Secret key"
                         validate={validator(required)}
@@ -83,8 +86,8 @@ export default function SignUp() {
                         <p className="control">
                             <Button
                                 loading={signUp.loading}
-                                className="is-primary is-blue is-medium is-fullwidth"
-                                text="Зарегистрироваться"
+                                className="is-medium is-fullwidth"
+                                text="Sign up"
                                 type="submit" />
                         </p>
                     </div>

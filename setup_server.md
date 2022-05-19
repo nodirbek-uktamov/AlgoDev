@@ -112,7 +112,7 @@ PGPASSWORD="{password}" pg_dump -h localhost -p 5432 -U {username} botcommerce >
 ---
 
 ### Useful commands and snippents
-* `journalctl -u gunicorn` - see gunicorn logs
+* `journalctl --unit=gunicorn.service -n 100 --no-pager` - see gunicorn logs
 * `systemctl restart nginx` - restart nginx
 * `systemctl restart gunicorn` - restart gunicorn
 * `nano /etc/nginx/sites-available/botcommerce` - change nginx settings

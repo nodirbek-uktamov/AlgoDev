@@ -64,7 +64,7 @@ export default function Login() {
                     </div>
 
                     <div className={cn('mb-3', css(styles.onlyMobile))}>
-                        <NavLink to="/sign-up">Зарегистрироваться</NavLink>
+                        <NavLink to="/sign-up">Register</NavLink>
                     </div>
 
                     <div className="mt-5 forgot-password">

@@ -16,3 +16,7 @@ class OrderValidatorSerializer(ValidatorSerializer):
 
         data['side'] = 'sell' if data['side'] == 'buy' else 'buy'
         return data
+
+
+class CancelAllOrdersSerializer(ValidatorSerializer):
+    order_ids = serializers.ListField(child=serializers.IntegerField())

@@ -7,6 +7,11 @@ class CustomHuobiClient(HuobiRestClient):
         method='GET',
         path='/v1/order/openOrders',
         auth_required=True,
+        params={
+            'symbol': {
+                'required': False
+            },
+        }
     )
 
     place = Endpoint(

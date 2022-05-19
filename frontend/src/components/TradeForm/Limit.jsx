@@ -66,12 +66,12 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
             </div>
         </div>
 
-        <div className={"columns"}>
+        <div className={"columns mb-0"}>
             <div className={"column is-narrow"} style={{width: '60%'}}>
                 <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair2})`}/>
             </div>
 
-            <div className={"column is-narrow"} style={{paddingTop: 50}}>
+            <div className={"column is-narrow"} style={{position: 'relative', top: '80%', transform: 'translateY(-50%)'}}>
                 {initialPrice ? calcPair1Amount(values, botType, symbolSettings, initialPrice) : '—'} {symbol.pair1}
             </div>
         </div>

@@ -18,6 +18,7 @@ export default function InputOld({
     optional = false,
     help,
     icon,
+    labelClass,
     ...attributes
 }) {
     const { errors, touched } = useFormikContext()
@@ -33,7 +34,7 @@ export default function InputOld({
 
                         {icon ? <div className="column is-narrow"><ion-icon name={icon} /></div> : null}
 
-                        <div className="column">
+                        <div className={cn("column", labelClass)}>
                             {label} &nbsp;
                             {optional ? <span className="form-hint">не обязательно</span> : null}
                         </div>

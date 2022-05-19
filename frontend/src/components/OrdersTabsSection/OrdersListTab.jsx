@@ -22,7 +22,7 @@ export function OrdersListTab() {
 
             data.data.map((item) => {
                 if (item.amount * item.price < +amountLimit) return []
-                newOrders = [item, ...newOrders]
+                newOrders = [{...item, amount: item.amount * item.price}, ...newOrders]
                 return newOrders
             })
 
@@ -67,7 +67,7 @@ export function OrdersListTab() {
         },
         {
             width: '1%',
-            title: `Value (${symbol.pair1})`
+            title: `Value (${symbol.pair2})`
         },
     ]
 

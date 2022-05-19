@@ -1,6 +1,7 @@
 .tableWrap {
   max-height: 20.5rem;
-  overflow: auto;
+  //overflow: auto;
+  overflow-y : auto
 }
 
 .tableContainer {
@@ -10,12 +11,14 @@
 
 .table_headerCell {
   background-color: #4D4D4D;
-  padding: 1rem;
+  padding: 1rem 0.5rem;
   vertical-align: baseline;
+  justify-content: center;
 }
 
 .table_headerCell:first-child {
   border-top-left-radius: 1.39rem;
+  padding: 1rem;
 }
 
 .table_headerCell:last-child {
@@ -64,4 +67,3 @@
 .table_bodyRow:last-child .table_bodyCell:last-child[data-rounded=true] {
   border-bottom-right-radius: 1.39rem;
 }
-

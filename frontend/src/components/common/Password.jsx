@@ -3,13 +3,14 @@ import React, { useState } from 'react'
 import { css, StyleSheet } from 'aphrodite'
 import InputOld from './InputOld'
 
-export default function Password({ name, validate, placeholder, label }) {
+export default function Password({ name, validate, placeholder, label, labelClass }) {
     const [showPassword, setShowPassword] = useState(false)
 
     return (
         <div className="field">
             <div className="control has-icons-right">
                 <InputOld
+                    labelClass={labelClass}
                     name={name}
                     validate={validate}
                     label={label}

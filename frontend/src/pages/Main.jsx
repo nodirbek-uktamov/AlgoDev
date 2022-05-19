@@ -40,7 +40,7 @@ export default function Main() {
                     </div>
                 </div>
 
-                <div>
+                <div style={{maxWidth: '47rem', minWidth: '47rem'}}>
                     <Chart cancelAllTrades={cancelAllTrades} trades={trades}/>
                 </div>
 

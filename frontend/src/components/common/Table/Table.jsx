@@ -15,7 +15,7 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                     {columns.map((column) => (
                         <th
                             className="table_headerCell table_stickyHeader"
-                            style={{width: column.width, textAlign: column.textAlign}}
+                            style={{width: column.width, minWidth: column.minWidth, textAlign: column.textAlign}}
                             key={column.key}>
                             {renderHeaderCell(column, sortManager)}
                         </th>

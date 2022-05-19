@@ -3,7 +3,7 @@ import './FilterPanel.scss'
 import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
 import {Button} from "../common/Button";
 
-export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filter: filterState}) {
+export function FilterPanel({handleFilter, allOrdersCount, filledOrdersCount, canceledOrdersCount, openOrdersCount, filter: filterState}) {
     const filterKey = useState('orderStatus')[0];
 
     const filterConfig = [
@@ -20,23 +20,13 @@ export function FilterPanel({handleFilter, allOrdersCount, openOrdersCount, filt
         {
             displayTitle: ORDERS_FILTER_TYPE.filled,
             filterValue: ORDERS_FILTER_TYPE.filled,
-            renderCount: null
+            renderCount: () => <>({filledOrdersCount})</>
         },
         {
             displayTitle: ORDERS_FILTER_TYPE.canceled,
             filterValue: ORDERS_FILTER_TYPE.canceled,
-            renderCount: null
+            renderCount: () => <>({canceledOrdersCount})</>
         },
-        {
-            displayTitle: ORDERS_FILTER_TYPE.closed,
-            filterValue: ORDERS_FILTER_TYPE.closed,
-            renderCount: null
-        },
-        {
-            displayTitle: ORDERS_FILTER_TYPE.stops,
-            filterValue: ORDERS_FILTER_TYPE.stops,
-            renderCount: null
-        }
     ];
 
     return <div className='filter-panel_container'>

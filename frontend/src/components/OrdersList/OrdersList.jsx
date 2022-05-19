@@ -1,25 +1,25 @@
-import React, {useMemo, useState, useContext, useEffect} from 'react'
+import React, {useContext, useEffect, useMemo, useState} from 'react'
 import {Table as OrdersTable} from "../common/Table";
 import {FilterPanel} from "../FilterPanel";
 import {MainContext} from "../../contexts/MainContext";
 import {useLoad, usePostRequest} from "../../hooks/request";
-import {LIMIT, MARKET, OPEN_ORDERS} from "../../urls";
+import {CANCEL_ALL_ORDERS, CANCEL_ORDER, LIMIT, MARKET, OPEN_ORDERS} from "../../urls";
 import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
 import './OrdersList.scss';
 import {Button} from "../common/Button";
 
 const SIDE_TEXT_STYLE = {
-    buy: 'has-text-danger',
-    sell: 'has-text-success'
+    buy: 'has-text-success',
+    sell: 'has-text-danger'
 }
 
-const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
+const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter) => {
     return [
         {
             title: "Status",
             key: 'orderStatus',
             hasSorting: true,
-            width: '5%',
+            width: '0%',
             render: (rowData) => {
                 return <span>{rowData.orderStatus}</span>;
             }
@@ -28,16 +28,16 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             title: "Type",
             key: 'type',
             hasSorting: true,
-            width: '15%',
+            width: '0%',
             render: (rowData) => {
-                return <span>{rowData.type}</span>;
+                return <p>{rowData.type}</p>;
             }
         },
         {
             title: "Symbol",
             key: 'symbol',
             hasSorting: true,
-            width: '20%',
+            width: '0%',
             render: (rowData) => {
                 return <span className='is-uppercase'>{rowData.symbol}</span>;
             }
@@ -46,7 +46,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             title: "Side",
             key: 'side',
             hasSorting: true,
-            width: '10%',
+            width: '0%',
             render: (rowData) => {
                 return <span
                     className={`${SIDE_TEXT_STYLE[rowData.side]} is-capitalized`}>{rowData.side}</span>;
@@ -56,7 +56,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             title: "Price",
             key: 'orderPrice',
             hasSorting: true,
-            width: '10%',
+            width: '0%',
             render: (rowData) => {
                 return <span>{Number(rowData.orderPrice).toFixed(2)}</span>;
             }
@@ -65,7 +65,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             title: "Quantity",
             key: 'orderSize',
             hasSorting: true,
-            width: '10%',
+            width: '00%',
             render: (rowData) => {
                 return <span>{Number(rowData.orderSize).toFixed(2)}</span>;
             }
@@ -79,19 +79,36 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, tpp) => {
             }
         },
         {
-            title: "Close",
             key: 'close',
-            renderHeaderCell: (column) => <div className="is-flex is-justify-content-space-between">
-                <span style={{fontWeight: 600}}>{column.title}</span>
-                <Button scale={false} size='S' color='danger' text='Cancel all' onClick={() => {
-                }}/>
+            renderHeaderCell: (column) => <div className="is-flex is-justify-content-center">
+                {filter.value === 'submitted' && <Button scale={false} size='S' color='danger' text='Cancel all' onClick={cancelAll}/>}
             </div>,
             hasSorting: false,
             render: (rowData) => {
-                return <div className="is-flex" style={{gap: '0.5rem'}}>
-                    <Button scale={false} size='S' color='white' text='Market' onClick={() => onCloseMarket(rowData)}/>
-                    <Button scale={false} size='S' color='white' text='Limit' onClick={() => onCloseLimit(rowData)}/>
-                </div>;
+                if (filter.value === 'filled') return (
+                    <div className="is-flex" style={{gap: '0.5rem'}}>
+                        <Button
+                            scale={false}
+                            size='S'
+                            color='white'
+                            text='Market'
+                            onClick={() => onCloseMarket(rowData)}/>
+
+                        <Button
+                            scale={false}
+                            size='S'
+                            color='white'
+                            text='Limit'
+                            onClick={() => onCloseLimit(rowData)}/>
+                    </div>
+                )
+
+                else if (filter.value === 'submitted') return (
+                    <div className="is-flex is-justify-content-center">
+                        {filter.value === 'submitted' && <Button scale={false} size='S' color='danger' text='Cancel' onClick={handleCancelOrder(rowData.orderId)}/>}
+                    </div>
+                )
+                else return null
             }
         }
     ];
@@ -105,6 +122,8 @@ function OrdersList() {
     const [orders, setOrders] = useState([]);
     const [filter, setFilter] = useState({key: "orderStatus", value: ORDERS_FILTER_TYPE.submitted});
 
+    const cancelAllOrders = usePostRequest({url: CANCEL_ALL_ORDERS})
+    const cancelOrder = usePostRequest()
     const closeMarket = usePostRequest({url: MARKET});
     const closeLimit = usePostRequest({url: LIMIT});
 
@@ -119,9 +138,9 @@ function OrdersList() {
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
         wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
-        wsCallbacksRef.current.updateInitialOrders = () => {
+        wsCallbacksRef.current.updateInitialOrders = (symbol) => {
             setOrders([])
-            initialOrders.request()
+            initialOrders.request({url: OPEN_ORDERS.replace('{symbol}', symbol)})
         }
     }, []);
 
@@ -141,7 +160,9 @@ function OrdersList() {
             case ORDERS_FILTER_TYPE.all:
                 return orders;
             default:
-                return orders.filter((data) => data[key] === value);
+                return orders.filter((data) => {
+                    return data[key] === value
+                });
         }
     }
 
@@ -153,8 +174,8 @@ function OrdersList() {
         };
     };
 
-    const handleCancelOrder = (orderId) => async () => {
-        throw Error('Not implemented yet')
+    const handleCancelOrder = (orderId) => () => {
+        cancelOrder.request({url: CANCEL_ORDER.replace('{id}', orderId)})
     }
 
     const openOrdersCount = useMemo(() => {
@@ -165,12 +186,32 @@ function OrdersList() {
         return orders.length;
     }, [orders])
 
+    const filledOrdersCount = useMemo(() => {
+        return orders.filter((data) => data.orderStatus === ORDERS_FILTER_TYPE.filled).length;
+    }, [orders])
+
+    const canceledOrdersCount = useMemo(() => {
+        return orders.filter((data) => data.orderStatus === ORDERS_FILTER_TYPE.canceled).length;
+    }, [orders])
+
+    function cancelAll() {
+        const orderIds = filteredOrders(filter).map(i => i.orderId)
+        cancelAllOrders.request({data: {orderIds}})
+    }
+
     return (
         <div className="orders-list_container">
-            <FilterPanel handleFilter={handleFilter} openOrdersCount={openOrdersCount} allOrdersCount={allOrdersCount}
-                         filter={filter}/>
-            <OrdersTable columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, tpp)}
-                         tableData={filteredOrders(filter)}/>
+            <FilterPanel
+                handleFilter={handleFilter}
+                openOrdersCount={openOrdersCount}
+                allOrdersCount={allOrdersCount}
+                filledOrdersCount={filledOrdersCount}
+                canceledOrdersCount={canceledOrdersCount}
+                filter={filter}/>
+
+            <OrdersTable
+                columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter)}
+                tableData={filteredOrders(filter)}/>
         </div>
     )
 }

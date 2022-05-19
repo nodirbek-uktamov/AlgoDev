@@ -42,7 +42,7 @@ export const LimitOptionsRenderer = {
                     label="Price"
                 />
 
-                <Checkbox name="take_profit" label="TakeProfit"/>
+                <ToggleSwitchField name="take_profit" text="TakeProfit"/>
                 {values.take_profit && (
                     <InputField
                         name="take_profit_percent"
@@ -52,7 +52,7 @@ export const LimitOptionsRenderer = {
                     />
                 )}
 
-                <Checkbox name="stop" label="stoploss"/>
+                <ToggleSwitchField name="stop" text="StopLoss"/>
 
                 {values.stop && (
                     <InputField
@@ -69,7 +69,7 @@ export const LimitOptionsRenderer = {
     market: {
         render(values) {
             return <>
-                <Checkbox name="take_profit" label="TakeProfit"/>
+                <ToggleSwitchField name="take_profit" text="TakeProfit"/>
 
                 {values.take_profit && (
                     <InputField
@@ -80,7 +80,7 @@ export const LimitOptionsRenderer = {
                     />
                 )}
 
-                <Checkbox name="stop" label="stoploss"/>
+                <ToggleSwitchField name="stop" text="StopLoss"/>
 
                 {values.stop && (
                     <InputField
@@ -128,7 +128,7 @@ export const LimitOptionsRenderer = {
                     label="Price"
                 />
 
-                <Checkbox name="take_profit" label="TakeProfit"/>
+                <ToggleSwitchField name="take_profit" text="TakeProfit"/>
 
                 {values.take_profit && (
                     <InputField
@@ -156,7 +156,7 @@ export const LimitOptionsRenderer = {
                     type="number"
                     label="Icebergs count"/>
 
-                <Checkbox name="take_profit" label="TakeProfit"/>
+                <ToggleSwitchField name="take_profit" text="TakeProfit"/>
 
                 {values.take_profit && (
                     <InputField

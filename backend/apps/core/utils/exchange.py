@@ -71,7 +71,7 @@ class Bot:
 
         del symbols_settings
 
-        while not time.sleep(3):
+        while not time.sleep(0.4):
             users = User.objects.filter(trades__isnull=False, trades__is_completed=False).distinct()
 
             try:
@@ -245,6 +245,7 @@ class Bot:
             return {'data': 0}
 
     def grid_bot(self, client, trade, cost, account_id, precision, orders):
+        started_at = timezone.now()
         order_ids = json.loads(trade.active_order_ids)
 
         if len(order_ids) > 0:
@@ -296,8 +297,10 @@ class Bot:
 
         log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
         self.send_log(trade.user.id, log_text)
+        print('grid bot:', (timezone.now() - started_at).total_seconds())
 
     def hft_bot(self, client, trade, cost, account_id, precision, orders):
+        started_at = timezone.now()
         old_order_ids = json.loads(trade.hft_order_ids)
         active_order_ids = json.loads(trade.active_order_ids)
 
@@ -384,6 +387,7 @@ class Bot:
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps(order_ids)
         trade.save()
+        print('grid bot:', (timezone.now() - started_at).total_seconds())
 
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False
@@ -563,6 +567,7 @@ class Bot:
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
         trade.order_id = data['data']
         trade.price = trade.price or trade.limit_price
+        self.send_log(trade.user.id, f'{trade.id}: order placed')
 
     @background
     def run_trade(self, costs, trade, precisions, client, account_id, orders):
