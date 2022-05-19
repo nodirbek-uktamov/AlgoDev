@@ -15,14 +15,15 @@ from huobi import HuobiRestClient
 from huobi.rest.error import HuobiRestiApiError
 
 from core.exchange.utils import format_float
-from core.utils.background import background
 
 from core.exchange.client import CustomHuobiClient
 from core.utils.helpers import random_array
 from core.utils.logs import bold, red
 from users.models import User
+import logging
 
 twap_bot_order_interval = 60
+logger = logging.getLogger('bot')
 
 
 def save_account_ids(user):
@@ -95,7 +96,7 @@ class Bot:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users_count) as pool:
                     pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
 
-                print('bots work time: ', (timezone.now() - started_at).total_seconds())
+                logger.info(f'bots work time: {(timezone.now() - started_at).total_seconds()}')
 
     def send_log(self, user_id, message, action=None):
         channel_layer = get_channel_layer()
@@ -461,7 +462,8 @@ class Bot:
 
             if trades_count > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=trades_count) as pool:
-                    pool.map(self.run_trade, [(costs, trade, precisions, client, account_id, orders) for trade in trades])
+                    pool.map(self.run_trade,
+                             [(costs, trade, precisions, client, account_id, orders) for trade in trades])
 
         except Exception as e:
             print(str(e))
@@ -518,7 +520,8 @@ class Bot:
                         stop_order = {}
 
                         try:
-                            stop_order = self.stop_order(client, account_id, amount, precision, trade, trade_type, stop_price, stop_operator)
+                            stop_order = self.stop_order(client, account_id, amount, precision, trade, trade_type,
+                                                         stop_price, stop_operator)
                         except Exception as e:
                             self.send_error_log(e, trade)
 

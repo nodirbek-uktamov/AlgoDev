@@ -3,3 +3,4 @@ venv
 .DS_Store
 .vscode
 dump.rdb
+backend/general.log

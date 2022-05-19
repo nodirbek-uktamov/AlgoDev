@@ -140,6 +140,11 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'level': 'DEBUG',
+        },
     },
     'root': {
         'handlers': ['console'],
@@ -149,6 +154,11 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+        'bot': {
+            'handlers': ['file'],
+            'level': 'INFO',
             'propagate': False,
         },
     },
