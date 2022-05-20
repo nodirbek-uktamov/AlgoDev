@@ -13,8 +13,8 @@ const SIDE_TEXT_STYLE = {
     sell: 'has-text-danger'
 }
 
-const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter) => {
-    return [
+const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter, settings) => {
+    let result = [
         {
             title: "Status",
             key: 'orderStatus',
@@ -58,7 +58,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll
             hasSorting: true,
             width: '0%',
             render: (rowData) => {
-                return <span>{Number(rowData.orderPrice).toFixed(2)}</span>;
+                return <span>{Number(rowData.orderPrice).toFixed(settings.tpp || 2)}</span>;
             }
         },
         {
@@ -67,18 +67,22 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll
             hasSorting: true,
             width: '00%',
             render: (rowData) => {
-                return <span>{Number(rowData.orderSize).toFixed(2)}</span>;
+                return <span>{Number(rowData.orderSize).toFixed(settings.tap || 0)}</span>;
             }
         },
         {
             title: "Time",
             key: 'time',
             hasSorting: true,
+            width: '0%',
             render: (rowData) => {
                 return <span>{rowData.time}</span>;
             }
         },
-        {
+    ]
+
+    if (filter.value === 'filled' || filter.value === 'submitted') {
+        result.push({
             key: 'close',
             renderHeaderCell: (column) => <div className="is-flex is-justify-content-center">
                 {filter.value === 'submitted' && <Button scale={false} size='S' color='danger' text='Cancel all' onClick={cancelAll}/>}
@@ -110,12 +114,14 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll
                 )
                 else return null
             }
-        }
-    ];
+        })
+    }
+
+    return result
 };
 
 function OrdersList() {
-    const {wsCallbacksRef, symbolValue, symbolSettings: {tpp}} = useContext(MainContext)
+    const {wsCallbacksRef, symbolValue, symbolSettings} = useContext(MainContext)
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
@@ -210,7 +216,7 @@ function OrdersList() {
                 filter={filter}/>
 
             <OrdersTable
-                columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter)}
+                columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter, symbolSettings)}
                 tableData={filteredOrders(filter)}/>
         </div>
     )

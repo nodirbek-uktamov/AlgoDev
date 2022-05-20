@@ -79,7 +79,7 @@ export default function Logs({setBotPrices, trades}) {
     return (
             <div style={{height: 426, overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit'}}>
                 {logs.map((message, index) => {
-                    return <div dangerouslySetInnerHTML={{ __html: message }} className="mb-1" key={index} />
+                    return <div dangerouslySetInnerHTML={{ __html: message }} className="mb-2" key={index} />
                 })}
             </div>
 
