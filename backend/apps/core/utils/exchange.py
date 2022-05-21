@@ -1,6 +1,7 @@
 import concurrent
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -158,6 +159,8 @@ class Bot:
             error = error.splitlines()[0].split('error: ')[1]
         except Exception:
             pass
+
+        error = re.sub(r'http\S+', '', error)
 
         self.send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
 
@@ -470,16 +473,24 @@ class Bot:
         except Exception as e:
             print(str(e))
 
-    def stop_order(self, client, account_id, amount, precision, trade, trade_type, stop_price, operator):
-        return client.place(
+    def stop_order(self, client, account_id, amount, precision, trade, trade_type, price, stop_price, operator):
+        amount = format_float(amount, precision.get('amount', 0))
+        stop_price = format_float(stop_price, precision.get('price', 0))
+
+        data = client.place(
             account_id=account_id,
-            amount=format_float(amount, precision.get('amount', 0)),
-            stop_price=format_float(stop_price, precision.get('price', 0)),
-            price=format_float(stop_price, precision.get('price', 0)),
+            amount=amount,
+            stop_price=stop_price,
+            price=format_float(price, precision.get('price', 0)),
             symbol=trade.symbol,
             type=f'{trade_type}-stop-limit',
             operator=operator
         ).data
+
+        log_text = f"{trade.id}: stop order put. trigger price: {stop_price}, amount: {amount}"
+        self.send_log(trade.user.id, log_text)
+
+        return data
 
     def base_order(self, client, trade, account_id, precision, orders, price):
         amount = self.calc_amount(trade, precision, trade.limit_price)
@@ -505,6 +516,8 @@ class Bot:
                     stop_price = float(trade.price) * (100 - trade.stop_percent) / 100
                     stop_operator = 'lte'
 
+                price = stop_price * 1.05 if trade_type == 'buy' else stop_price * 0.95
+
                 if trade.stop and trade.take_profit:
                     order_ids = json.loads(trade.active_order_ids)
                     active_orders = filter(lambda i: str(i.get('id')) in order_ids, orders.get('data', []))
@@ -522,8 +535,18 @@ class Bot:
                         stop_order = {}
 
                         try:
-                            stop_order = self.stop_order(client, account_id, amount, precision, trade, trade_type,
-                                                         stop_price, stop_operator)
+                            stop_order = self.stop_order(
+                                client,
+                                account_id,
+                                amount,
+                                precision,
+                                trade,
+                                trade_type,
+                                price,
+                                stop_price,
+                                stop_operator
+                            )
+
                         except Exception as e:
                             self.send_error_log(e, trade)
 
@@ -543,7 +566,7 @@ class Bot:
                 order_type = ''
 
                 if trade.stop:
-                    self.stop_order(client, account_id, amount, precision, trade, trade_type, stop_price, stop_operator)
+                    self.stop_order(client, account_id, amount, precision, trade, trade_type, price, stop_price, stop_operator)
                     trade.is_completed = True
                     order_type = 'stop'
 

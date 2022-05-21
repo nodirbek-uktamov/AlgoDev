@@ -215,7 +215,7 @@ export const LimitOptionsRenderer = {
                             name="hft_default_price_difference"
                             step="0.1"
                             type="number"
-                            label="Initial difference"/>
+                            label={<>Initial <br /> difference</>} />
                     </div>
 
                     <div className="column">
@@ -223,8 +223,7 @@ export const LimitOptionsRenderer = {
                             name="hft_orders_price_difference"
                             step="0.1"
                             type="number"
-                            label="Orders difference"
-                        />
+                            label={<>Orders <br /> difference</>} />
                     </div>
                 </div>
 

@@ -32,7 +32,7 @@ function Chart({trades, cancelAllTrades}) {
     })
 
     const {symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi, accountWs} = useContext(MainContext)
-    const [interval, setInterval] = useState({})
+    const [interval, setInterval] = useState({label: "1 hour", value: 60})
     const [selectedSymbol, setSelectedSymbol] = useState({});
 
     const symbolsList = (symbols.response ? symbols.response.data || [] : []).map((i) => ({
@@ -89,7 +89,7 @@ function Chart({trades, cancelAllTrades}) {
                         renderMenuOption={o => o.label} />
 
                     <Select
-                        defaultValue={{label: "1 hour", value: 60}}
+                        defaultValue={intervals[6]}
                         renderSelectedOption={o => o.label}
                         renderMenuOption={o => o.label}
                         options={intervals}
@@ -109,7 +109,6 @@ function Chart({trades, cancelAllTrades}) {
                 <TradesList cancelAllTrades={cancelAllTrades} onCancel={trades.request} trades={trades.response || []}/>
                 <OrdersList/>
             </Card>
-
         </div>
     )
 }
