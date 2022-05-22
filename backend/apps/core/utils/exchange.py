@@ -47,7 +47,7 @@ def save_account_ids(user):
 
 class Bot:
     def run_bot(self):
-        from main.models import SymbolSetting
+        from main.models import SymbolSetting, Trade
         symbols_settings = requests.get('https://api.huobi.pro/v1/common/symbols').json()
         precisions = {}
         symbol_precisions = []
@@ -95,7 +95,27 @@ class Bot:
 
             if users_count > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users_count) as pool:
-                    pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
+                    results = pool.map(self.bot_for_user, [(user, costs, precisions) for user in users])
+                    trades = []
+
+                    for user_trades in results:
+                        for trade in user_trades:
+                            trades.append(trade)
+
+                    update_fields = [
+                        "price",
+                        "is_completed",
+                        "active_order_ids",
+                        "completed_at",
+                        "order_id",
+                        "filled",
+                        "market_making_array",
+                        "hft_order_ids",
+                        "completed_icebergs",
+                        "iceberg_prices_sum",
+                    ]
+
+                    Trade.objects.bulk_update(trades, update_fields)
 
                 work_time = (timezone.now() - started_at).total_seconds()
 
@@ -223,8 +243,6 @@ class Bot:
         except Exception as e:
             self.handle_error(trade, e)
 
-        trade.save()
-
     def take_profit_order(self, client, account_id, trade, price, precision):
         from main.models import TakeProfitOrder
 
@@ -257,7 +275,6 @@ class Bot:
             return {'data': 0}
 
     def grid_bot(self, client, trade, cost, account_id, precision, orders):
-        started_at = timezone.now()
         order_ids = json.loads(trade.active_order_ids)
 
         if len(order_ids) > 0:
@@ -266,7 +283,6 @@ class Bot:
 
             if len(active_orders) != len(order_ids):
                 trade.active_order_ids = json.dumps(active_orders)
-                trade.save()
 
             if len(active_orders) == 0:
                 self.complete_trade(trade, client, account_id, precision)
@@ -301,7 +317,6 @@ class Bot:
                 order_ids.append(int(order.get('data')))
 
             trade.active_order_ids = json.dumps(order_ids)
-            trade.save()
 
         except Exception as e:
             self.handle_error(trade, e)
@@ -326,7 +341,6 @@ class Bot:
 
                 if len(active_orders) != len(active_order_ids):
                     trade.active_order_ids = json.dumps(active_orders)
-                    trade.save()
 
                 if active_orders:
                     client.batch_cancel(order_ids=active_orders)
@@ -396,7 +410,6 @@ class Bot:
 
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps(order_ids)
-        trade.save()
 
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False
@@ -447,7 +460,6 @@ class Bot:
             'price': {'price': 0, 'trade': trade.id}
         }
 
-        trade.save()
         self.send_log(trade.user.id, log_text, action)
 
     def bot_for_user(self, args):
@@ -467,11 +479,16 @@ class Bot:
 
             if trades_count > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=trades_count) as pool:
-                    pool.map(self.run_trade,
-                             [(costs, trade, precisions, client, account_id, orders) for trade in trades])
+                    results = pool.map(
+                        self.run_trade,
+                        [(costs, trade, precisions, client, account_id, orders) for trade in trades]
+                    )
+
+                    return list(results)
 
         except Exception as e:
             print(str(e))
+            return []
 
     def stop_order(self, client, account_id, amount, precision, trade, trade_type, price, stop_price, operator):
         amount = format_float(amount, precision.get('amount', 0))
@@ -526,7 +543,6 @@ class Bot:
                     if len(active_orders) == 1:
                         client.batch_cancel(order_ids=active_orders)
                         trade.is_completed = True
-                        trade.save()
                         log_text = f'{trade.id}: take profit or stop order is {bold(f"completed")}.'
                         self.send_log(trade.user.id, log_text, {'delete': trade.id})
                         return
@@ -557,8 +573,6 @@ class Bot:
                         else:
                             trade.is_completed = True
 
-                        trade.save()
-
                         log_text = f'{trade.id}: order {bold(f"completed")}, stop and TP orders placed.'
                         self.send_log(trade.user.id, log_text, {'delete': trade.id})
                     return
@@ -566,7 +580,8 @@ class Bot:
                 order_type = ''
 
                 if trade.stop:
-                    self.stop_order(client, account_id, amount, precision, trade, trade_type, price, stop_price, stop_operator)
+                    self.stop_order(client, account_id, amount, precision, trade, trade_type, price, stop_price,
+                                    stop_operator)
                     trade.is_completed = True
                     order_type = 'stop'
 
@@ -613,11 +628,11 @@ class Bot:
 
         if trade.grid_bot:
             self.grid_bot(client, trade, cost, account_id, precision, orders)
-            return
+            return trade
 
         if trade.hft_bot:
             self.hft_bot(client, trade, cost, account_id, precision, orders)
-            return
+            return trade
 
         if trade.limit or trade.market:
             try:
@@ -625,9 +640,7 @@ class Bot:
             except Exception as e:
                 self.handle_error(trade, e)
 
-            trade.save()
-
-            return
+            return trade
 
         order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
@@ -637,7 +650,6 @@ class Bot:
                     res = client.submit_cancel(order_id=order[0].get('id')).data
                     filled = order[0].get('filled-amount')
                     trade.filled = float(trade.filled) + float(filled)
-                    trade.save()
 
                     self.send_log(
                         trade.user.id,
@@ -646,16 +658,17 @@ class Bot:
                     )
                 except HuobiRestiApiError:
                     self.complete_trade(trade, client, account_id, precision)
-                    return
+                    return trade
 
                 if res.get('status'):
                     self.place_order(client, trade, cost, price, account_id, precision)
 
-            return
+            return trade
 
         if float(trade.price) > 0:
             # print('completed')
             self.complete_trade(trade, client, account_id, precision)
-            return
+            return trade
 
         self.place_order(client, trade, cost, price, account_id, precision)
+        return trade
