@@ -95,7 +95,7 @@ class Bot:
                     trades = []
 
                     for user_trades in results:
-                        for trade in user_trades:
+                        for trade in (user_trades or []):
                             trades.append(trade)
 
                     update_fields = [
