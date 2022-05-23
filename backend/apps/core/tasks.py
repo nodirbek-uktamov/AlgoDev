@@ -5,7 +5,7 @@ from config.celery import app
 
 
 @app.task
-def send_log(user_id, message, action=None):
+def _send_log(user_id, message, action=None):
     channel_layer = get_channel_layer()
 
     async_to_sync(channel_layer.group_send)(
@@ -16,3 +16,7 @@ def send_log(user_id, message, action=None):
             'action': action
         }
     )
+
+
+def send_log(user_id, message, action=None):
+    _send_log.delay(user_id, message, action)

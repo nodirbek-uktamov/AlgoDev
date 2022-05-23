@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {Tabs} from "../common/Tabs/Tabs";
 import {OrdersListTab} from "./OrdersListTab";
 import {DepthTab} from "./DepthTab";
 

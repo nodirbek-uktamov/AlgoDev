@@ -1,11 +1,18 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Button} from "../Button";
 import {classnames} from "../../../utils/string";
 import './Tabs.scss';
+import {useFormikContext} from "formik";
+import {MainContext} from "../../../contexts/MainContext";
 
-export function Tabs({tabs, value = 0, onChange, children, className, ...rest}) {
+export function Tabs({tabs, value = 0, onChange, children, className, setFieldValue, ...rest}) {
+    const {callbacks} = useContext(MainContext)
     const tabList = tabs || children || [];
     const renderContent = tabList[value]?.render;
+
+    useEffect(() => {
+        callbacks.current.setTradeFormValue = setFieldValue
+    }, [])
 
     if (tabs?.length === 1) {
         return <>{renderContent()}</>;

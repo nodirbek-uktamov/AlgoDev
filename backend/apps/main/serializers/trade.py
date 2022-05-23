@@ -99,6 +99,7 @@ class TradesSerializer(serializers.ModelSerializer):
 
             'stop',
             'stop_percent',
+            'stop_price',
 
             'limit',
             'limit_price',

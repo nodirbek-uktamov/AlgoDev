@@ -5,13 +5,13 @@ import {intervals} from '../utils/intervals'
 import {TradesList} from '../components/TradesList'
 import {HUOBI_SYMBOLS} from '../urls'
 import {MainContext} from '../contexts/MainContext'
-import {OrdersList} from "./OrdersList";
-import {Card} from "./common/Card";
-import {Select} from "./common/Select";
+import {OrdersList} from "./OrdersList"
+import {Card} from "./common/Card"
+import {Select} from "./common/Select"
 
 const defaultOptions = {
     autosize: true,
-    symbol: 'BYBIT:ETHUSDT',
+    symbol: 'HUOBI:ETHUSDT',
     interval: 'D',
     timezone: 'Etc/UTC',
     theme: 'Dark',
@@ -22,6 +22,7 @@ const defaultOptions = {
     hide_top_toolbar: false,
     allow_symbol_change: false,
     container_id: 'tradingview_1a5f8',
+    backgroundColor: "#abcabc",
 }
 
 function Chart({trades, cancelAllTrades}) {

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react'
+import React, {useState, useEffect, useContext, Fragment} from 'react'
 import {Form, Formik} from 'formik'
 import {usePostRequest} from '../../hooks/request'
 import {TRADE} from '../../urls'
@@ -241,6 +241,18 @@ export const LimitOptionsRenderer = {
 
             </>;
         }
+    },
+    stopMarket: {
+        render(values) {
+            return (
+                <Fragment>
+                    <InputField
+                        name="stop_price"
+                        type="number"
+                        label="Stop price"/>
+                </Fragment>
+            )
+        }
     }
 }
 
@@ -293,6 +305,12 @@ const BotDataFactory = {
             newData.hft_bot = true;
             return newData;
         }
+    },
+    stopMarket: {
+        create(newData) {
+            newData.stop = true;
+            return newData;
+        }
     }
 }
 
@@ -316,6 +334,7 @@ export default React.memo(({onUpdate}) => {
         title: 'Limit',
         key: 'limit'
     })
+
     const [balance, setBalance] = useState({})
     const [tradeType, setTradeType] = useState('buy')
 
@@ -348,9 +367,9 @@ export default React.memo(({onUpdate}) => {
 
     return (
         <Formik initialValues={{...tradeInitialValues, ...formValues[symbol.value]}} onSubmit={onSubmit}>
-            {({values}) => (
+            {({values, setFieldValue}) => (
                 <Form>
-                    <Tabs value={tab} onChange={setTab}>
+                    <Tabs value={tab} onChange={setTab} setFieldValue={setFieldValue}>
                         {renderTabs({values, botType, setBotType, balance, setTradeType, tab})}
                     </Tabs>
                 </Form>

@@ -9,6 +9,8 @@ export default function MainContextWrapper({children}) {
     const wsCallbacksRef = useRef({})
     const huobiWs = useRef({})
 
+    const callbacks = useRef({})
+
     const initialSymbol = localStorage.getItem('symbol')
     const user = JSON.parse(localStorage.getItem('user'))
     const defaultSymbol = {value: 'ETHUSDT', pair1: 'ETH', pair2: 'USDT'}
@@ -148,7 +150,7 @@ export default function MainContextWrapper({children}) {
             const item = data.data
             item.side = item.type.split('-')[0]
             item.type = item.type.split('-')[1]
-            item.time = new Date(item.orderCreateTime).toLocaleTimeString()
+            item.time = new Date(item.orderCreateTime).toLocaleTimeString('it-IT')
             item.orderSize = item.orderSize || item.tradeVolume
             item.orderPrice = item.orderPrice || item.tradePrice
 
@@ -193,7 +195,8 @@ export default function MainContextWrapper({children}) {
         depthType,
         setDepthType,
         accountWs,
-        price
+        price,
+        callbacks
     }
 
     return (

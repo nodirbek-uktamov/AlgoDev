@@ -4,7 +4,7 @@ import cn from 'classnames'
 import {MainContext} from "../../contexts/MainContext";
 
 function OrdersDepth({botPrices}) {
-    const {symbolSettings, symbol, wsCallbacksRef} = useContext(MainContext)
+    const {symbolSettings, symbol, wsCallbacksRef, callbacks} = useContext(MainContext)
     const {tpp, tap} = symbolSettings
     const [book, setBook] = useState(null)
 
@@ -19,8 +19,17 @@ function OrdersDepth({botPrices}) {
 
     function RenderItem({item, tradeType, color}) {
         return (
-            <div className={cn('columns m-0 p-0', isActive(item[0], tradeType) && css(styles.activePrice))}>
-                <p style={{color}} className="column m-0 p-0">{item[0].toFixed(tpp)}</p>
+            <div className={cn('columns m-0 p-0 is-justify-content-space-between', isActive(item[0], tradeType) && css(styles.activePrice))}>
+                <p
+                    onClick={() => {
+                        callbacks.current.setTradeFormValue('price', item[0])
+                        callbacks.current.setTradeFormValue('iceberg_price', item[0])
+                    }}
+                    style={{color}}
+                    className="column is-narrow m-0 p-0 pointer">
+                    {item[0].toFixed(tpp)}
+                </p>
+
                 <p className="column m-0 p-0 is-narrow">{item[1].toFixed(tap)}</p>
             </div>
         )

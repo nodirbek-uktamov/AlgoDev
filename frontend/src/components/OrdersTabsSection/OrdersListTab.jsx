@@ -22,7 +22,7 @@ export function OrdersListTab() {
 
             data.data.map((item) => {
                 if (item.amount * item.price < +amountLimit) return []
-                newOrders = [{...item, amount: item.amount * item.price}, ...newOrders]
+                newOrders = [item, ...newOrders]
                 return newOrders
             })
 
@@ -42,7 +42,7 @@ export function OrdersListTab() {
         return (
             <div className="columns p-0 m-0">
                 <div style={{color: '#808080'}} className="column p-0">
-                    {new Date(item.ts).toLocaleTimeString()}
+                    {new Date(item.ts).toLocaleTimeString('it-IT')}
                 </div>
 
                 <div style={{color}} className="column p-0">
@@ -67,7 +67,7 @@ export function OrdersListTab() {
         },
         {
             width: '1%',
-            title: `Value (${symbol.pair2})`
+            title: `Value (${symbol.pair1})`
         },
     ]
 

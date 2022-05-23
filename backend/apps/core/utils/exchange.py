@@ -151,7 +151,7 @@ class Bot:
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.twap_bot_duration / trades_count)
         trade.twap_bot_completed_trades += 1
 
-        send_log.delay(trade.user.id, f'{trade.id}: {trade.trade_type} order sell')
+        send_log(trade.user.id, f'{trade.id}: {trade.trade_type} order sell')
 
         if trade.twap_bot_completed_trades == trades_count:
             self.complete_trade(trade, client, account_id, precision)
@@ -164,7 +164,7 @@ class Bot:
 
         error = re.sub(r'http\S+', '', error)
 
-        send_log.delay(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
+        send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
 
     def handle_error(self, trade, e, cancel=True):
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -216,7 +216,7 @@ class Bot:
                 )
                 trade.price = price
 
-                send_log.delay(
+                send_log(
                     trade.user.id,
                     f'{trade.id}   {trade.trade_type} order put: {price}',
                     {'price': {'price': readable_price, 'trade': trade.id, 'trade_type': trade.trade_type}}
@@ -304,7 +304,7 @@ class Bot:
             self.handle_error(trade, e)
 
         log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
-        send_log.delay(trade.user.id, log_text)
+        send_log(trade.user.id, log_text)
 
     def hft_bot(self, client, trade, cost, account_id, precision, orders):
         started_at = timezone.now()
@@ -326,7 +326,7 @@ class Bot:
 
                 if active_orders:
                     client.batch_cancel(order_ids=active_orders)
-                    send_log.delay(trade.user.id, log_text)
+                    send_log(trade.user.id, log_text)
 
                 trade.hft_order_ids = '[]'
                 trade.active_order_ids = '[]'
@@ -442,7 +442,7 @@ class Bot:
             'price': {'price': 0, 'trade': trade.id}
         }
 
-        send_log.delay(trade.user.id, log_text, action)
+        send_log(trade.user.id, log_text, action)
 
     def bot_for_user(self, args):
         user, costs, precisions = args
@@ -472,7 +472,7 @@ class Bot:
             print(str(e))
             return []
 
-    def stop_order(self, client, account_id, amount, precision, trade, trade_type, price, stop_price, operator):
+    def stop_order(self, client, account_id, amount, precision, trade, trade_type, price, stop_price, operator, log_action=None):
         amount = format_float(amount, precision.get('amount', 0))
         stop_price = format_float(stop_price, precision.get('price', 0))
 
@@ -487,7 +487,7 @@ class Bot:
         ).data
 
         log_text = f"{trade.id}: stop order put. trigger price: {stop_price}, amount: {amount}"
-        send_log.delay(trade.user.id, log_text)
+        send_log(trade.user.id, log_text, log_action)
 
         return data
 
@@ -526,7 +526,7 @@ class Bot:
                         client.batch_cancel(order_ids=active_orders)
                         trade.is_completed = True
                         log_text = f'{trade.id}: take profit or stop order is {bold(f"completed")}.'
-                        send_log.delay(trade.user.id, log_text, {'delete': trade.id})
+                        send_log(trade.user.id, log_text, {'delete': trade.id})
                         return
 
                     if not active_orders:
@@ -556,7 +556,7 @@ class Bot:
                             trade.is_completed = True
 
                         log_text = f'{trade.id}: order {bold(f"completed")}, stop and TP orders placed.'
-                        send_log.delay(trade.user.id, log_text, {'delete': trade.id})
+                        send_log(trade.user.id, log_text, {'delete': trade.id})
                     return
 
                 order_type = ''
@@ -569,17 +569,15 @@ class Bot:
 
                 if trade.take_profit:
                     self.take_profit_order(client, account_id, trade, float(trade.price), precision)
-                    trade.is_completed = True
                     order_type = 'TP'
 
                 log_text = f'{trade.id}: order {bold(f"completed")}'
+                trade.is_completed = True
 
                 if order_type:
                     log_text += f', {order_type} order placed.'
-                else:
-                    trade.is_completed = True
 
-                send_log.delay(trade.user.id, log_text, {'delete': trade.id})
+                send_log(trade.user.id, log_text, {'delete': trade.id})
 
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
             return
@@ -599,7 +597,31 @@ class Bot:
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
         trade.order_id = data['data']
         trade.price = trade.price or trade.limit_price
-        send_log.delay(trade.user.id, f'{trade.id}: order placed')
+        send_log(trade.user.id, f'{trade.id}: order placed')
+
+    def stop_bot(self, client, account_id, precision, trade):
+        stop_operator = 'lte'
+        stop_price = float(trade.stop_price)
+        price = stop_price * 1.05
+
+        if trade.trade_type == 'sell':
+            stop_operator = 'gte'
+            price = stop_price * 0.95
+
+        amount = float(trade.quantity) / stop_price
+
+        self.stop_order(
+            client,
+            account_id,
+            amount,
+            precision,
+            trade,
+            trade.trade_type,
+            price,
+            stop_price,
+            stop_operator,
+            {'delete': trade.id},
+        )
 
     def run_trade(self, args):
         costs, trade, precisions, client, account_id, orders = args
@@ -624,6 +646,15 @@ class Bot:
 
             return trade
 
+        elif trade.stop:
+            try:
+                self.stop_bot(client, account_id, precision, trade)
+            except Exception as e:
+                self.handle_error(trade, e)
+
+            trade.is_completed = True
+            return trade
+
         order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
 
         if order:
@@ -633,7 +664,7 @@ class Bot:
                     filled = order[0].get('filled-amount')
                     trade.filled = float(trade.filled) + float(filled)
 
-                    send_log.delay(
+                    send_log(
                         trade.user.id,
                         f'{trade.id}: Order canceled. Old price: {trade.price}',
                         {'price': {'price': 0, 'trade': trade.id}}

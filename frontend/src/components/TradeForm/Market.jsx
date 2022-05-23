@@ -17,6 +17,10 @@ const BOT_TYPES_MARKET = [
         title: 'Twap',
         key: 'twap'
     },
+    {
+        title: 'Stop',
+        key: 'stopMarket'
+    },
 ]
 
 export const Market = ({values, botType, setBotType, balance, setTradeType, tab}) => {
