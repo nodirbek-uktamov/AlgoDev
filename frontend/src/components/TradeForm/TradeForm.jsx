@@ -242,7 +242,7 @@ export const LimitOptionsRenderer = {
             </>;
         }
     },
-    stopMarket: {
+    stopLoss: {
         render(values) {
             return (
                 <Fragment>
@@ -306,7 +306,7 @@ const BotDataFactory = {
             return newData;
         }
     },
-    stopMarket: {
+    stopLoss: {
         create(newData) {
             newData.stop = true;
             return newData;

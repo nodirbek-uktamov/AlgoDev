@@ -18,8 +18,8 @@ const BOT_TYPES_MARKET = [
         key: 'twap'
     },
     {
-        title: 'Stop',
-        key: 'stopMarket'
+        title: 'StopLoss',
+        key: 'stopLoss'
     },
 ]
 

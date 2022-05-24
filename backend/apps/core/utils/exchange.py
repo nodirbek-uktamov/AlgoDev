@@ -109,6 +109,8 @@ class Bot:
                         "hft_order_ids",
                         "completed_icebergs",
                         "iceberg_prices_sum",
+                        "hft_buy_orders",
+                        "hft_sell_orders",
                     ]
 
                     Trade.objects.bulk_update(trades, update_fields)
@@ -265,6 +267,7 @@ class Bot:
 
             if len(active_orders) != len(order_ids):
                 trade.active_order_ids = json.dumps(active_orders)
+                trade.save()
 
             if len(active_orders) == 0:
                 self.complete_trade(trade, client, account_id, precision)
@@ -306,30 +309,137 @@ class Bot:
         log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
         send_log(trade.user.id, log_text)
 
+    def hft_place_buy_orders(self, trade, cost, quantities_array, precision, client, account_id, order_ids, client_order_ids, start_from=0):
+        for i in range(start_from, trade.hft_orders_on_each_side):
+            percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(
+                trade.hft_default_price_difference))
+
+            price = cost['bid'] * percent / 100
+
+            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            amount = format_float(quantities_array[i] / price, precision.get('amount', 0))
+
+            order = client.place(
+                account_id=account_id,
+                amount=amount,
+                price=format_float(price, precision.get('price', 0)),
+                symbol=trade.symbol,
+                type=f'buy-limit',
+                client_order_id=client_order_id
+            ).data
+
+            order_ids[order.get('data')] = quantities_array[i]
+            client_order_ids.append(client_order_id)
+
+    def hft_place_sell_orders(self, trade, cost, quantities_array, precision, client, account_id, order_ids, client_order_ids, start_from=0):
+        for i in range(start_from, trade.hft_orders_on_each_side):
+            percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(
+                trade.hft_default_price_difference) + 100)
+            price = cost['ask'] * percent / 100
+
+            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            amount = format_float(float(quantities_array[i]) / price, precision.get('amount', 0))
+
+            order = client.place(
+                account_id=account_id,
+                amount=amount,
+                price=format_float(price, precision.get('price', 0)),
+                symbol=trade.symbol,
+                type=f'sell-limit',
+                client_order_id=client_order_id
+            ).data
+
+            order_ids[order.get('data')] = float(quantities_array[i])
+            client_order_ids.append(client_order_id)
+
     def hft_bot(self, client, trade, cost, account_id, precision, orders):
-        started_at = timezone.now()
-        old_order_ids = json.loads(trade.hft_order_ids)
-        active_order_ids = json.loads(trade.active_order_ids)
+        total_orders_count = trade.hft_orders_on_each_side * 2
+        buy_orders = json.loads(trade.hft_buy_orders)
+        sell_orders = json.loads(trade.hft_sell_orders)
 
-        if len(old_order_ids) > 0:
-            active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
-            active_orders = list(map(lambda a: a['id'], active_orders))
+        if len(buy_orders.keys()) + len(sell_orders.keys()) > 0:
+            buy_active_orders = filter(lambda i: str(i.get('id')) in buy_orders.keys(), orders.get('data', []))
+            sell_active_orders = filter(lambda i: str(i.get('id')) in sell_orders.keys(), orders.get('data', []))
 
-            if len(active_orders) == len(old_order_ids):
-                return
+            sell_order_ids = list(map(lambda a: a['id'], sell_active_orders))
+            buy_order_ids = list(map(lambda a: a['id'], buy_active_orders))
 
-            else:
-                log_text = f'{trade.id}: {bold(f"{len(old_order_ids) - len(active_orders)} orders completed, replacing orders")}.'
+            active_order_ids = [*sell_order_ids, *buy_order_ids]
 
-                if len(active_orders) != len(active_order_ids):
-                    trade.active_order_ids = json.dumps(active_orders)
+            if len(active_order_ids) != total_orders_count:
+                log_text = f'{trade.id}: {bold(f"{total_orders_count - len(active_order_ids)} orders completed, replacing orders")}.'
+                send_log(trade.user.id, log_text)
 
-                if active_orders:
-                    client.batch_cancel(order_ids=active_orders)
-                    send_log(trade.user.id, log_text)
+                trade.active_order_ids = json.dumps(active_order_ids)
+                trade.save()
 
-                trade.hft_order_ids = '[]'
-                trade.active_order_ids = '[]'
+                client_order_ids = []
+                sell_orders_for_save = {}
+                buy_orders_for_save = {}
+
+                if len(sell_order_ids) < total_orders_count / 2:
+                    for i in sell_orders:
+                        if int(i) in sell_order_ids:
+                            sell_orders_for_save[i] = sell_orders[i]
+
+                    bid_orders_q = random_array(
+                        float(trade.quantity) / 2,
+                        trade.hft_orders_on_each_side,
+                        precision.get('min_price')
+                    )
+
+                    self.hft_place_sell_orders(
+                        trade,
+                        cost,
+                        list(reversed(sell_orders.values())),
+                        precision,
+                        client,
+                        account_id,
+                        sell_orders_for_save,
+                        client_order_ids,
+                        start_from=len(sell_order_ids)
+                    )
+
+                    if buy_order_ids:
+                        client.batch_cancel(order_ids=buy_order_ids)
+
+                    self.hft_place_buy_orders(trade, cost, bid_orders_q, precision, client, account_id, buy_orders_for_save, client_order_ids)
+
+                else:
+                    for i in buy_orders:
+                        if int(i) in buy_order_ids:
+                            buy_orders_for_save[i] = buy_orders[i]
+
+                    ask_orders_q = random_array(
+                        float(trade.quantity) / 2,
+                        trade.hft_orders_on_each_side,
+                        precision.get('min_price')
+                    )
+
+                    self.hft_place_buy_orders(
+                        trade,
+                        cost,
+                        list(reversed(buy_orders.values())),
+                        precision,
+                        client,
+                        account_id,
+                        buy_orders_for_save,
+                        client_order_ids,
+                        start_from=len(buy_order_ids)
+                    )
+
+                    if sell_order_ids:
+                        client.batch_cancel(order_ids=sell_order_ids)
+
+                    self.hft_place_sell_orders(trade, cost, ask_orders_q, precision, client, account_id, sell_orders_for_save, client_order_ids)
+
+                trade.hft_order_ids = json.dumps(client_order_ids)
+                trade.active_order_ids = json.dumps([*buy_orders_for_save.keys(), *sell_orders_for_save.keys()])
+
+                trade.hft_buy_orders = json.dumps(buy_orders_for_save)
+                trade.hft_sell_orders = json.dumps(sell_orders_for_save)
+
+            return
 
         ask_orders_q = random_array(
             float(trade.quantity) / 2,
@@ -344,54 +454,25 @@ class Bot:
         )
 
         client_order_ids = []
-        order_ids = []
+        sell_order_ids = {}
+        buy_order_ids = {}
 
         try:
             # place orders:
-            for i in range(trade.hft_orders_on_each_side):
-                percent = ((i + 1) * float(trade.hft_orders_price_difference) + float(
-                    trade.hft_default_price_difference) + 100)
-                price = cost['ask'] * percent / 100
-                client_order_id = int(round(timezone.now().timestamp() * 100000))
-
-                order = client.place(
-                    account_id=account_id,
-                    amount=format_float(ask_orders_q[i] / price, precision.get('amount', 0)),
-                    price=format_float(price, precision.get('price', 0)),
-                    symbol=trade.symbol,
-                    type=f'sell-limit',
-                    client_order_id=client_order_id
-                ).data
-
-                order_ids.append(order.get('data'))
-                client_order_ids.append(client_order_id)
-
-            for i in range(trade.hft_orders_on_each_side):
-                percent = (100 - (i + 1) * float(trade.hft_orders_price_difference) - float(
-                    trade.hft_default_price_difference))
-                price = cost['bid'] * percent / 100
-                client_order_id = int(round(timezone.now().timestamp() * 100000))
-
-                order = client.place(
-                    account_id=account_id,
-                    amount=format_float(bid_orders_q[i] / price, precision.get('amount', 0)),
-                    price=format_float(price, precision.get('price', 0)),
-                    symbol=trade.symbol,
-                    type=f'buy-limit',
-                    client_order_id=client_order_id
-                ).data
-
-                order_ids.append(int(order.get('data')))
-                client_order_ids.append(client_order_id)
+            self.hft_place_sell_orders(trade, cost, ask_orders_q, precision, client, account_id, sell_order_ids, client_order_ids)
+            self.hft_place_buy_orders(trade, cost, bid_orders_q, precision, client, account_id, buy_order_ids, client_order_ids)
 
         except Exception as e:
             self.handle_error(trade, e, False)
 
-            if order_ids:
-                client.batch_cancel(order_ids=order_ids)
+            if buy_order_ids or sell_order_ids:
+                client.batch_cancel(order_ids=[*buy_order_ids.keys(), *sell_order_ids.keys()])
 
         trade.hft_order_ids = json.dumps(client_order_ids)
-        trade.active_order_ids = json.dumps(order_ids)
+        trade.active_order_ids = json.dumps([*buy_order_ids.keys(), *sell_order_ids.keys()])
+
+        trade.hft_buy_orders = json.dumps(buy_order_ids)
+        trade.hft_sell_orders = json.dumps(sell_order_ids)
 
     def complete_trade(self, trade, client, account_id, precision):
         trade.is_completed = True if not trade.loop else False

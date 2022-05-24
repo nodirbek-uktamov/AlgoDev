@@ -60,6 +60,9 @@ class Trade(models.Model):
     hft_orders_on_each_side = models.IntegerField(default=0)
     hft_order_ids = models.TextField(default='[]')
 
+    hft_buy_orders = models.TextField(default='{}')
+    hft_sell_orders = models.TextField(default='{}')
+
     stop = models.BooleanField(default=False)
     stop_percent = models.FloatField(default=0)
 

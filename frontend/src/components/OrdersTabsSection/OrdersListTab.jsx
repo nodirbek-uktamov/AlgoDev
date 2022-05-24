@@ -37,7 +37,7 @@ export function OrdersListTab() {
     }
 
     function RenderItem({item}) {
-        const color = item.direction === 'sell' ? '#FA4D56' : '#00B464'
+        const color = item.direction === 'sell' ? '#FF0000' : '#6afd0a'
 
         return (
             <div className="columns p-0 m-0">
@@ -92,7 +92,7 @@ export function OrdersListTab() {
             ))}
         </tr>
 
-        <div className="p-3" style={{backgroundColor: orders.length > 0 ? '#141826' : null}}>
+        <div className="p-3" style={{backgroundColor: orders.length > 0 ? '#000' : null}}>
             {orders.map((item, index) => (
                 <RenderItem key={index} item={item}/>
             ))}

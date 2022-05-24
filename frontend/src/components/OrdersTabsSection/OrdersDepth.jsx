@@ -17,14 +17,19 @@ function OrdersDepth({botPrices}) {
         return Object.values(botPrices).filter((i) => Number(i.price.price) === price && i.price.trade_type === tradeType).length > 0
     }
 
+    const onClickPrice = (item) => () =>  {
+        callbacks.current.setTradeFormValue('price', item[0])
+        callbacks.current.setTradeFormValue('iceberg_price', item[0])
+        callbacks.current.setTradeFormValue('stop_price', item[0])
+        callbacks.current.setTradeFormValue('grid_start_price', item[0])
+        callbacks.current.setTradeFormValue('grid_end_price', item[0])
+    }
+
     function RenderItem({item, tradeType, color}) {
         return (
             <div className={cn('columns m-0 p-0 is-justify-content-space-between', isActive(item[0], tradeType) && css(styles.activePrice))}>
                 <p
-                    onClick={() => {
-                        callbacks.current.setTradeFormValue('price', item[0])
-                        callbacks.current.setTradeFormValue('iceberg_price', item[0])
-                    }}
+                    onClick={onClickPrice(item)}
                     style={{color}}
                     className="column is-narrow m-0 p-0 pointer">
                     {item[0].toFixed(tpp)}
@@ -62,11 +67,11 @@ function OrdersDepth({botPrices}) {
                 ))}
             </tr>
 
-            {book && <div className="p-4" style={{backgroundColor: '#141826'}}>
+            {book && <div className="p-4" style={{backgroundColor: '#000'}}>
                 <div>
                     <div>
                         {asks.map((item) => (
-                            <RenderItem color="#FA4D56" tradeType="sell" item={item}/>
+                            <RenderItem color="#FF0000" tradeType="sell" item={item}/>
                         ))}
                     </div>
 
@@ -76,7 +81,7 @@ function OrdersDepth({botPrices}) {
 
                     <div>
                         {bids.map((item) => (
-                            <RenderItem color="#00B464" tradeType="buy" item={item}/>
+                            <RenderItem color="#6afd0a" tradeType="buy" item={item}/>
                         ))}
                     </div>
                 </div>
