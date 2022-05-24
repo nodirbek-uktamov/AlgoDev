@@ -1,4 +1,3 @@
-#!/bin/sh
 git pull
 python3 backend/manage.py migrate
 systemctl restart gunicorn
