@@ -19,4 +19,4 @@ def _send_log(user_id, message, action=None):
 
 
 def send_log(user_id, message, action=None):
-    _send_log(user_id, message, action)
+    _send_log.delay(user_id, message, action)
