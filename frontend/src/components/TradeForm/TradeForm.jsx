@@ -9,6 +9,7 @@ import {Market} from "./Market";
 import {InputField, ToggleSwitchField} from "../../forms";
 import Checkbox from "../common/Checkbox";
 import {Button} from "../common/Button";
+import {generateLadderPrice} from "../../utils/common";
 
 
 const formValues = JSON.parse(localStorage.getItem('savedForms') || '{}')
@@ -26,6 +27,10 @@ const tradeInitialValues = {
     hft_orders_on_each_side: 0,
     hft_orders_price_difference: 0,
     hft_default_price_difference: 0,
+
+    ladder_trades_count: 3,
+    ladder_start_price: 0.000005,
+    ladder_end_price: 0.000009,
 
     take_profit: false,
     stop: false
@@ -253,7 +258,82 @@ export const LimitOptionsRenderer = {
                 </Fragment>
             )
         }
-    }
+    },
+    ladder: {
+        render(values, symbolSettings) {
+            return (
+                <Fragment>
+                    <InputField
+                        name="ladder_trades_count"
+                        type="number"
+                        pattern="[0-9]"
+                        label="Trades count"/>
+
+                    <InputField
+                        name="ladder_start_price"
+                        type="number"
+                        label="Start price"/>
+
+                    <InputField
+                        name="ladder_end_price"
+                        type="number"
+                        label="End price"/>
+
+                    {(values.ladder_trades_count) && (
+                        <div className="columns is-mobile m-0 p-0">
+                            <div className="column pr-2 py-0">
+                                Price
+                            </div>
+
+                            <div className="column has-text-centered is-narrow p-0 mr-1">
+                                Amount %
+                            </div>
+
+                            <div className="column has-text-centered p-0 mr-1">
+                                SL %
+                            </div>
+
+                            <div className="column has-text-centered p-0 mr-1">
+                                TP %
+                            </div>
+                        </div>
+                    )}
+
+                    {Array.from(Array(Math.floor(values.ladder_trades_count || 0))).map((_, index) => (
+                        <div className="columns is-mobile m-0 p-0">
+                            <div className="column pr-2">
+                                {generateLadderPrice(values, index + 1).toFixed(symbolSettings.tpp)}
+                            </div>
+
+                            <div className="column p-0 mr-1">
+                                <InputField
+                                    name="asdqweq"
+                                    type="number"
+                                    className="p-1 pl-3"
+                                    pattern="[0-9]" />
+                            </div>
+
+                            <div className="column p-0 mr-1">
+                                <InputField
+                                    name="asdqweq"
+                                    type="number"
+                                    className="p-1 pl-3"
+                                    pattern="[0-9]" />
+                            </div>
+
+                            <div className="column p-0 mr-1">
+                                <InputField
+                                    name="asdqweq"
+                                    type="number"
+                                    className="p-1 pl-3"
+                                    pattern="[0-9]" />
+                            </div>
+                        </div>
+                    ))}
+                </Fragment>
+            )
+        }
+    },
 }
 
 const BotDataFactory = {
@@ -327,12 +407,12 @@ const renderTabs = (props) => [
 
 export default React.memo(({onUpdate}) => {
     const createTrade = usePostRequest({url: TRADE})
-    const {symbol, wsCallbacksRef} = useContext(MainContext)
+    const {symbol, wsCallbacksRef, symbolSettings} = useContext(MainContext)
 
     const [tab, setTab] = useState(0)
     const [botType, setBotType] = useState({
-        title: 'Limit',
-        key: 'limit'
+        title: 'Ladder',
+        key: 'ladder'
     })
 
     const [balance, setBalance] = useState({})

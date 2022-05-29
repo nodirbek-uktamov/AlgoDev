@@ -10,6 +10,10 @@ import {useFormikContext} from "formik";
 
 const BOT_TYPES_LIMIT = [
     {
+        title: 'Ladder',
+        key: 'ladder'
+    },
+    {
         title: 'Limit',
         key: 'limit'
     },
@@ -78,7 +82,7 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
 
         <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings)} valueType="percent"/>
 
-        {botType.key && LimitOptionsRenderer[botType.key].render(values, botType.key)}
+        {botType.key && LimitOptionsRenderer[botType.key].render(values, symbolSettings, botType.key)}
 
         {botType.key !== 'hft' && (
             <div className="is-flex" style={{gap: '1.1rem'}}>
