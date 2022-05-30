@@ -167,11 +167,11 @@ class Bot:
         except Exception:
             pass
 
-        error = re.sub(r'http\S+', '', error)
+        error = re.sub(r'http\S+', '', str(error))
 
         send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}. ' + additional_text, action)
 
-    def handle_error(self, trade, e, cancel=True):
+    def handle_error(self, trade, e, cancel=True, repeat=False):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
@@ -186,7 +186,7 @@ class Bot:
             trade.is_completed = True
             action = {'delete': trade.id}
 
-        else:
+        elif repeat:
             additional_text = 'Will repeat after 30 seconds.'
 
         error = str(e)
@@ -230,7 +230,8 @@ class Bot:
         except Exception as e:
             self.handle_error(trade, e)
 
-    def take_profit_order(self, client, account_id, trade, price, precision, take_profit_percent, quantity, cancel_if_error=True):
+    def take_profit_order(self, client, account_id, trade, price, precision, take_profit_percent, quantity,
+                          cancel_if_error=True):
         from main.models import TakeProfitOrder
 
         trade_type = 'sell'
@@ -258,7 +259,7 @@ class Bot:
             return data
 
         except Exception as e:
-            self.handle_error(trade, e, cancel_if_error)
+            self.handle_error(trade, e, cancel_if_error, False)
             return {'data': 0}
 
     def grid_bot(self, client, trade, cost, account_id, precision, orders):
@@ -472,7 +473,7 @@ class Bot:
                                       client_order_ids)
 
         except Exception as e:
-            self.handle_error(trade, e, False)
+            self.handle_error(trade, e, False, True)
 
             if buy_order_ids or sell_order_ids:
                 client.batch_cancel(order_ids=[*buy_order_ids.keys(), *sell_order_ids.keys()])
@@ -505,7 +506,8 @@ class Bot:
                 avg_price = float(trade.iceberg_prices_sum) / float(trade.quantity)
 
                 if trade.take_profit:
-                    self.take_profit_order(client, account_id, trade, avg_price, precision, trade.take_profit_percent, trade.quantity)
+                    self.take_profit_order(client, account_id, trade, avg_price, precision, trade.take_profit_percent,
+                                           trade.quantity)
                     trade.iceberg_prices_sum = 0
 
                 trade.completed_icebergs = 0
@@ -638,7 +640,8 @@ class Bot:
                         except Exception as e:
                             self.send_error_log(e, trade)
 
-                        tp_order = self.take_profit_order(client, account_id, trade, float(trade.price), precision, trade.take_profit_percent, trade.quantity)
+                        tp_order = self.take_profit_order(client, account_id, trade, float(trade.price), precision,
+                                                          trade.take_profit_percent, trade.quantity)
 
                         if tp_order.get('data') and stop_order.get('data'):
                             trade.active_order_ids = json.dumps([tp_order['data'], stop_order['data']])
@@ -658,7 +661,8 @@ class Bot:
                     order_type = 'stop'
 
                 if trade.take_profit:
-                    self.take_profit_order(client, account_id, trade, float(trade.price), precision, trade.take_profit_percent, trade.quantity)
+                    self.take_profit_order(client, account_id, trade, float(trade.price), precision,
+                                           trade.take_profit_percent, trade.quantity)
                     order_type = 'TP'
 
                 log_text = f'{trade.id}: order {bold(f"completed")}'
@@ -727,7 +731,13 @@ class Bot:
             completed_orders = list(set(ladder_order_ids) - set(active_orders_ids))
 
             if completed_orders:
-                for i in trade.ladder_trades.filter(order_id__in=completed_orders):
+                ladder_trades = trade.ladder_trades.filter(
+                    order_id__in=completed_orders,
+                    take_profit_order_id__isnull=True,
+                    stop_loss_order_id__isnull=True
+                )
+
+                for i in ladder_trades:
                     trade.ladder_prices_sum += i.price
                     trade.ladder_completed_orders += 1
                     avg_price = trade.ladder_prices_sum / trade.ladder_completed_orders
@@ -749,7 +759,7 @@ class Bot:
                         float(avg_price),
                         precision,
                         i.take_profit,
-                        trade.quantity * i.amount / 100,
+                        amount * i.amount / 100,
                         cancel_if_error=False
                     )
                     stop_order = {}
@@ -758,7 +768,7 @@ class Bot:
                         stop_order = self.stop_order(
                             client,
                             account_id,
-                            amount,
+                            float(amount * i.amount) / 100 / float(avg_price),
                             precision,
                             trade,
                             trade_type,
@@ -772,6 +782,7 @@ class Bot:
 
                     i.take_profit_order_id = tp_data.get('data', 0)
                     i.stop_loss_order_id = stop_order.get('data', 0)
+                    i.save()
 
                 trade.ladder_order_ids = json.dumps(active_orders_ids)
                 trade.active_order_ids = json.dumps(active_orders_ids)
@@ -781,6 +792,8 @@ class Bot:
 
                 log_text = f'{trade.id}: all orders are {bold(f"completed")}.'
                 send_log(trade.user.id, log_text, {'delete': trade.id})
+
+            print('returning')
             return
 
         order_ids = []
@@ -791,7 +804,8 @@ class Bot:
             for ladder_trade in trade.ladder_trades.all():
                 data = client.place(
                     account_id=account_id,
-                    amount=format_float(amount * ladder_trade.amount / 100 / ladder_trade.price, precision.get('amount', 0)),
+                    amount=format_float(amount * ladder_trade.amount / 100 / ladder_trade.price,
+                                        precision.get('amount', 0)),
                     price=format_float(ladder_trade.price, precision.get('price', 0)),
                     symbol=trade.symbol,
                     type=f'{trade.trade_type}-limit',
