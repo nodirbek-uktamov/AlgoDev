@@ -278,7 +278,7 @@ export const LimitOptionsRenderer = {
                         type="number"
                         label="End price"/>
 
-                    {(values.ladder_trades_count) && (
+                    {values.ladder_trades_count > 0 && (
                         <div className="columns is-mobile m-0 p-0">
                             <div className="column pr-2 py-0">
                                 Price
