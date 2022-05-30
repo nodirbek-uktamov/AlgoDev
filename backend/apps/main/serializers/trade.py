@@ -1,12 +1,14 @@
 import json
 
 from rest_framework import serializers
-from main.models import Trade
+from main.models import Trade, LadderTrade
+from main.serializers.ladder import LadderTradesSerializer
 
 
 class TradesSerializer(serializers.ModelSerializer):
     completed_icebergs = serializers.IntegerField(read_only=True)
     active_order_ids = serializers.SerializerMethodField(read_only=True)
+    ladder_trades = LadderTradesSerializer(many=True, write_only=True, required=False)
 
     def get_active_order_ids(self, obj):
         return json.loads(obj.active_order_ids)
@@ -62,7 +64,35 @@ class TradesSerializer(serializers.ModelSerializer):
         if data.get('limit') or data.get('market'):
            data['loop'] = False
 
+        if data.get('ladder'):
+            data['loop'] = False
+        else:
+            data['ladder_trades'] = []
+            data['ladder_trades_count'] = 0
+            data['ladder_start_price'] = 0
+            data['ladder_end_price'] = 0
+
         return data
+
+    def create(self, data):
+        ladder_trades = data.pop('ladder_trades', [])
+        instance = super().create(data)
+
+        ladder_trades_for_create = []
+
+        for i in ladder_trades:
+            ladder_trades_for_create.append(
+                LadderTrade(
+                    amount=i['amount'],
+                    stop_loss=i['stop_loss'],
+                    take_profit=i['take_profit'],
+                    price=i['price'],
+                    trade=instance,
+                )
+            )
+
+        LadderTrade.objects.bulk_create(ladder_trades_for_create)
+        return instance
 
     class Meta:
         model = Trade
@@ -105,4 +135,10 @@ class TradesSerializer(serializers.ModelSerializer):
             'limit_price',
 
             'market',
+
+            'ladder_trades',
+            'ladder',
+            'ladder_trades_count',
+            'ladder_start_price',
+            'ladder_end_price',
         )

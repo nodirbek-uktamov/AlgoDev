@@ -42,6 +42,14 @@ class Trade(models.Model):
     take_profit_percent = models.FloatField(default=0)
     completed_icebergs = models.IntegerField(default=0)
 
+    ladder = models.BooleanField(default=False)
+    ladder_trades_count = models.IntegerField(default=0, null=True, blank=True)
+    ladder_start_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    ladder_end_price = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    ladder_order_ids = models.TextField(default='[]')
+    ladder_prices_sum = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    ladder_completed_orders = models.IntegerField(default=0)
+
     market_making = models.BooleanField(default=False)
     market_making_array = models.TextField(default='')
 
@@ -147,3 +155,20 @@ class SymbolSetting(models.Model):
     price_precision = models.IntegerField()
     min_price = models.DecimalField(max_digits=20, decimal_places=10)
     symbol = models.CharField(max_length=255)
+
+
+class LadderTrade(models.Model):
+    amount = models.IntegerField()  # in amount_percent
+    stop_loss = models.IntegerField()  # in stop_loss_percent
+    take_profit = models.IntegerField()  # in take_profit_percent
+
+    price = models.DecimalField(max_digits=20, decimal_places=10)
+
+    order_id = models.CharField(max_length=255, null=True, blank=True)
+    stop_loss_order_id = models.CharField(max_length=255, null=True, blank=True)
+    take_profit_order_id = models.CharField(max_length=255, null=True, blank=True)
+
+    is_limit_completed = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
+
+    trade = models.ForeignKey(Trade, models.CASCADE, 'ladder_trades')

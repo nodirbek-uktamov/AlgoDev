@@ -7,12 +7,9 @@ import {MainContext} from "../../contexts/MainContext";
 import {LimitOptionsRenderer} from "./TradeForm";
 import {calcPair1Amount, onChangeSlider} from "./utils";
 import {useFormikContext} from "formik";
+import {Ladder} from "./Ladder";
 
 const BOT_TYPES_LIMIT = [
-    {
-        title: 'Ladder',
-        key: 'ladder'
-    },
     {
         title: 'Limit',
         key: 'limit'
@@ -36,6 +33,10 @@ const BOT_TYPES_LIMIT = [
     {
         title: 'HFT',
         key: 'hft'
+    },
+    {
+        title: 'Ladder',
+        key: 'ladder'
     },
 ]
 
@@ -83,6 +84,8 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
         <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings)} valueType="percent"/>
 
         {botType.key && LimitOptionsRenderer[botType.key].render(values, symbolSettings, botType.key)}
+
+        {botType.key === 'ladder' && <Ladder symbolSettings={symbolSettings} />}
 
         {botType.key !== 'hft' && (
             <div className="is-flex" style={{gap: '1.1rem'}}>

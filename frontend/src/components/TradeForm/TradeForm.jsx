@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, Fragment} from 'react'
+import React, {useState, useEffect, useContext, Fragment, useCallback} from 'react'
 import {Form, Formik} from 'formik'
 import {usePostRequest} from '../../hooks/request'
 import {TRADE} from '../../urls'
@@ -7,7 +7,6 @@ import {Tabs} from "../common/Tabs/Tabs";
 import {Limit} from "./Limit";
 import {Market} from "./Market";
 import {InputField, ToggleSwitchField} from "../../forms";
-import Checkbox from "../common/Checkbox";
 import {Button} from "../common/Button";
 import {generateLadderPrice} from "../../utils/common";
 
@@ -298,38 +297,6 @@ export const LimitOptionsRenderer = {
                             </div>
                         </div>
                     )}
-
-                    {Array.from(Array(Math.floor(values.ladder_trades_count || 0))).map((_, index) => (
-                        <div className="columns is-mobile m-0 p-0">
-                            <div className="column pr-2">
-                                {generateLadderPrice(values, index + 1).toFixed(symbolSettings.tpp)}
-                            </div>
-
-                            <div className="column p-0 mr-1">
-                                <InputField
-                                    name="asdqweq"
-                                    type="number"
-                                    className="p-1 pl-3"
-                                    pattern="[0-9]" />
-                            </div>
-
-                            <div className="column p-0 mr-1">
-                                <InputField
-                                    name="asdqweq"
-                                    type="number"
-                                    className="p-1 pl-3"
-                                    pattern="[0-9]" />
-                            </div>
-
-                            <div className="column p-0 mr-1">
-                                <InputField
-                                    name="asdqweq"
-                                    type="number"
-                                    className="p-1 pl-3"
-                                    pattern="[0-9]" />
-                            </div>
-                        </div>
-                    ))}
                 </Fragment>
             )
         }
@@ -391,6 +358,26 @@ const BotDataFactory = {
             newData.stop = true;
             return newData;
         }
+    },
+    ladder: {
+        create(newData, symbolSettings) {
+            const ladderTrades = []
+
+            for (let i = 1; i <= newData.ladder_trades_count; i++) {
+                const defaultPrice = generateLadderPrice(newData, i).toFixed(symbolSettings.tpp)
+
+                ladderTrades.push({
+                    amount: newData[`ladder_item_amount_${i}`],
+                    stop_loss: newData[`ladder_item_sl_${i}`],
+                    take_profit: newData[`ladder_item_tp_${i}`],
+                    price: newData[`ladder_item_price_${i}`] || defaultPrice
+                })
+            }
+
+            newData.ladderTrades = ladderTrades
+            newData.ladder = true;
+            return newData;
+        }
     }
 }
 
@@ -433,7 +420,7 @@ export default React.memo(({onUpdate}) => {
             iceberg_price: data.iceberg_price || 0,
         }
 
-        const extendedData = BotDataFactory[botType.key].create(newData);
+        const extendedData = BotDataFactory[botType.key].create(newData, symbolSettings);
 
         const {success, error} = await createTrade.request({data: extendedData})
 
