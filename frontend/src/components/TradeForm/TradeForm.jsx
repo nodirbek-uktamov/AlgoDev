@@ -27,9 +27,9 @@ const tradeInitialValues = {
     hft_orders_price_difference: 0,
     hft_default_price_difference: 0,
 
-    ladder_trades_count: 3,
-    ladder_start_price: 0.000005,
-    ladder_end_price: 0.000009,
+    ladder_trades_count: 0,
+    ladder_start_price: 0,
+    ladder_end_price: 0,
 
     take_profit: false,
     stop: false
