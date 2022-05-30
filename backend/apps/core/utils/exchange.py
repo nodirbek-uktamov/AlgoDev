@@ -720,7 +720,6 @@ class Bot:
         amount = trade.quantity
 
         if ladder_order_ids:  # already put
-            print("already put")
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
             active_orders = list(filter(lambda i: str(i.get('id')) in ladder_order_ids, orders.get('data', [])))
             active_orders_ids = list(map(lambda a: str(a['id']), active_orders))
