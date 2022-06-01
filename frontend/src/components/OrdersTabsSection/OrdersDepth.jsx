@@ -23,6 +23,8 @@ function OrdersDepth({botPrices}) {
         callbacks.current.setTradeFormValue('stop_price', item[0])
         callbacks.current.setTradeFormValue('grid_start_price', item[0])
         callbacks.current.setTradeFormValue('grid_end_price', item[0])
+        callbacks.current.setTradeFormValue('ladder_start_price', item[0])
+        callbacks.current.setTradeFormValue('ladder_end_price', item[0])
     }
 
     function RenderItem({item, tradeType, color}) {

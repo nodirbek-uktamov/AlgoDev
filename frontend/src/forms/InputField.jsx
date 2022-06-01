@@ -8,7 +8,7 @@ export function InputField({renderErrorMsg = (err) => err, ...props}) {
     const errorMessage = meta.touched && meta.error;
 
     return <div>
-        <Input label={props.label} hasError={Boolean(errorMessage)} {...field} {...props} />
+        <Input min={0} label={props.label} hasError={Boolean(errorMessage)} {...field} {...props} />
         <ErrorMessage>{renderErrorMsg(errorMessage)}</ErrorMessage>
     </div>
 }

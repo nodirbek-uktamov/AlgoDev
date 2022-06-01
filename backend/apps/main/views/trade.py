@@ -56,6 +56,10 @@ class TradeDetailView(APIView):
             old_order_ids = json.loads(trade.hft_order_ids)
             active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
 
+        if trade.ladder:
+            old_order_ids = json.loads(trade.ladder_order_ids)
+            active_orders = filter(lambda i: str(i.get('id')) in old_order_ids, orders.get('data', []))
+
         if trade.grid_bot:
             old_order_ids = json.loads(trade.active_order_ids)
             active_orders = filter(lambda i: int(i.get('id')) in old_order_ids, orders.get('data', []))
@@ -88,6 +92,12 @@ class CancelTradesView(APIView):
             if trade.hft_bot:
                 old_order_ids = json.loads(trade.hft_order_ids)
                 active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
+                active_orders = list(map(lambda a: a['id'], active_orders))
+                orders_for_cancel = [*orders_for_cancel, *active_orders]
+
+            if trade.ladder:
+                old_order_ids = json.loads(trade.ladder_order_ids)
+                active_orders = filter(lambda i: str(i.get('id')) in old_order_ids, orders.get('data', []))
                 active_orders = list(map(lambda a: a['id'], active_orders))
                 orders_for_cancel = [*orders_for_cancel, *active_orders]
 
