@@ -271,11 +271,13 @@ export const LimitOptionsRenderer = {
                     <InputField
                         name="ladder_start_price"
                         type="number"
+                        step="0.00000001"
                         label="Start price"/>
 
                     <InputField
                         name="ladder_end_price"
                         type="number"
+                        step="0.00000001"
                         label="End price"/>
 
                     {values.ladder_trades_count > 0 && (

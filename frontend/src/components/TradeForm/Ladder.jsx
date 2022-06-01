@@ -12,6 +12,7 @@ export const Ladder = ({ symbolSettings }) => {
                 style={{borderRadius: '0.8rem'}}
                 name={`ladder_item_price_${index + 1}`}
                 type="number"
+                step="0.00000001"
                 value={values[`ladder_item_price_${index + 1}`] || generateLadderPrice(newValues, index + 1).toFixed(symbolSettings.tpp)}
                 className="pl-3 pr-0"/>
         )
