@@ -35,6 +35,16 @@ pip3 --version
 7. Add `export DJANGO_SETTINGS_MODULE=config.settings_prod` to ~/.bashrc file
 8. Collect statics `python manage.py collectstatic --no-input`
 9. Migrate changes `python manage.py migrate`
+10. Generate key for decoding and encoding secret keys of users:
+   ```
+   python manage.py generate_decode_key   
+   ```
+11. Save decode key in settings_dev:
+   ```
+   DECODE_KEY = 'SOME_LARGE_KEY_FROM_COMMAND'
+   ```
+
+   key must be like this (don't use this one): `sw877-QPAnKqNmY9UZKP9yVZwF8uV184qPllZ_Om6QM=`
 
 ### Gunicorn, Nginx, SSL
 
