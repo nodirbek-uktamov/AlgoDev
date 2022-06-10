@@ -1,4 +1,6 @@
 import uuid
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -26,7 +28,8 @@ class User(AbstractUser):
 
     @property
     def _secret_key(self):
-        secret_key = hash.encode(self.decode_key, self.secret_key)
+        secret_key = hash.encode(settings.DECODE_KEY, self.secret_key)
+        print(secret_key)
         return secret_key
 
     class Meta(AbstractUser.Meta):

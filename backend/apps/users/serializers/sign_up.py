@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -14,8 +15,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     def create(self, data):
         data['email'] = data['email'].lower()
         data['username'] = data['email']  # Use email as username
-        data['decode_key'] = hash.generate_key()
-        data['secret_key'] = hash.decode(data['decode_key'], data['secret_key'])
+        data['secret_key'] = hash.decode(settings.DECODE_KEY, data['secret_key'])
         user = User.objects.create_user(**data, is_active=True)
         return user
 

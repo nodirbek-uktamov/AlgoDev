@@ -211,6 +211,8 @@ FRONTEND_DOMAIN = os.environ.get('FRONTEND_DOMAIN', 'http://localhost:3000')
 BACKEND_DOMAIN = os.environ.get('BACKEND_DOMAIN', 'http://localhost:8000')
 COMPANY_NAME = 'Terminal'
 
+DECODE_KEY = ''
+
 try:
     from .settings_dev import *
 except ImportError:
