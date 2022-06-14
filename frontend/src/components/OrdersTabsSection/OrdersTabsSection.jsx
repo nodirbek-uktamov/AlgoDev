@@ -20,8 +20,7 @@ export function OrdersTabsSection({botPrices}) {
                 <Button
                     color='white'
                     text='Log out'
-                    onClick={() => signOut(history)}
-                />
+                    onClick={() => signOut(history)} />
             </div>
     </div>
 }

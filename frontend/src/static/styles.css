@@ -86,3 +86,16 @@ html {
     border-bottom-color: #485fc7;
     color: #485fc7;
 }
+
+.tabs a {
+    color: #fff
+}
+
+.tabs a:hover {
+    color: #b5b5b5;
+    border-color: #b5b5b5;
+}
+
+.tabs li.is-active a {
+    color: #3e8ed0
+}

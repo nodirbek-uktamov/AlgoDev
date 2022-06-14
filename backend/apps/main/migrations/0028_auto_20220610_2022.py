@@ -7,22 +7,22 @@ from core.utils import hash
 from users.models import User
 
 
-def regenerate_secret_keys(*args, **kwargs):
-    new_decode_key = settings.DECODE_KEY
-
-    if not new_decode_key:
-        print('\n\nRunning migrations stopped. SET DECODE_KEY variable on settings_dev.py. If you want to generate new one, run: "python manage.py generate_decode_key"')
-        sys.exit()
-
-    for user in User.objects.all():
-        try:
-            secret_key = hash.encode(user.decode_key, user.secret_key)
-            user.secret_key = hash.decode(new_decode_key, secret_key)
-            user.decode_key = ''
-            user.save()
-
-        except Exception as e:
-            pass
+# def regenerate_huobi_secret_keys(*args, **kwargs):
+#     new_decode_key = settings.DECODE_KEY
+#
+#     if not new_decode_key:
+#         print('\n\nRunning migrations stopped. SET DECODE_KEY variable on settings_dev.py. If you want to generate new one, run: "python manage.py generate_decode_key"')
+#         sys.exit()
+#
+#     for user in User.objects.all():
+#         try:
+#             secret_key = hash.encode(user.decode_key, user.secret_key)
+#             user.secret_key = hash.decode(new_decode_key, secret_key)
+#             user.decode_key = ''
+#             user.save()
+#
+#         except Exception as e:
+#             pass
 
 
 class Migration(migrations.Migration):
@@ -31,5 +31,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(regenerate_secret_keys)
+        # migrations.RunPython(regenerate_huobi_secret_keys)
     ]

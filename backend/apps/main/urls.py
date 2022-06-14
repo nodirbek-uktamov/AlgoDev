@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 
 from main.views.balance import BalanceView
+from main.views.ftx import SymbolsListView
 from main.views.orders import OrdersListView, CancelAllOrdersView, CancelOrderView
 from main.views.trade import TradeView, TradeDetailView, CancelTradesView, MarketOrderView, LimitOrderView
 
@@ -17,5 +18,9 @@ urlpatterns = [
 
     path('market/', MarketOrderView.as_view(), name='market'),
     path('limit/', LimitOrderView.as_view(), name='limit'),
+
+    path('ftx/', include([
+        path('symbols/', SymbolsListView.as_view(), name='limit'),
+    ])),
 ]
 

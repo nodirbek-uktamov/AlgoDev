@@ -2,15 +2,12 @@ import React, {createContext, useEffect, useRef, useState} from "react";
 import {parseGzip, WS_TYPES} from "../utils/websocket";
 import {useGetRequest, useLoad} from "../hooks/request";
 import {BALANCE, HUOBI_SYMBOL_SETTINGS} from "../urls";
-import { Select } from '../components/common/Select'
-import { EXCHANGES } from '../utils/exchanges'
 
 export const MainContext = createContext({})
 
 export default function MainContextWrapper({children}) {
     const wsCallbacksRef = useRef({})
     const huobiWs = useRef({})
-
     const callbacks = useRef({})
 
     const initialSymbol = localStorage.getItem('symbol')
@@ -29,7 +26,10 @@ export default function MainContextWrapper({children}) {
         Referrer: ''
     })
 
+    const exchange = window.location.pathname.replace('/', '')
+
     const balanceParams = useGetRequest({url: BALANCE})
+    console.log(symbol)
 
     const symbolValue = symbol.value.toLowerCase()
 
@@ -50,7 +50,11 @@ export default function MainContextWrapper({children}) {
         huobiWs.current.addEventListener('message', handleMessageMarketData)
 
         return () => {
+            huobiWs.current.onclose = () => {}
+            accountWs.current.onclose = () => {}
+
             huobiWs.current.close()
+            accountWs.current.close()
         }
         // eslint-disable-next-line
     }, [])
@@ -168,7 +172,7 @@ export default function MainContextWrapper({children}) {
             })
         }
 
-        if (data.action === 'push' && data.data.accountId === user.spotAccountId) {
+        if (data.action === 'push' && data.data.accountId === user.huobiSpotAccountId && wsCallbacksRef.current.setBalance) {
             wsCallbacksRef.current.setBalance((oldBalance) => ({
                 ...oldBalance,
                 [data.data.currency]: Number(data.data.available)
@@ -198,21 +202,13 @@ export default function MainContextWrapper({children}) {
         setDepthType,
         accountWs,
         price,
-        callbacks
+        callbacks,
+        exchange
     }
 
     return (
-        <MainContext.Provkider value={contextValues}>
-            <Select
-            style={{marginTop: '1.1rem'}}
-            options={EXCHANGES}
-            selectedOption={botType}
-            setSelectedOption={setBotType}
-            renderSelectedOption={o => o.title}
-            renderMenuOption={o => o.title}
-            color='white'/>
-
+        <MainContext.Provider value={contextValues}>
             {children}
-        </MainContext.Provkider>
+        </MainContext.Provider>
     )
 }

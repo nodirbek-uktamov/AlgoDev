@@ -18,18 +18,19 @@ class User(AbstractUser):
     expires_user_at = models.DateField(null=True, blank=True)
     objects = UsersManager()
 
-    api_key = models.CharField(max_length=255, null=True, blank=True)
-    secret_key = models.CharField(max_length=255, null=True, blank=True)
+    huobi_api_key = models.CharField(max_length=255, null=True, blank=True)
+    huobi_secret_key = models.CharField(max_length=255, null=True, blank=True)
+    huobi_spot_account_id = models.IntegerField(null=True, blank=True)
+    huobi_margin_account_id = models.IntegerField(null=True, blank=True)
 
-    spot_account_id = models.IntegerField(null=True, blank=True)
-    margin_account_id = models.IntegerField(null=True, blank=True)
+    ftx_api_key = models.CharField(max_length=255, null=True, blank=True)
+    ftx_secret_key = models.CharField(max_length=255, null=True, blank=True)
 
     decode_key = models.CharField(null=True, blank=True, max_length=255)
 
     @property
-    def _secret_key(self):
-        secret_key = hash.encode(settings.DECODE_KEY, self.secret_key)
-        print(secret_key)
+    def _huobi_secret_key(self):
+        secret_key = hash.encode(settings.DECODE_KEY, self.huobi_secret_key)
         return secret_key
 
     class Meta(AbstractUser.Meta):

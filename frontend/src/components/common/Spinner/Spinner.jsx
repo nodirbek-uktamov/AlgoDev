@@ -2,7 +2,7 @@ import React from 'react';
 import {classnames} from "../../../utils/string";
 import './Spinner.scss';
 
-export function Spinner({size = 14, width = 3, color = 'white' , className = ''}) {
+export function Spinner({size = 25, width = 3, color = 'white' , className = ''}) {
     return (
         <svg
             className={classnames(["spinner_main", className])}

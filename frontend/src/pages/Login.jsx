@@ -27,7 +27,7 @@ export default function Login() {
 
         if (success) {
             signin(response, history)
-            history.push('app')
+            history.push('/')
         }
     }
 

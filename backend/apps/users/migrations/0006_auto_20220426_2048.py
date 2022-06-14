@@ -6,11 +6,11 @@ from core.utils import hash
 from users.models import User
 
 
-def update_decode_key_keys_and_secret_keys(*args, **kwargs):
-    for user in User.objects.all():
-        user.decode_key = hash.generate_key()
-        user.secret_key = hash.decode(user.decode_key, user.secret_key)
-        user.save()
+# def update_decode_key_keys_and_huobi_secret_keys(*args, **kwargs):
+#     for user in User.objects.all():
+#         user.decode_key = hash.generate_key()
+#         user.secret_key = hash.decode(user.decode_key, user.secret_key)
+#         user.save()
 
 
 class Migration(migrations.Migration):
@@ -19,5 +19,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(update_decode_key_keys_and_secret_keys)
+        # migrations.RunPython(update_decode_key_keys_and_huobi_secret_keys)
     ]

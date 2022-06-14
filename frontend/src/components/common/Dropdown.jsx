@@ -7,7 +7,7 @@ export default function Dropdown({ trigger, children, right }) {
     const [active, setActive] = useState(false)
 
     return (
-        <div onMouseLeave={() => setActive(false)}
+        <div style={{background: 'red'}} onMouseLeave={() => setActive(false)}
             className={cn('dropdown', { 'is-active': active, 'is-right': right })}>
             <div className="dropdown-trigger" onClick={() => setActive(!active)}>
                 {trigger}

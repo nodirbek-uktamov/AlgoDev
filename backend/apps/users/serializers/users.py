@@ -1,18 +1,53 @@
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
-
-from core.utils.files import delete_file
+from core.utils import hash
 from core.utils.serializers import ValidatorSerializer
 from users.models import User
 
 
 class UserSerializer(ModelSerializer):
+    def validate_ftx_secret_key(self, secret_key):
+        new_secret_key = hash.decode(settings.DECODE_KEY, secret_key) if secret_key else None
+        return new_secret_key
+
+    def validate_huobi_secret_key(self, secret_key):
+        new_secret_key = hash.decode(settings.DECODE_KEY, secret_key) if secret_key else None
+        return new_secret_key
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['huobi_secret_key'] = "already saved" if instance.huobi_secret_key else None
+        data['ftx_secret_key'] = "already saved" if instance.huobi_secret_key else None
+        return data
+
+    def update(self, instance, data):
+        instance.huobi_api_key = data.get('huobi_api_key') or instance.huobi_api_key
+        instance.huobi_secret_key = data.get('huobi_secret_key') or instance.huobi_secret_key
+        instance.ftx_api_key = data.get('ftx_api_key') or instance.ftx_api_key
+        instance.ftx_secret_key = data.get('ftx_secret_key') or instance.ftx_secret_key
+        instance.save()
+        return instance
+
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email', 'spot_account_id', 'margin_account_id')
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'email',
+            'huobi_spot_account_id',
+            'huobi_margin_account_id',
+            'huobi_api_key',
+            'huobi_secret_key',
+            'ftx_api_key',
+            'ftx_secret_key',
+        )
         extra_kwargs = {
             'email': {'read_only': True},
+            'huobi_secret_key': {'write_only': True},
+            'ftx_secret_key': {'write_only': True},
         }
 
 

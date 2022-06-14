@@ -1,12 +1,12 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react'
-import {Table as OrdersTable} from "../common/Table";
-import {FilterPanel} from "../FilterPanel";
-import {MainContext} from "../../contexts/MainContext";
-import {useLoad, usePostRequest} from "../../hooks/request";
-import {CANCEL_ALL_ORDERS, CANCEL_ORDER, LIMIT, MARKET, OPEN_ORDERS} from "../../urls";
-import {ORDERS_FILTER_TYPE} from "../../utils/orders-filter-type";
-import './OrdersList.scss';
-import {Button} from "../common/Button";
+import {Table as OrdersTable} from "../../common/Table";
+import {FilterPanel} from "../../FilterPanel";
+import {MainContext} from "../../../contexts/MainContext";
+import {useLoad, usePostRequest} from "../../../hooks/request";
+import {CANCEL_ALL_ORDERS, CANCEL_ORDER, LIMIT, MARKET, OPEN_ORDERS} from "../../../urls";
+import {ORDERS_FILTER_TYPE} from "../../../utils/orders-filter-type";
+import './HuobiOrdersList.scss';
+import {Button} from "../../common/Button";
 
 const SIDE_TEXT_STYLE = {
     buy: 'has-text-success',
@@ -120,7 +120,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll
     return result
 };
 
-function OrdersList() {
+function HuobiOrdersList() {
     const {wsCallbacksRef, symbolValue, symbolSettings} = useContext(MainContext)
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
@@ -222,4 +222,4 @@ function OrdersList() {
     )
 }
 
-export default React.memo(OrdersList);
+export default React.memo(HuobiOrdersList);

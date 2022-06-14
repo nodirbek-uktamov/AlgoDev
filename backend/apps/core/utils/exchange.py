@@ -25,16 +25,16 @@ logger = logging.getLogger('bot')
 
 def save_account_ids(user):
     try:
-        if not user.spot_account_id or not user.margin_account_id:
-            client = HuobiRestClient(access_key=user.api_key, secret_key=user._secret_key)
+        if not user.huobi_spot_account_id or not user.huobi_margin_account_id:
+            client = HuobiRestClient(access_key=user.huobi_api_key, secret_key=user._huobi_secret_key)
             accounts = client.accounts().data
 
             for account in accounts.get('data', []):
                 if account.get('type') == 'spot':
-                    user.spot_account_id = account.get('id')
+                    user.huobi_spot_account_id = account.get('id')
 
                 if account.get('type') == 'margin':
-                    user.margin_account_id = account.get('id')
+                    user.huobi_margin_account_id = account.get('id')
 
             user.save()
     except:
@@ -540,9 +540,9 @@ class Bot:
         user, costs, precisions = args
 
         try:
-            client = CustomHuobiClient(access_key=user.api_key, secret_key=user._secret_key)
+            client = CustomHuobiClient(access_key=user.huobi_api_key, secret_key=user._huobi_secret_key)
             orders = client.open_orders().data
-            account_id = user.spot_account_id
+            account_id = user.huobi_spot_account_id
 
             trades = user.trades.filter(
                 Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),

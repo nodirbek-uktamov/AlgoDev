@@ -30,7 +30,7 @@ class OrdersListView(GenericAPIView):
 
     def get(self, request, symbol):
         try:
-            client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+            client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
 
             open_orders = self._format_order(client.open_orders(symbol=symbol).data)
             canceled_orders = self._format_order(client.list_orders(symbol=symbol, states='canceled').data)
@@ -50,7 +50,7 @@ class OrdersListView(GenericAPIView):
 class CancelAllOrdersView(GenericAPIView):
     def post(self, request):
         data = CancelAllOrdersSerializer.check(request.data)
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+        client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
 
         if data.get('order_ids'):
             client.batch_cancel(order_ids=data.get('order_ids'))
@@ -71,7 +71,7 @@ class CancelAllOrdersView(GenericAPIView):
 class CancelOrderView(GenericAPIView):
     def post(self, request, order_id):
         try:
-            client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+            client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
             client.submit_cancel(order_id=order_id)
 
             channel_layer = get_channel_layer()

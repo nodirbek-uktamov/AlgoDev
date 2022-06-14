@@ -4,7 +4,6 @@ from rest_framework.validators import UniqueValidator
 
 from core.utils.serializers import ValidatorSerializer
 from users.models import User
-from core.utils import hash
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -15,13 +14,12 @@ class SignUpSerializer(serializers.ModelSerializer):
     def create(self, data):
         data['email'] = data['email'].lower()
         data['username'] = data['email']  # Use email as username
-        data['secret_key'] = hash.decode(settings.DECODE_KEY, data['secret_key'])
         user = User.objects.create_user(**data, is_active=True)
         return user
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'first_name', 'last_name', 'api_key', 'secret_key')
+        fields = ('id', 'email', 'password', 'first_name', 'last_name')
         extra_kwargs = {
             'email': {'required': True, 'validators': [UniqueValidator(
                 queryset=User.objects.unique_query(),
@@ -30,8 +28,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             'first_name': {'required': True},
             'last_name': {'required': True},
             'password': {'write_only': True},
-            'api_key': {'write_only': True},
-            'secret_key': {'write_only': True},
         }
 
 

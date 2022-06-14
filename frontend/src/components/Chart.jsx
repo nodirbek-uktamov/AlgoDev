@@ -3,11 +3,12 @@ import TradingViewWidget from 'react-tradingview-widget'
 import {useLoad} from '../hooks/request'
 import {intervals} from '../utils/intervals'
 import {TradesList} from '../components/TradesList'
-import {HUOBI_SYMBOLS} from '../urls'
 import {MainContext} from '../contexts/MainContext'
-import {OrdersList} from "./OrdersList"
+import {HuobiOrdersList} from "./huobi/HuobiOrdersList"
 import {Card} from "./common/Card"
 import {Select} from "./common/Select"
+import {getSymbolsList, getSymbolRequestOptions, HUOBI, FTX} from "../utils/exchanges";
+import {FTXOrdersList} from "./ftx/FTXOrdersList";
 
 const defaultOptions = {
     autosize: true,
@@ -26,22 +27,15 @@ const defaultOptions = {
 }
 
 function Chart({trades, cancelAllTrades}) {
-    const symbols = useLoad({
-        baseURL: HUOBI_SYMBOLS,
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        Referrer: ''
-    })
+    const {exchange} = useContext(MainContext)
+
+    const symbols = useLoad(getSymbolRequestOptions(exchange))
 
     const {symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi, accountWs} = useContext(MainContext)
     const [interval, setInterval] = useState({label: "1 hour", value: 60})
     const [selectedSymbol, setSelectedSymbol] = useState({});
 
-    const symbolsList = (symbols.response ? symbols.response.data || [] : []).map((i) => ({
-        value: i.bcdn + i.qcdn,
-        label: i.dn,
-        pair1: i.bcdn,
-        pair2: i.qcdn
-    }));
+    const symbolsList = getSymbolsList(symbols.response || {}, exchange)
 
     const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0];
 
@@ -101,14 +95,15 @@ function Chart({trades, cancelAllTrades}) {
                 <div style={{height: '21.5rem'}}>
                     <TradingViewWidget
                         {...defaultOptions}
-                        symbol={`HUOBI:${symbolValue.toUpperCase()}`}
+                        symbol={`${exchange.toUpperCase()}:${symbolValue.toUpperCase()}`}
                         interval={interval?.value}/>
                 </div>
             </Card>
 
             <Card dense={false}>
                 <TradesList cancelAllTrades={cancelAllTrades} onCancel={trades.request} trades={trades.response || []}/>
-                <OrdersList/>
+                {exchange === HUOBI && <HuobiOrdersList />}
+                {exchange === FTX && <FTXOrdersList />}
             </Card>
         </div>
     )

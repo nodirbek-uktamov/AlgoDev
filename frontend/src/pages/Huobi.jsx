@@ -7,6 +7,7 @@ import Logs from '../components/Logs'
 import MainContextWrapper from '../contexts/MainContext'
 import { OrdersTabsSection } from '../components/OrdersTabsSection'
 import { Card } from '../components/common/Card'
+import Tabs from "../components/Tabs";
 
 export default function Huobi() {
     const [botPrices, setBotPrices] = useState({})
@@ -26,6 +27,8 @@ export default function Huobi() {
 
     return (
         <MainContextWrapper>
+            <Tabs style={{marginLeft: '1.1rem'}} />
+
             <div style={{display: 'grid', gap: '1.1rem', gridTemplateColumns: 'repeat(3, auto)', padding: '1.1rem'}}>
                 <div>
                     <div style={{display: "flex", flexDirection: 'column', gap: '1.1rem' , maxWidth: '18rem', width: '18rem'}}>

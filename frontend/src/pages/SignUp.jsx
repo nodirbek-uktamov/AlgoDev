@@ -31,7 +31,7 @@ export default function SignUp() {
                     <p>Are you already registered? Sign in and enjoy</p>
                 </div>
 
-                <NavLink to="" className="button is-link is-outlined is-inverted">
+                <NavLink to="/auth" className="button is-link is-outlined is-inverted">
                     Sign in
                 </NavLink>
             </div>
@@ -46,8 +46,6 @@ export default function SignUp() {
                     firstName: '',
                     lastName: '',
                     email: '',
-                    apiKey: '',
-                    secretKey: '',
                 }}>
                 <Form className={css(styles.container)}>
                     <ServerError error={signUp.error} />
@@ -67,20 +65,6 @@ export default function SignUp() {
                         placeholder="mail@gmail.com" />
 
                     <Password labelClass="has-text-black" name="password" validate={required} placeholder="********" label="Password" />
-
-                    <InputOld
-                        labelClass="has-text-black"
-                        name="apiKey"
-                        label="Api key"
-                        validate={validator(required)}
-                        placeholder="*********************************" />
-
-                    <InputOld
-                        labelClass="has-text-black"
-                        name="secretKey"
-                        label="Secret key"
-                        validate={validator(required)}
-                        placeholder="*********************************" />
 
                     <div className="field">
                         <p className="control">

@@ -47,7 +47,7 @@ class TradeDetailView(APIView):
         trade.is_completed = True
         trade.save()
 
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+        client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
         orders = client.open_orders().data
 
         active_orders = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
@@ -79,7 +79,7 @@ class CancelTradesView(APIView):
         trades.update(is_completed=True)
         channel_layer = get_channel_layer()
 
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+        client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
         orders = client.open_orders().data
         orders_for_cancel = []
 
@@ -124,7 +124,7 @@ class MarketOrderView(GenericAPIView):
 
     def post(self, request):
         data = OrderValidatorSerializer.check(request.data)
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+        client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
 
         if data['side'] == 'buy':
             tickers = requests.get('https://api.huobi.pro/market/tickers').json()
@@ -137,7 +137,7 @@ class MarketOrderView(GenericAPIView):
             data['order_size'] *= price
 
         client.place(
-            account_id=request.user.spot_account_id,
+            account_id=request.user.huobi_spot_account_id,
             amount=format_float(data['order_size'], data['amount_precision']),
             symbol=data['symbol'],
             type=f'{data["side"]}-market',
@@ -151,7 +151,7 @@ class LimitOrderView(GenericAPIView):
 
     def post(self, request):
         data = OrderValidatorSerializer.check(request.data)
-        client = CustomHuobiClient(access_key=request.user.api_key, secret_key=request.user._secret_key)
+        client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
 
         tickers = requests.get('https://api.huobi.pro/market/tickers').json()
         price = 0
@@ -165,7 +165,7 @@ class LimitOrderView(GenericAPIView):
                     price = cost['ask']
 
         client.place(
-            account_id=request.user.spot_account_id,
+            account_id=request.user.huobi_spot_account_id,
             amount=format_float(data['order_size'], data['amount_precision']),
             symbol=data['symbol'],
             type=f'{data["side"]}-limit',

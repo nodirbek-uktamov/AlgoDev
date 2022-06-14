@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import Chart from '../components/Chart'
-import TradeForm from '../components/TradeForm/TradeForm'
 import { useLoad, usePutRequest } from '../hooks/request'
 import { CANCEL_TRADES, TRADE } from '../urls'
 import Logs from '../components/Logs'
 import MainContextWrapper from '../contexts/MainContext'
 import { OrdersTabsSection } from '../components/OrdersTabsSection'
 import { Card } from '../components/common/Card'
+import Tabs from "../components/Tabs";
 
 export default function Huobi() {
     const [botPrices, setBotPrices] = useState({})
@@ -22,15 +22,15 @@ export default function Huobi() {
         }
     }
 
-    const onUpdate = useCallback(trades.request, [])
-
     return (
         <MainContextWrapper>
+            <Tabs style={{marginLeft: '1.1rem'}} />
+
             <div style={{display: 'grid', gap: '1.1rem', gridTemplateColumns: 'repeat(3, auto)', padding: '1.1rem'}}>
                 <div>
                     <div style={{display: "flex", flexDirection: 'column', gap: '1.1rem' , maxWidth: '18rem', width: '18rem'}}>
-                        <Card>
-                            <TradeForm onUpdate={onUpdate}/>
+                        <Card style={{height: '30rem'}}>
+                            {/*<TradeForm onUpdate={onUpdate}/>*/}
                         </Card>
 
                         <Card>
@@ -44,7 +44,7 @@ export default function Huobi() {
                 </div>
 
                 <div>
-                    <OrdersTabsSection botPrices={botPrices}/>
+                    <OrdersTabsSection exchange="ftx" botPrices={botPrices}/>
                 </div>
             </div>
         </MainContextWrapper>

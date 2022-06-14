@@ -36,7 +36,6 @@ class ChangePasswordView(GenericAPIView):
 
 
 class UserDetailView(APIView):
-    def get(self, request, pk):
-        instance = get_object_or_404(User, id=pk)
-        data = UserSerializer(instance).data
+    def get(self, request):
+        data = UserSerializer(request.user).data
         return Response(data)

@@ -22,7 +22,10 @@ export default function Logs({setBotPrices, trades}) {
         connect()
 
         return () => {
-            ws.current.close()
+            if (ws.current) {
+                ws.current.onclose = () => {}
+                ws.current.close()
+            }
         }
         // eslint-disable-next-line
     }, [])
