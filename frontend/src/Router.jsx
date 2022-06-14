@@ -8,7 +8,8 @@ import SignUp from './pages/SignUp'
 import ResetPassword from './pages/ResetPassword'
 import ResetPasswordMessage from './pages/ResetPasswordMessage'
 import BaseContextWrapper from './components/common/BaseContext'
-import Main from './pages/Main'
+import Huobi from './pages/Huobi'
+import FTX from './pages/FTX'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import EmailConfirmationMessage from './pages/EmailConfirmationMessage'
 
@@ -25,7 +26,8 @@ export default function App() {
                     <Route path="/email-confirmation-message" component={EmailConfirmationMessage} exact />
                     <Route path="/reset-password-message" component={ResetPasswordMessage} exact />
 
-                    <ProtectedRoute path="/app" name="main" component={Main} exact />
+                    <ProtectedRoute path="/huobi" name="main" component={Huobi} exact />
+                    <ProtectedRoute path="/ftx" name="main" component={FTX} exact />
 
                     <Route path="" component={NotFound} exact />
                 </Switch>

@@ -50,7 +50,7 @@
     ]
   },
   "devDependencies": {
-    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-react-hooks": "^1.6.0",
     "sass-loader": "^11.1.1"
   }

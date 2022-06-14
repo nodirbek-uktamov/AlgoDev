@@ -19,7 +19,7 @@ export default function Login() {
     const signIn = usePostRequest({ url: SIGNIN, headers: {} })
 
     if (isAuthenticated()) {
-        return <Redirect to="/app" />
+        return <Redirect to="/huobi" />
     }
 
     async function onSubmit(data) {

@@ -2,6 +2,8 @@ import React, {createContext, useEffect, useRef, useState} from "react";
 import {parseGzip, WS_TYPES} from "../utils/websocket";
 import {useGetRequest, useLoad} from "../hooks/request";
 import {BALANCE, HUOBI_SYMBOL_SETTINGS} from "../urls";
+import { Select } from '../components/common/Select'
+import { EXCHANGES } from '../utils/exchanges'
 
 export const MainContext = createContext({})
 
@@ -200,8 +202,17 @@ export default function MainContextWrapper({children}) {
     }
 
     return (
-        <MainContext.Provider value={contextValues}>
+        <MainContext.Provkider value={contextValues}>
+            <Select
+            style={{marginTop: '1.1rem'}}
+            options={EXCHANGES}
+            selectedOption={botType}
+            setSelectedOption={setBotType}
+            renderSelectedOption={o => o.title}
+            renderMenuOption={o => o.title}
+            color='white'/>
+
             {children}
-        </MainContext.Provider>
+        </MainContext.Provkider>
     )
 }

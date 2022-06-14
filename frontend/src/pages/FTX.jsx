@@ -1,15 +1,14 @@
-import React, {useCallback, useState} from 'react'
+import React, { useCallback, useState } from 'react'
 import Chart from '../components/Chart'
 import TradeForm from '../components/TradeForm/TradeForm'
-import {useLoad, usePutRequest} from '../hooks/request'
-import {CANCEL_TRADES, TRADE} from '../urls'
+import { useLoad, usePutRequest } from '../hooks/request'
+import { CANCEL_TRADES, TRADE } from '../urls'
 import Logs from '../components/Logs'
-import OrdersTabs from '../components/OrdersTabs'
-import MainContextWrapper from "../contexts/MainContext";
-import {OrdersTabsSection} from "../components/OrdersTabsSection";
-import {Card} from "../components/common/Card";
+import MainContextWrapper from '../contexts/MainContext'
+import { OrdersTabsSection } from '../components/OrdersTabsSection'
+import { Card } from '../components/common/Card'
 
-export default function Main() {
+export default function Huobi() {
     const [botPrices, setBotPrices] = useState({})
 
     const trades = useLoad({url: TRADE})
