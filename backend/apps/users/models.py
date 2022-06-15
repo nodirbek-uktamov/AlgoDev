@@ -33,6 +33,11 @@ class User(AbstractUser):
         secret_key = hash.encode(settings.DECODE_KEY, self.huobi_secret_key)
         return secret_key
 
+    @property
+    def _ftx_secret_key(self):
+        secret_key = hash.encode(settings.DECODE_KEY, self.ftx_secret_key)
+        return secret_key
+
     class Meta(AbstractUser.Meta):
         db_table = 'user_users'
         app_label = 'users'

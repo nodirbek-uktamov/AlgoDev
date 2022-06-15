@@ -7,7 +7,7 @@ import {MainContext} from '../contexts/MainContext'
 import {HuobiOrdersList} from "./huobi/HuobiOrdersList"
 import {Card} from "./common/Card"
 import {Select} from "./common/Select"
-import {getSymbolsList, getSymbolRequestOptions, HUOBI, FTX} from "../utils/exchanges";
+import {getSymbolsList, getSymbolRequestOptions, HUOBI, FTX} from "../exchanges/exchanges";
 import {FTXOrdersList} from "./ftx/FTXOrdersList";
 
 const defaultOptions = {
@@ -46,7 +46,7 @@ function Chart({trades, cancelAllTrades}) {
         wsCallbacksRef.current.setOrdersData('clear')
 
         disconnectHuobi()
-        wsCallbacksRef.current.setOrders([])
+        if (wsCallbacksRef.current.setOrders) wsCallbacksRef.current.setOrders([])
 
         localStorage.setItem('symbol', JSON.stringify(val))
         setSymbol(val)
@@ -61,7 +61,8 @@ function Chart({trades, cancelAllTrades}) {
             action: 'sub',
             ch: 'orders#' + val.value.toLowerCase(),
         }))
-        wsCallbacksRef.current.updateInitialOrders(val.value.toLowerCase())
+
+        if (wsCallbacksRef.current.updateInitialOrders) wsCallbacksRef.current.updateInitialOrders(val.value.toLowerCase())
 
         // eslint-disable-next-line
     }

@@ -2,6 +2,7 @@ import React, {createContext, useEffect, useRef, useState} from "react";
 import {parseGzip, WS_TYPES} from "../utils/websocket";
 import {useGetRequest, useLoad} from "../hooks/request";
 import {BALANCE, HUOBI_SYMBOL_SETTINGS} from "../urls";
+import {FTX, handleAccountWsMessage, HUOBI} from "../exchanges/exchanges";
 
 export const MainContext = createContext({})
 
@@ -28,8 +29,7 @@ export default function MainContextWrapper({children}) {
 
     const exchange = window.location.pathname.replace('/', '')
 
-    const balanceParams = useGetRequest({url: BALANCE})
-    console.log(symbol)
+    const balanceParams = useGetRequest({url: BALANCE.replace('{exchange}',exchange)})
 
     const symbolValue = symbol.value.toLowerCase()
 
@@ -130,62 +130,17 @@ export default function MainContextWrapper({children}) {
         accountWs.current = new WebSocket(response.url)
         accountWs.current.onopen = () => connect(response.params)
         accountWs.current.onclose = connectAccountWs
-        accountWs.current.addEventListener('message', handleMessageAccount)
-    }
-
-    function handleMessageAccount(event) {
-        const data = JSON.parse(event.data)
-
-        if (data.code === 200 && data.ch === 'auth') {
-            accountWs.current.send(JSON.stringify({
-                action: 'sub',
-                ch: 'accounts.update#2',
-            }))
-
-            accountWs.current.send(JSON.stringify({
-                action: 'sub',
-                ch: 'orders#' + symbolValue,
-            }))
-        }
-
-        if (data.action === 'ping') {
-            accountWs.current.send(JSON.stringify({action: 'pong', data: {ts: data.data.ts}}))
-        }
-
-        if (data.ch && data.ch.includes("orders") && data.action === 'push') {
-            const item = data.data
-            item.side = item.type.split('-')[0]
-            item.type = item.type.split('-')[1]
-            item.time = new Date(item.orderCreateTime).toLocaleTimeString('it-IT')
-            item.orderSize = item.orderSize || item.tradeVolume
-            item.orderPrice = item.orderPrice || item.tradePrice
-
-            wsCallbacksRef.current.setOrders(oldOrders => {
-                if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {
-                    return oldOrders.map(i => {
-                        if (i.orderId === data.data.orderId) return {...data.data, time: i.time}
-                        return i
-                    })
-                }
-
-                return [data.data, ...oldOrders]
-            })
-        }
-
-        if (data.action === 'push' && data.data.accountId === user.huobiSpotAccountId && wsCallbacksRef.current.setBalance) {
-            wsCallbacksRef.current.setBalance((oldBalance) => ({
-                ...oldBalance,
-                [data.data.currency]: Number(data.data.available)
-            }))
-        }
+        accountWs.current.addEventListener('message', handleAccountWsMessage(accountWs, symbol, wsCallbacksRef, user))
     }
 
     function connect(params) {
-        accountWs.current.send(JSON.stringify({
-            action: 'req',
-            ch: 'auth',
-            params,
-        }))
+        if (exchange === HUOBI) {
+            accountWs.current.send(JSON.stringify(params))
+        }
+
+        // if (exchange === FTX) {
+        //     accountWs.current.send(JSON.stringify({'op': 'subscribe', 'channel': 'orders'}))
+        // }
     }
 
     const contextValues = {

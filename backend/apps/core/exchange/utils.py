@@ -10,7 +10,7 @@ import requests
 base_uri = 'api.huobi.pro'
 
 
-def generate_auth_params_ws(access_key, secret_key):
+def generate_huobi_auth_params_ws(access_key, secret_key):
     timestamp = str(datetime.utcnow().isoformat())[0:19]
     params = {'accessKey': access_key,
               'signatureMethod': 'HmacSHA256',
@@ -30,7 +30,14 @@ def generate_auth_params_ws(access_key, secret_key):
     params['signature'] = signature
     params["authType"] = "api"
 
-    return {'url': url, 'params': params}
+    return {
+        'url': url,
+        'params': {
+            'action': 'req',
+            'ch': 'auth',
+            'params': params,
+        }
+    }
 
 
 def format_float(number, decimal_fields):

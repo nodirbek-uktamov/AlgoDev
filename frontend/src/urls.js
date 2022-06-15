@@ -10,7 +10,7 @@ export const CONFIRM = '/users/confirm'
 export const RESET_PASSWORD = '/users/reset_password'
 
 export const TRADE = '/main/trades/'
-export const BALANCE = '/main/balance/'
+export const BALANCE = '/main/ws-auth-params/{exchange}'
 export const OPEN_ORDERS = '/main/orders/{symbol}/'
 export const CANCEL_ALL_ORDERS = '/main/orders/cancel/'
 export const CANCEL_ORDER = '/main/orders/cancel/{id}'
@@ -25,6 +25,7 @@ export const HUOBI_SYMBOL_SETTINGS = `${HUOBI_DOMAIN}/v1/settings/common/symbols
 
 
 export const FTX_SYMBOLS = 'main/ftx/symbols/'
+export const FTX_POSITIONS_LIST = 'main/ftx/positions/'
 
 
 export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`

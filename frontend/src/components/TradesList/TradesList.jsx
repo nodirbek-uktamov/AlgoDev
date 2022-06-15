@@ -19,7 +19,7 @@ const renderColumns = (handleCancelTrade, cancelAllTrades) => {
         {
             title: "Symbol",
             key: 'symbol',
-            width: '15%',
+            width: '10%',
             render: (rowData) => {
                 return <span className='is-uppercase'>{rowData.symbol}</span>;
             }
@@ -54,7 +54,7 @@ const renderColumns = (handleCancelTrade, cancelAllTrades) => {
         {
             title: "Interval (seconds)",
             key: 'timeInterval',
-            width: '10%',
+            width: '15%',
             textAlign: 'center',
             render: ({loop, timeInterval}) => {
                 return <span>{loop ? timeInterval : 'not loop'}</span>;
@@ -63,7 +63,7 @@ const renderColumns = (handleCancelTrade, cancelAllTrades) => {
         {
             title: "Completed loops",
             key: 'completedLoops',
-            width: '10%',
+            width: '15%',
             textAlign: 'center',
             render: (rowData) => {
                 return <span>{rowData.completedLoops}</span>;

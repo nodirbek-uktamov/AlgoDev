@@ -22,6 +22,7 @@ export function Table({columns, tableData, noDisplayDataMessage = 'No data to di
                     ))}
                 </tr>
                 </thead>
+
                 <tbody className="table_bodyContainer">
                 {renderTableBody(columns, sortManager, displayConfig)}
                 </tbody>

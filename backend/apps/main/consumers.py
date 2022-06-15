@@ -3,7 +3,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 
-class Consumer(WebsocketConsumer):
+class LogsConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
         kwargs = self.scope['url_route']['kwargs']

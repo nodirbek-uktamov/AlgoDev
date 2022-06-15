@@ -1,4 +1,5 @@
 import {FTX_SYMBOLS, HUOBI_SYMBOLS} from "../urls";
+import {huobiPrivateWSHandleMessage} from "./huobi";
 
 export const HUOBI = 'huobi'
 export const FTX = 'ftx'
@@ -32,7 +33,6 @@ export function getSymbolsList(symbols, exchange) {
 }
 
 export function getSymbolRequestOptions(exchange) {
-    console.log(exchange)
     let options = {}
 
     if (exchange === HUOBI) {
@@ -51,3 +51,7 @@ export function getSymbolRequestOptions(exchange) {
     return options
 }
 
+export const handleAccountWsMessage = (exchange, ws, symbol, wsCallbacksRef, user) => (event) => {
+    if (exchange === HUOBI) huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, user)
+    if (exchange === FTX) console.log(event)
+}

@@ -1,5 +1,5 @@
 import React from 'react'
-import {FTX, HUOBI} from "../utils/exchanges";
+import {FTX, HUOBI} from "../exchanges/exchanges";
 import {useHistory} from "react-router-dom";
 
 export default function Tabs({...props}) {
