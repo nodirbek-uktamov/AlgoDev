@@ -4,28 +4,6 @@ import {Table} from "../../common/Table";
 import {FTX_POSITIONS_LIST} from "../../../urls";
 import {useLoad} from "../../../hooks/request";
 
-// {
-//     "future": "ETH-PERP",
-//     "size": 0.001,
-//     "side": "buy",
-//     "netSize": 0.001,
-//     "longOrderSize": 0,
-//     "shortOrderSize": 0,
-//     "cost": 1.092,
-//     "entryPrice": 1092,
-//     "unrealizedPnl": 0,
-//     "realizedPnl": 0.03732231,
-//     "initialMarginRequirement": 0.1,
-//     "maintenanceMarginRequirement": 0.03,
-//     "openSize": 0.001,
-//     "collateralUsed": 0.1092,
-//     "estimatedLiquidationPrice": 0,
-//     "recentAverageOpenPrice": 1054.7,
-//     "recentPnl": 0.0373,
-//     "recentBreakEvenPrice": 1054.7,
-//     "cumulativeBuySize": 0.001,
-//     "cumulativeSellSize": 0
-// }
 const renderColumns = () => {
     return [
         {
@@ -43,7 +21,7 @@ const renderColumns = () => {
             hasSorting: true,
             width: '0',
             render: (rowData) => {
-                return <span>{rowData.side}</span>;
+                return <span style={{color: rowData.side === 'buy' ? '#12b247' : '#E61739'}}>{rowData.side}</span>;
             }
         },
         {
@@ -88,7 +66,7 @@ const renderColumns = () => {
             hasSorting: true,
             width: '5rem',
             render: (rowData) => {
-                return <span>{rowData.recentPnl}</span>;
+                return <span style={{color: rowData.recentPnl < 0 ? '#E61739' : '#12b247'}}>{rowData.recentPnl}</span>;
             }
         },
         {

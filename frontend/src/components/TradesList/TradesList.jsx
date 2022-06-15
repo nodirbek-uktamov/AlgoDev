@@ -39,7 +39,7 @@ const renderColumns = (handleCancelTrade, cancelAllTrades) => {
             title: "Side",
             key: 'tradeType',
             render: (rowData) => {
-                return <span>{rowData.tradeType}</span>;
+                return <span  style={{color: rowData.tradeType === 'buy' ? '#12b247' : '#E61739'}}>{rowData.tradeType}</span>;
             }
         },
         {
