@@ -50,11 +50,15 @@ export default function MainContextWrapper({children}) {
         huobiWs.current.addEventListener('message', handleMessageMarketData)
 
         return () => {
-            huobiWs.current.onclose = () => {}
-            accountWs.current.onclose = () => {}
+            if (huobiWs.current) {
+                huobiWs.current.onclose = () => {}
+                huobiWs.current.close()
+            }
 
-            huobiWs.current.close()
-            accountWs.current.close()
+            if (accountWs.current) {
+                accountWs.current.onclose = () => {}
+                accountWs.current.close()
+            }
         }
         // eslint-disable-next-line
     }, [])
