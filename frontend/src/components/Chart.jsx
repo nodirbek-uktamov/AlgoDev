@@ -56,7 +56,7 @@ function Chart({
         if (!wsCallbacksRef.current) return
         if (!accountWs.current) return
 
-        wsCallbacksRef.current.setOrdersData('clear')
+        if (wsCallbacksRef.current.setOrdersData) wsCallbacksRef.current.setOrdersData('clear')
 
         disconnectHuobi()
         if (wsCallbacksRef.current.setOrders) wsCallbacksRef.current.setOrders([])
