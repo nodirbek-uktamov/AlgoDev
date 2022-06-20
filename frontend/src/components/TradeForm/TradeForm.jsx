@@ -11,7 +11,7 @@ import {Button} from "../common/Button";
 import {generateLadderPrice} from "../../utils/common";
 
 
-const formValues = JSON.parse(localStorage.getItem('savedForms') || '{}')
+const formValues = JSON.parse(localStorage.getItem('huobiSavedForms') || '{}')
 
 const tradeInitialValues = {
     quantity: '',
@@ -412,7 +412,7 @@ export default React.memo(({onUpdate}) => {
     }, [])
 
     async function onSubmit(data) {
-        localStorage.setItem('savedForms', JSON.stringify({...formValues, [symbol.value]: data}))
+        localStorage.setItem('huobisavedForms', JSON.stringify({...formValues, [symbol.value]: data}))
 
         const newData = {
             ...data,

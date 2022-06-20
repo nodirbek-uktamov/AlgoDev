@@ -1,6 +1,7 @@
 import time
 
 import requests
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
@@ -32,6 +33,4 @@ class PlaceFTXOrderView(GenericAPIView):
         data['size'] = data['quantity']
 
         response = ftx_request('/orders', 'POST', user._ftx_secret_key, user.ftx_api_key, json=data)
-        print(response)
-
-        return Response({'ok': True})
+        return Response({'success': response.get('success') or False})

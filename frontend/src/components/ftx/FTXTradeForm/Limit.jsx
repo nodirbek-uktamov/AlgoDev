@@ -16,7 +16,6 @@ const BOT_TYPES_LIMIT = [
 ]
 
 export const Limit = ({values, botType, setBotType, balance, setTradeType, loading}) => {
-    console.log(loading)
     const {symbol, symbolSettings, price} = useContext(MainContext)
     const {setFieldValue} = useFormikContext()
     const [sliderValue, setSliderValue] = useState(40);
@@ -37,25 +36,17 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, loadi
             renderMenuOption={o => o.title}
             color='white'/>
 
-        <div className="columns mb-0">
-            <div className="column pr-0">
-                {(balance[symbol.pair2.toLowerCase()] || 0).toFixed(2)} {symbol.pair2}
-            </div>
+        {/*<div className="columns mb-0">*/}
+        {/*    <div className="column pr-0">*/}
+        {/*        {(balance[symbol.pair2.toLowerCase()] || 0).toFixed(2)} {symbol.pair2}*/}
+        {/*    </div>*/}
 
-            <div className="column is-narrow">
-                {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbolSettings.tap || 0)} {symbol.pair1}
-            </div>
-        </div>
+        {/*    <div className="column is-narrow">*/}
+        {/*        {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbolSettings.tap || 0)} {symbol.pair1}*/}
+        {/*    </div>*/}
+        {/*</div>*/}
 
-        <div className={"columns mb-0"}>
-            <div className={"column is-narrow"} style={{width: '60%'}}>
-                <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair2})`}/>
-            </div>
-
-            <div className={"column is-narrow"} style={{position: 'relative', top: '80%', transform: 'translateY(-50%)'}}>
-                {initialPrice ? calcPair1Amount(values, botType, symbolSettings, initialPrice) : '—'} {symbol.pair1}
-            </div>
-        </div>
+        <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`}/>
 
         <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings)} valueType="percent"/>
 

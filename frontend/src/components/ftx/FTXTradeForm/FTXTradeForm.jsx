@@ -6,9 +6,10 @@ import { usePostRequest } from '../../../hooks/request'
 import { MainContext } from '../../../contexts/MainContext'
 import {FTX_PLACE_ORDER, TRADE} from '../../../urls'
 import { Tabs } from '../../common/Tabs/Tabs'
+import {useMessage} from "../../../hooks/message";
 
 
-const formValues = JSON.parse(localStorage.getItem('savedForms') || '{}')
+const formValues = JSON.parse(localStorage.getItem('ftxSavedForms') || '{}')
 
 const tradeInitialValues = {
     quantity: '',
@@ -61,12 +62,14 @@ export default React.memo(({onUpdate}) => {
     const [balance, setBalance] = useState({})
     const [tradeType, setTradeType] = useState('buy')
 
+    const [showMessage] = useMessage()
+
     useEffect(() => {
         wsCallbacksRef.current.setBalance = setBalance
     }, [])
 
     async function onSubmit(data) {
-        localStorage.setItem('savedForms', JSON.stringify({...formValues, [symbol.value]: data}))
+        localStorage.setItem('ftxSavedForms', JSON.stringify({...formValues, [symbol.value]: data}))
 
         const newData = {
             ...data,
@@ -77,7 +80,15 @@ export default React.memo(({onUpdate}) => {
 
         const extendedData = BotDataFactory[botType.key].create(newData, symbolSettings);
 
-        createTrade.request({url: FTX_PLACE_ORDER, data: extendedData})
+        const {response, error} = await createTrade.request({url: FTX_PLACE_ORDER, data: extendedData})
+
+        if (response) {
+            const success = response.success
+            showMessage(success ? "Successfully placed" : "Something went wrong", success ? "is-success" : "is-danger")
+            return
+        }
+
+        showMessage(JSON.stringify(error.data))
     }
 
     return (

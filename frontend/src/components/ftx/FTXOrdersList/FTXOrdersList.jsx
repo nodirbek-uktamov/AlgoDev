@@ -93,13 +93,13 @@ const renderColumns = () => {
 
 function FTXOrdersList() {
     const positions = useLoad({url: FTX_POSITIONS_LIST})
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            positions.request()
-        }, 4000)
-        return () => clearInterval(interval)
-    }, [])
+    //
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         positions.request()
+    //     }, 4000)
+    //     return () => clearInterval(interval)
+    // }, [])
 
     const items = ((positions.response && positions.response.result) || []).filter(i => i.size)
 
