@@ -80,7 +80,7 @@ const renderColumns = () => {
         },
         {
             title: "Break-even price",
-            key: 'avg_open_price',
+            key: 'recent_break_even_price',
             hasSorting: true,
             width: '5rem',
             render: (rowData) => {
@@ -101,7 +101,7 @@ function FTXOrdersList() {
         return () => clearInterval(interval)
     }, [])
 
-    const items = (positions.response ? positions.response.result : []).filter(i => i.size)
+    const items = ((positions.response && positions.response.result) || []).filter(i => i.size)
 
     return (
         <div className="orders-list_container">

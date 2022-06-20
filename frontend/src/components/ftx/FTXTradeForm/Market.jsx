@@ -1,25 +1,17 @@
 import React, {useContext, useEffect, useState} from 'react'
-import {Select} from "../common/Select";
-import {InputField} from "../../forms";
-import {Slider} from "../common/Slider";
-import {Button} from "../common/Button";
-import {MainContext} from "../../contexts/MainContext";
-import {LimitOptionsRenderer} from "./TradeForm";
 import {useFormikContext} from "formik";
-import {calcPair1Amount, onChangeSlider} from "../../utils/tradeForm";
+import { Select } from '../../common/Select'
+import { InputField } from '../../../forms'
+import { calcPair1Amount, onChangeSlider } from '../../../utils/tradeForm'
+import { FTXLimitOptionsRenderer } from './FTXTradeForm'
+import { Slider } from '../../common/Slider'
+import { Button } from '../../common/Button'
+import { MainContext } from '../../../contexts/MainContext'
 
 const BOT_TYPES_MARKET = [
     {
         title: 'Market',
         key: 'market'
-    },
-    {
-        title: 'Twap',
-        key: 'twap'
-    },
-    {
-        title: 'StopLoss',
-        key: 'stopLoss'
     },
 ]
 
@@ -67,7 +59,7 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
 
         <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings)} valueType="percent"/>
 
-        {botType.key && LimitOptionsRenderer[botType.key].render(values, botType.key)}
+        {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, botType.key)}
 
         {botType.key !== 'hft' && (
             <div className="is-flex" style={{gap: '1.1rem'}}>
@@ -82,8 +74,7 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
                     text={'Sell / Short'}
                     onClick={() => setTradeType('sell')}
                     type="submit"
-                    className="ml-1"
-                />
+                    className="ml-1" />
             </div>
         )}
     </div>

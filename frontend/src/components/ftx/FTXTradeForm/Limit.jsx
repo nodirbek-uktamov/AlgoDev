@@ -1,44 +1,36 @@
 import React, {useContext, useEffect, useState} from 'react'
-import {Select} from "../common/Select";
-import {InputField} from "../../forms";
-import {Slider} from "../common/Slider";
-import {Button} from "../common/Button";
-import {MainContext} from "../../contexts/MainContext";
-import {LimitOptionsRenderer} from "./TradeForm";
 import {useFormikContext} from "formik";
-import {calcPair1Amount, onChangeSlider} from "../../utils/tradeForm";
+import { Slider } from '../../common/Slider'
+import { calcPair1Amount, onChangeSlider } from '../../../utils/tradeForm'
+import { FTXLimitOptionsRenderer } from './FTXTradeForm'
+import { InputField } from '../../../forms'
+import { MainContext } from '../../../contexts/MainContext'
+import { Select } from '../../common/Select'
+import {Button} from "../../common/Button";
 
-const BOT_TYPES_MARKET = [
+const BOT_TYPES_LIMIT = [
     {
-        title: 'Market',
-        key: 'market'
-    },
-    {
-        title: 'Twap',
-        key: 'twap'
-    },
-    {
-        title: 'StopLoss',
-        key: 'stopLoss'
+        title: 'Limit',
+        key: 'limit'
     },
 ]
 
-export const Market = ({values, botType, setBotType, balance, setTradeType, tab}) => {
+export const Limit = ({values, botType, setBotType, balance, setTradeType, loading}) => {
+    console.log(loading)
     const {symbol, symbolSettings, price} = useContext(MainContext)
     const {setFieldValue} = useFormikContext()
-
     const [sliderValue, setSliderValue] = useState(40);
 
     const initialPrice = price[symbol.value.toLowerCase()] ? price[symbol.value.toLowerCase()].ask : null
 
     useEffect(() => {
-        setBotType(BOT_TYPES_MARKET[0])
-    }, [tab]);
+        setBotType(BOT_TYPES_LIMIT[0])
+    }, []);
 
     return <div style={{display: 'grid', gap: '1.1rem'}}>
         <Select
             style={{marginTop: '1.1rem'}}
-            options={BOT_TYPES_MARKET}
+            options={BOT_TYPES_LIMIT}
             selectedOption={botType}
             setSelectedOption={setBotType}
             renderSelectedOption={o => o.title}
@@ -51,11 +43,11 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
             </div>
 
             <div className="column is-narrow">
-                {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbolSettings.tap)} {symbol.pair1}
+                {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbolSettings.tap || 0)} {symbol.pair1}
             </div>
         </div>
 
-        <div className="columns mb-0">
+        <div className={"columns mb-0"}>
             <div className={"column is-narrow"} style={{width: '60%'}}>
                 <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair2})`}/>
             </div>
@@ -67,23 +59,19 @@ export const Market = ({values, botType, setBotType, balance, setTradeType, tab}
 
         <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings)} valueType="percent"/>
 
-        {botType.key && LimitOptionsRenderer[botType.key].render(values, botType.key)}
+        {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, symbolSettings, botType.key)}
 
         {botType.key !== 'hft' && (
             <div className="is-flex" style={{gap: '1.1rem'}}>
-                <Button
-                    color={'success'}
-                    text={'Buy / Long'}
-                    onClick={() => setTradeType('buy')}
-                    type="submit"/>
+                <Button isLoading={loading} color={'success'} text={'Buy / Long'} onClick={() => setTradeType('buy')} type="submit"/>
 
                 <Button
+                    isLoading={loading}
                     color={'danger'}
                     text={'Sell / Short'}
                     onClick={() => setTradeType('sell')}
                     type="submit"
-                    className="ml-1"
-                />
+                    className="ml-1" />
             </div>
         )}
     </div>

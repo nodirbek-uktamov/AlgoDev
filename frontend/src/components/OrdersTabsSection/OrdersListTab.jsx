@@ -81,16 +81,20 @@ export function OrdersListTab() {
                 onChange={onChangeAmountLimit}/>
         </div>
 
-        <tr className="table_head">
-            {columns.map((column) => (
-                <th
-                    className="table_headerCell"
-                    style={{width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700}}
-                    key={column.key}>
-                    {column.title}
-                </th>
-            ))}
-        </tr>
+        <table>
+            <tbody>
+                <tr className="table_head">
+                    {columns.map((column) => (
+                        <th
+                            className="table_headerCell"
+                            style={{width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700}}
+                            key={column.key}>
+                            {column.title}
+                        </th>
+                    ))}
+                </tr>
+            </tbody>
+        </table>
 
         <div className="p-3" style={{backgroundColor: orders.length > 0 ? '#000' : null}}>
             {orders.map((item, index) => (

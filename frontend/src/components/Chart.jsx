@@ -1,14 +1,14 @@
-import React, {useContext, useState} from 'react'
+import React, { useContext, useState } from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
-import {useLoad} from '../hooks/request'
-import {intervals} from '../utils/intervals'
-import {TradesList} from '../components/TradesList'
-import {MainContext} from '../contexts/MainContext'
-import {HuobiOrdersList} from "./huobi/HuobiOrdersList"
-import {Card} from "./common/Card"
-import {Select} from "./common/Select"
-import {getSymbolsList, getSymbolRequestOptions, HUOBI, FTX} from "../exchanges/exchanges";
-import {FTXOrdersList} from "./ftx/FTXOrdersList";
+import { useLoad } from '../hooks/request'
+import { intervals } from '../utils/intervals'
+import { TradesList } from '../components/TradesList'
+import { MainContext } from '../contexts/MainContext'
+import { HuobiOrdersList } from './huobi/HuobiOrdersList'
+import { Card } from './common/Card'
+import { Select } from './common/Select'
+import { getSymbolsList, getSymbolRequestOptions, HUOBI, FTX } from '../exchanges/exchanges'
+import { FTXOrdersList } from './ftx/FTXOrdersList'
 
 const defaultOptions = {
     autosize: true,
@@ -23,25 +23,38 @@ const defaultOptions = {
     hide_top_toolbar: false,
     allow_symbol_change: false,
     container_id: 'tradingview_1a5f8',
-    backgroundColor: "#abcabc",
+    backgroundColor: '#abcabc',
 }
 
-function Chart({trades, cancelAllTrades}) {
-    const {exchange} = useContext(MainContext)
+function Chart({
+    trades,
+    cancelAllTrades
+}) {
+    const { exchange } = useContext(MainContext)
 
     const symbols = useLoad(getSymbolRequestOptions(exchange))
 
-    const {symbolValue, wsCallbacksRef, disconnectHuobi, setSymbol, connectHuobi, accountWs} = useContext(MainContext)
-    const [interval, setInterval] = useState({label: "1 hour", value: 60})
-    const [selectedSymbol, setSelectedSymbol] = useState({});
+    const {
+        symbolValue,
+        wsCallbacksRef,
+        disconnectHuobi,
+        setSymbol,
+        connectHuobi,
+        accountWs
+    } = useContext(MainContext)
+    const [interval, setInterval] = useState({
+        label: '1 hour',
+        value: 60
+    })
+    const [selectedSymbol, setSelectedSymbol] = useState({})
 
     const symbolsList = getSymbolsList(symbols.response || {}, exchange)
 
-    const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0];
+    const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0]
 
     const onChange = (val) => {
-        if (!wsCallbacksRef.current) return;
-        if (!accountWs.current) return;
+        if (!wsCallbacksRef.current) return
+        if (!accountWs.current) return
 
         wsCallbacksRef.current.setOrdersData('clear')
 
@@ -70,7 +83,11 @@ function Chart({trades, cancelAllTrades}) {
     return (
         <div>
             <Card color='black'>
-                <div style={{display: 'flex', gap: '1.1rem', marginBottom: '1.1rem'}}>
+                <div style={{
+                    display: 'flex',
+                    gap: '1.1rem',
+                    marginBottom: '1.1rem'
+                }}>
                     <Select
                         enableSearch
                         searchBy={o => o.label}
@@ -82,7 +99,7 @@ function Chart({trades, cancelAllTrades}) {
                         defaultValue={defaultSymbol}
                         selectedOption={selectedSymbol}
                         renderSelectedOption={o => o.label}
-                        renderMenuOption={o => o.label} />
+                        renderMenuOption={o => o.label}/>
 
                     <Select
                         defaultValue={intervals[6]}
@@ -93,7 +110,7 @@ function Chart({trades, cancelAllTrades}) {
                         setSelectedOption={setInterval}/>
                 </div>
 
-                <div style={{height: '21.5rem'}}>
+                <div style={{ height: '21.5rem' }}>
                     <TradingViewWidget
                         {...defaultOptions}
                         symbol={`${exchange.toUpperCase()}:${symbolValue.toUpperCase()}`}
@@ -102,7 +119,13 @@ function Chart({trades, cancelAllTrades}) {
             </Card>
 
             <Card dense={false}>
-                <TradesList cancelAllTrades={cancelAllTrades} onCancel={trades.request} trades={trades.response || []}/>
+                {exchange === HUOBI && (
+                    <TradesList
+                        cancelAllTrades={cancelAllTrades}
+                        onCancel={trades.request}
+                        trades={trades.response || []}/>
+                )}
+
                 {exchange === HUOBI && <HuobiOrdersList />}
                 {exchange === FTX && <FTXOrdersList />}
             </Card>

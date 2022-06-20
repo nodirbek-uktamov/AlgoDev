@@ -20,8 +20,9 @@ urlpatterns = [
     path('limit/', LimitOrderView.as_view(), name='limit'),
 
     path('ftx/', include([
-        path('symbols/', ftx.SymbolsListView.as_view(), name='limit'),
-        path('positions/', ftx.PositionsListView.as_view(), name='limit'),
+        path('symbols/', ftx.SymbolsListView.as_view(), name='symbols'),
+        path('positions/', ftx.PositionsListView.as_view(), name='positions'),
+        path('place/', ftx.PlaceFTXOrderView.as_view(), name='place'),
     ])),
 ]
 

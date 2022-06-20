@@ -26,6 +26,7 @@ export const HUOBI_SYMBOL_SETTINGS = `${HUOBI_DOMAIN}/v1/settings/common/symbols
 
 export const FTX_SYMBOLS = 'main/ftx/symbols/'
 export const FTX_POSITIONS_LIST = 'main/ftx/positions/'
+export const FTX_PLACE_ORDER = 'main/ftx/place/'
 
 
 export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`

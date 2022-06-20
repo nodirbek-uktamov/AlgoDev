@@ -20,11 +20,15 @@ def generate_ftx_auth_params_ws(access_key, secret_key):
     }
 
 
-def ftx_request(endpoint, secret_key, api_key):
+def ftx_request(endpoint, method, secret_key, api_key, json=None):
     ts = int(time.time() * 1000)
-    request = Request('GET', FTX_REST_API + endpoint)
+    request = Request(method, FTX_REST_API + endpoint, json=json)
     prepared = request.prepare()
     signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode()
+
+    if prepared.body:
+        signature_payload += prepared.body
+
     signature = hmac.new(secret_key.encode(), signature_payload, 'sha256').hexdigest()
 
     prepared.headers['FTX-KEY'] = api_key

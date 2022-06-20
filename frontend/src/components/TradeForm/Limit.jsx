@@ -5,7 +5,7 @@ import {Slider} from "../common/Slider";
 import {Button} from "../common/Button";
 import {MainContext} from "../../contexts/MainContext";
 import {LimitOptionsRenderer} from "./TradeForm";
-import {calcPair1Amount, onChangeSlider} from "./utils";
+import {calcPair1Amount, onChangeSlider} from "../../utils/tradeForm";
 import {useFormikContext} from "formik";
 import {Ladder} from "./Ladder";
 
@@ -89,9 +89,7 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
 
         {botType.key !== 'hft' && (
             <div className="is-flex" style={{gap: '1.1rem'}}>
-                <Button color={'success'} text={'Buy / Long'} onClick={() => setTradeType('buy')}
-                        type="submit"
-                />
+                <Button color={'success'} text={'Buy / Long'} onClick={() => setTradeType('buy')} type="submit"/>
 
                 <Button
                     color={'danger'}

@@ -2,7 +2,6 @@ import React, {useContext, useEffect} from 'react';
 import {Button} from "../Button";
 import {classnames} from "../../../utils/string";
 import './Tabs.scss';
-import {useFormikContext} from "formik";
 import {MainContext} from "../../../contexts/MainContext";
 
 export function Tabs({tabs, value = 0, onChange, children, className, setFieldValue, ...rest}) {
