@@ -5,9 +5,9 @@ from django.conf import settings
 from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api/v1/', include([
+        path('admin/', admin.site.urls),
         path('swagger/', include_docs_urls(title='Checklist pro API', permission_classes=[], authentication_classes=[])),
         path('core/', include(('core.urls', 'core'), namespace='core')),
         path('users/', include(('users.urls', 'user'), namespace='users')),
@@ -18,5 +18,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
