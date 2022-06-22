@@ -27,6 +27,7 @@ class UserSerializer(ModelSerializer):
         instance.huobi_secret_key = data.get('huobi_secret_key') or instance.huobi_secret_key
         instance.ftx_api_key = data.get('ftx_api_key') or instance.ftx_api_key
         instance.ftx_secret_key = data.get('ftx_secret_key') or instance.ftx_secret_key
+        instance.ftx_sub_account = data.get('ftx_sub_account')
         instance.save()
         return instance
 
@@ -43,6 +44,7 @@ class UserSerializer(ModelSerializer):
             'huobi_secret_key',
             'ftx_api_key',
             'ftx_secret_key',
+            'ftx_sub_account',
         )
         extra_kwargs = {
             'email': {'read_only': True},

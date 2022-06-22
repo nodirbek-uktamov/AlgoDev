@@ -129,11 +129,16 @@ export default function MainContextWrapper({children}) {
 
     async function connectAccountWs() {
         const {response, success} = await balanceParams.request()
+        console.log(response, success)
         if (!success) return
 
         accountWs.current = new WebSocket(response.url)
         accountWs.current.onopen = () => connect(response.params)
-        accountWs.current.onclose = connectAccountWs
+        accountWs.current.onclose = () => {
+            setTimeout(() => {
+                connectAccountWs()
+            }, 2000)
+        }
         accountWs.current.addEventListener('message', handleAccountWsMessage(accountWs, symbol, wsCallbacksRef, user))
     }
 

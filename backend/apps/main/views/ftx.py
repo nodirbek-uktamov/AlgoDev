@@ -18,7 +18,7 @@ class SymbolsListView(GenericAPIView):
 class PositionsListView(GenericAPIView):
     def get(self, request):
         user = request.user
-        response = ftx_request('/positions?showAvgPrice=true', 'GET', user._ftx_secret_key, user.ftx_api_key)
+        response = ftx_request('/positions?showAvgPrice=true', 'GET', user)
         return Response(response)
 
 
@@ -32,5 +32,5 @@ class PlaceFTXOrderView(GenericAPIView):
         data['side'] = data['trade_type']
         data['size'] = data['quantity']
 
-        response = ftx_request('/orders', 'POST', user._ftx_secret_key, user.ftx_api_key, json=data)
+        response = ftx_request('/orders', 'POST', user, json=data)
         return Response({'success': response.get('success') or False})

@@ -17,10 +17,12 @@ export default function Main() {
         huobiApiKey: '',
         huobiSecretKey: '',
         ftxApiKey: '',
-        ftxSecretKey: ''
+        ftxSecretKey: '',
+        ftxSubAccount: (user && user.ftxSubAccount) || '',
     }
 
     function onSubmit(data, actions) {
+        console.log(data)
         userSettings.request({data})
         actions.resetForm()
         userDetail.request()
@@ -32,7 +34,7 @@ export default function Main() {
 
             <div style={{padding: '1.1rem'}}>
                 {user && (
-                    <Formik onSubmit={onSubmit} initialValues={initialValues}>
+                    <Formik onSubmit={onSubmit} enableReinitialize initialValues={initialValues}>
                         <Form>
                             <div className="columns is-multiline">
                                 <div className="column  is-half">
@@ -64,6 +66,11 @@ export default function Main() {
                                             className="input_main has-text-white"
                                             name="ftxSecretKey"
                                             label={`Secret key` + (user.ftxSecretKey ? " (Already exists)" : '')}/>
+
+                                        <InputOld
+                                            className="input_main has-text-white"
+                                            name="ftxSubAccount"
+                                            label="Sub account" />
                                     </Card>
                                 </div>
 

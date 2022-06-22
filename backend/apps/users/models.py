@@ -25,6 +25,7 @@ class User(AbstractUser):
 
     ftx_api_key = models.CharField(max_length=255, null=True, blank=True)
     ftx_secret_key = models.CharField(max_length=255, null=True, blank=True)
+    ftx_sub_account = models.CharField(max_length=255, null=True, blank=True)
 
     decode_key = models.CharField(null=True, blank=True, max_length=255)
 
