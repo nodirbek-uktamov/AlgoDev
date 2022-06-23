@@ -1,9 +1,11 @@
-import React, {useCallback} from 'react'
+import React, {useCallback, useContext} from 'react'
 import {InputField} from "../../forms";
 import {useFormikContext} from "formik";
 import {generateLadderPrice} from "../../utils/common";
+import {MainContext} from "../../contexts/MainContext";
 
-export const Ladder = ({ symbolSettings }) => {
+export const Ladder = () => {
+    const {symbol} = useContext(MainContext)
     const { values } = useFormikContext()
 
     const ladderPriceInput = useCallback((index, newValues) => {
@@ -13,15 +15,15 @@ export const Ladder = ({ symbolSettings }) => {
                 name={`ladder_item_price_${index + 1}`}
                 type="number"
                 step="0.00000001"
-                value={values[`ladder_item_price_${index + 1}`] || generateLadderPrice(newValues, index + 1).toFixed(symbolSettings.tpp)}
+                value={values[`ladder_item_price_${index + 1}`] || generateLadderPrice(newValues, index + 1).toFixed(symbol.tpp)}
                 className="pl-3 pr-0"/>
         )
-    }, [values, symbolSettings])
+    }, [values, symbol])
 
     return Array.from(Array(Math.floor(values.ladder_trades_count || 0))).map((_, index) => (
         <div className="columns is-mobile m-0 p-0">
             <div className="column p-0 mr-1">
-                {symbolSettings.tpp && ladderPriceInput(index, values)}
+                {symbol.tpp && ladderPriceInput(index, values)}
             </div>
 
             <div className="column is-narrow p-0 mr-1">

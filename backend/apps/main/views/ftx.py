@@ -1,7 +1,7 @@
 import time
 
 import requests
-from rest_framework.exceptions import ValidationError
+import decimal
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
@@ -12,6 +12,14 @@ from main.serializers.ftx import FTXOrderPlaceSerializer
 class SymbolsListView(GenericAPIView):
     def get(self, request):
         response = requests.get(FTX_REST_API + '/markets').json()
+
+        for i in response.get('result', []):
+            i['priceIncrement'] = abs(decimal.Decimal(str(i['priceIncrement'])).as_tuple().exponent)
+            i['sizeIncrement'] = abs(decimal.Decimal(str(i['sizeIncrement'])).as_tuple().exponent)
+
+            if i['name'] == 'ETH-PERP':
+                print(i)
+
         return Response(response)
 
 

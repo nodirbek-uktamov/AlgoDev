@@ -1,14 +1,16 @@
-import React, { useContext, useState } from 'react'
+import React, {useContext, useState} from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
-import { useLoad } from '../hooks/request'
-import { intervals } from '../utils/intervals'
-import { TradesList } from '../components/TradesList'
-import { MainContext } from '../contexts/MainContext'
-import { HuobiOrdersList } from './huobi/HuobiOrdersList'
-import { Card } from './common/Card'
-import { Select } from './common/Select'
-import { getSymbolsList, getSymbolRequestOptions, HUOBI, FTX } from '../exchanges/exchanges'
-import { FTXOrdersList } from './ftx/FTXOrdersList'
+import {useLoad} from '../hooks/request'
+import {intervals} from '../utils/intervals'
+import {TradesList} from '../components/TradesList'
+import {MainContext} from '../contexts/MainContext'
+import {HuobiOrdersList} from './huobi/HuobiOrdersList'
+import {Card} from './common/Card'
+import {Select} from './common/Select'
+import {getSymbolsList, getSymbolRequestOptions, HUOBI, FTX} from '../exchanges/exchanges'
+import {FTXOrdersList} from './ftx/FTXOrdersList'
+import {huobiOnChangeSymbol} from "../exchanges/huobi";
+import {ftxOnChangeSymbol} from "../exchanges/ftx";
 
 const defaultOptions = {
     autosize: true,
@@ -27,12 +29,11 @@ const defaultOptions = {
 }
 
 function Chart({
-    trades,
-    cancelAllTrades
-}) {
-    const { exchange } = useContext(MainContext)
+                   trades,
+                   cancelAllTrades
+               }) {
+    const {exchange} = useContext(MainContext)
 
-    const symbols = useLoad(getSymbolRequestOptions(exchange))
 
     const {
         symbolValue,
@@ -40,62 +41,45 @@ function Chart({
         disconnectHuobi,
         setSymbol,
         connectHuobi,
-        accountWs
+        privateWs,
+        symbolsList
     } = useContext(MainContext)
+
     const [interval, setInterval] = useState({
         label: '1 hour',
         value: 60
     })
-    const [selectedSymbol, setSelectedSymbol] = useState({})
 
-    const symbolsList = getSymbolsList(symbols.response || {}, exchange)
+    const [selectedSymbol, setSelectedSymbol] = useState({})
 
     const defaultSymbol = symbolsList.filter(s => s.value === symbolValue.toUpperCase())[0]
 
-    const onChange = (val) => {
-        if (!wsCallbacksRef.current) return
-        if (!accountWs.current) return
+    const onChange = (value) => {
+        setSelectedSymbol(value)
 
-        if (wsCallbacksRef.current.setOrdersData) wsCallbacksRef.current.setOrdersData('clear')
+        if (exchange === HUOBI) huobiOnChangeSymbol(
+            value,
+            connectHuobi,
+            symbolValue,
+            exchange,
+            setSymbol,
+            wsCallbacksRef,
+            privateWs,
+            disconnectHuobi
+        )
 
-        disconnectHuobi()
-        if (wsCallbacksRef.current.setOrders) wsCallbacksRef.current.setOrders([])
-
-        localStorage.setItem('symbol', JSON.stringify(val))
-        setSymbol(val)
-        connectHuobi(val?.value?.toLowerCase())
-
-        accountWs.current.send(JSON.stringify({
-            action: 'unsub',
-            ch: 'orders#' + symbolValue,
-        }))
-
-        accountWs.current.send(JSON.stringify({
-            action: 'sub',
-            ch: 'orders#' + val.value.toLowerCase(),
-        }))
-
-        if (wsCallbacksRef.current.updateInitialOrders) wsCallbacksRef.current.updateInitialOrders(val.value.toLowerCase())
-
-        // eslint-disable-next-line
+        if (exchange === FTX) ftxOnChangeSymbol(value, connectHuobi, symbolValue, exchange, setSymbol)
     }
 
     return (
         <div>
             <Card color='black'>
-                <div style={{
-                    display: 'flex',
-                    gap: '1.1rem',
-                    marginBottom: '1.1rem'
-                }}>
+                <div style={{display: 'flex', gap: '1.1rem', marginBottom: '1.1rem'}}>
                     <Select
                         enableSearch
                         searchBy={o => o.label}
                         options={symbolsList}
-                        setSelectedOption={o => {
-                            setSelectedSymbol(o)
-                            onChange(o)
-                        }}
+                        setSelectedOption={onChange}
                         defaultValue={defaultSymbol}
                         selectedOption={selectedSymbol}
                         renderSelectedOption={o => o.label}
@@ -110,10 +94,10 @@ function Chart({
                         setSelectedOption={setInterval}/>
                 </div>
 
-                <div style={{ height: '21.5rem' }}>
+                <div style={{height: '21.5rem'}}>
                     <TradingViewWidget
                         {...defaultOptions}
-                        symbol={`${exchange.toUpperCase()}:${symbolValue.toUpperCase()}`}
+                        symbol={`${exchange.toUpperCase()}:${symbolValue.replace('-', '').toUpperCase()}`}
                         interval={interval?.value}/>
                 </div>
             </Card>
@@ -126,8 +110,8 @@ function Chart({
                         trades={trades.response || []}/>
                 )}
 
-                {exchange === HUOBI && <HuobiOrdersList />}
-                {exchange === FTX && <FTXOrdersList />}
+                {exchange === HUOBI && <HuobiOrdersList/>}
+                {exchange === FTX && <FTXOrdersList/>}
             </Card>
         </div>
     )

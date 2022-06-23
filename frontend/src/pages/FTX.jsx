@@ -42,13 +42,13 @@ export default function FTX() {
                     </div>
                 </div>
 
-                <div style={{width: '80rem'}}> {/*  maxWidth: '47rem', minWidth: '47rem'  */}
+                <div style={{maxWidth: '47rem', minWidth: '47rem'}}>
                     <Chart cancelAllTrades={cancelAllTrades} trades={trades}/>
                 </div>
 
-                {/*<div>*/}
-                {/*    <OrdersTabsSection exchange="ftx" botPrices={botPrices}/>*/}
-                {/*</div>*/}
+                <div>
+                    <OrdersTabsSection exchange="ftx" botPrices={botPrices}/>
+                </div>
             </div>
         </MainContextWrapper>
     )

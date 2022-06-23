@@ -41,7 +41,7 @@ const BOT_TYPES_LIMIT = [
 ]
 
 export const Limit = ({values, botType, setBotType, balance, setTradeType, tab}) => {
-    const {symbol, symbolSettings, price} = useContext(MainContext)
+    const {symbol, price} = useContext(MainContext)
     const {setFieldValue} = useFormikContext()
     const [sliderValue, setSliderValue] = useState(40);
 
@@ -67,7 +67,7 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
             </div>
 
             <div className="column is-narrow">
-                {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbolSettings.tap || 0)} {symbol.pair1}
+                {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbol.tap || 0)} {symbol.pair1}
             </div>
         </div>
 
@@ -77,15 +77,15 @@ export const Limit = ({values, botType, setBotType, balance, setTradeType, tab})
             </div>
 
             <div className={"column is-narrow"} style={{position: 'relative', top: '80%', transform: 'translateY(-50%)'}}>
-                {initialPrice ? calcPair1Amount(values, botType, symbolSettings, initialPrice) : '—'} {symbol.pair1}
+                {initialPrice ? calcPair1Amount(values, botType, symbol, initialPrice) : '—'} {symbol.pair1}
             </div>
         </div>
 
-        <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings)} valueType="percent"/>
+        <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbol)} valueType="percent"/>
 
-        {botType.key && LimitOptionsRenderer[botType.key].render(values, symbolSettings, botType.key)}
+        {botType.key && LimitOptionsRenderer[botType.key].render(values, symbol, botType.key)}
 
-        {botType.key === 'ladder' && <Ladder symbolSettings={symbolSettings} />}
+        {botType.key === 'ladder' && <Ladder />}
 
         {botType.key !== 'hft' && (
             <div className="is-flex" style={{gap: '1.1rem'}}>

@@ -3,7 +3,7 @@ import {Input} from "../common/Input";
 import {MainContext} from "../../contexts/MainContext";
 
 export function OrdersListTab() {
-    const {wsCallbacksRef, symbol, symbolSettings} = useContext(MainContext)
+    const {wsCallbacksRef, symbol} = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
 
@@ -46,11 +46,11 @@ export function OrdersListTab() {
                 </div>
 
                 <div style={{color}} className="column p-0">
-                    {item.price.toFixed(symbolSettings.tpp || 0)}
+                    {item.price.toFixed(symbol.tpp || 0)}
                 </div>
 
                 <div className="column p-0" style={{color, textAlign: 'end'}}>
-                    {parseFloat(item.amount).toFixed(symbolSettings.tap || 0)}
+                    {parseFloat(item.amount).toFixed(symbol.tap || 0)}
                 </div>
             </div>
         )

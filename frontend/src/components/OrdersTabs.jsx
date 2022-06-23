@@ -9,9 +9,9 @@ import {MainContext} from "../contexts/MainContext";
  * @deprecated
  */
 export default function OrdersTabs({ botPrices }) {
-    const { symbolSettings, huobiWs,setDepthType, depthType, symbolValue } = useContext(MainContext)
+    const { publicWs,setDepthType, depthType, symbolValue, symbol } = useContext(MainContext)
     const [ordersTab, setOrdersTab] = useState('list')
-    const { tpp  } = symbolSettings
+    const { tpp  } = symbol
 
     const depthSteps = [
         { label: (0.1 ** tpp).toFixed(tpp), value: 'step0' },
@@ -23,9 +23,9 @@ export default function OrdersTabs({ botPrices }) {
     ]
 
     function onChangeDepthType({ value }) {
-        huobiWs.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', depthType) }))
+        publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', depthType) }))
         setDepthType(value)
-        huobiWs.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value) }))
+        publicWs.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value) }))
     }
 
     return (

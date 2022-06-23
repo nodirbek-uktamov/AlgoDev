@@ -5,7 +5,7 @@ import {MainContext} from "../contexts/MainContext";
  * @deprecated
  */
 export default function Orders() {
-    const {wsCallbacksRef, symbol, symbolSettings} = useContext(MainContext)
+    const {wsCallbacksRef, symbol} = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '1')
 
@@ -36,10 +36,10 @@ export default function Orders() {
         return (
             <div className="columns m-0 p-0" style={{ color: item.direction === 'sell' ? '#FA4D56' : '#00B464' }}>
                 <p style={{ width: 100 }} className="column is-narrow m-0 p-0">
-                    {item.price.toFixed(symbolSettings.tpp || 0)}
+                    {item.price.toFixed(symbol.tpp || 0)}
                 </p>
 
-                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(symbolSettings.tap || 0)}</p>
+                <p className="column m-0 p-0">{parseFloat(item.amount).toFixed(symbol.tap || 0)}</p>
             </div>
         )
     }
