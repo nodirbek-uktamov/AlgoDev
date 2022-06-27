@@ -115,8 +115,8 @@ pip3 --version
 7. Enable config `sudo ln -s /etc/nginx/sites-available/algo /etc/nginx/sites-enabled`
 8. Check `sudo nginx -t`
 9. Restart `sudo systemctl restart nginx`
-   1. Setup bot:
-   Open `nano /etc/systemd/system/bot.service` and put
+   1. Setup huobi bot:
+   Open `nano /etc/systemd/system/huobi_bot.service` and put
 
     ```
     [Unit]
@@ -126,12 +126,28 @@ pip3 --version
     User=root
     Group=www-data
     WorkingDirectory=/home/terminal/backend
-    ExecStart=python3 manage.py bot
+    ExecStart=python3 manage.py huobi_bot
     
     [Install]
     WantedBy=multi-user.target
     ```
-11. Start/Restart bot: `sudo systemctl restart bot`
+   2. Setup ftx bot:
+   Open `nano /etc/systemd/system/ftx_bot.service` and put
+
+    ```
+    [Unit]
+    Description=bot
+    After=network.target
+    [Service]
+    User=root
+    Group=www-data
+    WorkingDirectory=/home/terminal/backend
+    ExecStart=python3 manage.py ftx_bot
+    
+    [Install]
+    WantedBy=multi-user.target
+    ```
+11. Start/Restart bot: `sudo systemctl restart huobi_bot && sudo systemctl restart ftx_bot`
 12. Setup redis for logs:   
 Install docker
     ```
