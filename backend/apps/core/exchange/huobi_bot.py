@@ -37,7 +37,6 @@ class HuobiBot:
             min_price = i.get('min-order-value')
 
             precisions[i.get('symbol')] = {'amount': amount_precision, 'price': price_precision, 'min_price': min_price}
-            print(min_price, type(min_price))
 
             symbol_precisions.append(
                 SymbolSetting(
@@ -537,8 +536,15 @@ class HuobiBot:
         user, costs, precisions = args
 
         try:
+            print('asd')
             client = CustomHuobiClient(access_key=user.huobi_api_key, secret_key=user._huobi_secret_key)
-            orders = client.open_orders().data
+            try:
+                orders = client.open_orders().data
+            except Exception as e:
+                user.trades.update(is_completed=True)
+                send_log(user.id, red('Api key or secret key is incorrect. Orders canceled'))
+                return []
+
             account_id = user.huobi_spot_account_id
 
             trades = user.trades.filter(

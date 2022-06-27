@@ -33,18 +33,18 @@ class FTXBot:
 
             precisions[i.get('name')] = {'amount': amount_precision, 'price': price_precision, 'min_price': min_price}
 
-        #     symbol_precisions.append(
-        #         SymbolSetting(
-        #             amount_precision=amount_precision,
-        #             price_precision=price_precision,
-        #             min_price=min_price,
-        #             symbol=i.get('name'),
-        #             exchange=FTX
-        #         )
-        #     )
-        #
-        # SymbolSetting.objects.filter(exchange=FTX).delete()
-        # SymbolSetting.objects.bulk_create(symbol_precisions)
+            symbol_precisions.append(
+                SymbolSetting(
+                    amount_precision=amount_precision,
+                    price_precision=price_precision,
+                    min_price=min_price,
+                    symbol=i.get('name'),
+                    exchange=FTX
+                )
+            )
+
+        SymbolSetting.objects.filter(exchange=FTX).delete()
+        SymbolSetting.objects.bulk_create(symbol_precisions)
 
         while not time.sleep(0.1):
             started_at = timezone.now()
