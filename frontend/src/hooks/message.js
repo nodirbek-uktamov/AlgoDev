@@ -5,7 +5,7 @@ export function useMessage() {
     const { setText, setClassName } = useContext(Context)
 
     return [
-        (text, className) => {
+        (text, className = null) => {
             if (setText) setText(text)
             if (setClassName) setClassName(className || 'is-dark')
         },

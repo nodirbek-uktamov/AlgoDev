@@ -8,6 +8,14 @@ from asgiref.sync import async_to_sync
 
 from core.utils.exchange import twap_bot_order_interval
 
+HUOBI = 'huobi'
+FTX = 'ftx'
+
+EXCHANGES = (
+    (HUOBI, 'Huobi'),
+    (FTX, 'FTX'),
+)
+
 
 class Trade(models.Model):
     SELL = 'sell'
@@ -18,8 +26,10 @@ class Trade(models.Model):
         (BUY, 'Buy'),
     )
 
+    exchange = models.CharField(max_length=255, choices=EXCHANGES)
+
     symbol = models.CharField(max_length=255)
-    quantity = models.DecimalField(max_digits=20, decimal_places=10)
+    quantity = models.DecimalField(max_digits=30, decimal_places=15)
     trade_type = models.CharField(max_length=255, choices=TRADE_TYPES)
     loop = models.BooleanField(default=False)
     completed_loops = models.IntegerField(default=0)
@@ -153,8 +163,10 @@ class TakeProfitOrder(models.Model):
 class SymbolSetting(models.Model):
     amount_precision = models.IntegerField()
     price_precision = models.IntegerField()
-    min_price = models.DecimalField(max_digits=20, decimal_places=10)
+    min_price = models.DecimalField(max_digits=30, decimal_places=15)
     symbol = models.CharField(max_length=255)
+
+    exchange = models.CharField(max_length=255, choices=EXCHANGES)
 
 
 class LadderTrade(models.Model):
@@ -162,7 +174,7 @@ class LadderTrade(models.Model):
     stop_loss = models.IntegerField()  # in stop_loss_percent
     take_profit = models.IntegerField()  # in take_profit_percent
 
-    price = models.DecimalField(max_digits=20, decimal_places=10)
+    price = models.DecimalField(max_digits=30, decimal_places=15)
 
     order_id = models.CharField(max_length=255, null=True, blank=True)
     stop_loss_order_id = models.CharField(max_length=255, null=True, blank=True)

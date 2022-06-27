@@ -1,22 +1,22 @@
 import React, { useCallback, useState } from 'react'
 import Chart from '../components/Chart'
-import TradeForm from '../components/TradeForm/TradeForm'
+import TradeForm from '../components/huobi/TradeForm/TradeForm'
 import { useLoad, usePutRequest } from '../hooks/request'
 import { CANCEL_TRADES, TRADE } from '../urls'
 import Logs from '../components/Logs'
 import MainContextWrapper from '../contexts/MainContext'
 import { OrdersTabsSection } from '../components/OrdersTabsSection'
 import { Card } from '../components/common/Card'
-import Tabs from "../components/Tabs";
+import Tabs from '../components/Tabs'
 
 export default function Huobi() {
     const [botPrices, setBotPrices] = useState({})
 
-    const trades = useLoad({url: TRADE})
+    const trades = useLoad({ url: TRADE })
     const cancelTrades = usePutRequest()
 
     async function cancelAllTrades() {
-        const {success} = await cancelTrades.request({url: CANCEL_TRADES})
+        const { success } = await cancelTrades.request({ url: CANCEL_TRADES })
 
         if (success) {
             trades.setResponse([])
@@ -27,27 +27,27 @@ export default function Huobi() {
 
     return (
         <MainContextWrapper>
-            <Tabs style={{marginLeft: '1.1rem'}} />
+            <Tabs style={{ marginLeft: '1.1rem' }} />
 
-            <div style={{display: 'grid', gap: '1.1rem', gridTemplateColumns: 'repeat(3, auto)', padding: '1.1rem'}}>
+            <div style={{ display: 'grid', gap: '1.1rem', gridTemplateColumns: 'repeat(3, auto)', padding: '1.1rem' }}>
                 <div>
-                    <div style={{display: "flex", flexDirection: 'column', gap: '1.1rem' , maxWidth: '18rem', width: '18rem'}}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem', maxWidth: '18rem', width: '18rem' }}>
                         <Card>
-                            <TradeForm onUpdate={onUpdate}/>
+                            <TradeForm onUpdate={onUpdate} />
                         </Card>
 
                         <Card>
-                            <Logs setBotPrices={setBotPrices} trades={trades}/>
+                            <Logs setBotPrices={setBotPrices} trades={trades} />
                         </Card>
                     </div>
                 </div>
 
-                <div style={{maxWidth: '47rem', minWidth: '47rem'}}>
-                    <Chart cancelAllTrades={cancelAllTrades} trades={trades}/>
+                <div style={{ maxWidth: '47rem', minWidth: '47rem' }}>
+                    <Chart cancelAllTrades={cancelAllTrades} trades={trades} />
                 </div>
 
                 <div>
-                    <OrdersTabsSection botPrices={botPrices}/>
+                    <OrdersTabsSection botPrices={botPrices} />
                 </div>
             </div>
         </MainContextWrapper>

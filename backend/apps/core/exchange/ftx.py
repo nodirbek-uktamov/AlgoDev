@@ -1,5 +1,8 @@
-import time
+import decimal
 import hmac
+import time
+
+import requests
 from requests import Request, Session
 
 FTX_REST_API = 'https://ftx.com/api'
@@ -42,3 +45,37 @@ def ftx_request(endpoint, method, user, json=None):
     response = session.send(prepared)
 
     return response.json()
+
+
+def get_markets():
+    response = requests.get(FTX_REST_API + '/markets').json()
+
+    for i in response.get('result', []):
+        i['price_increment'] = abs(decimal.Decimal(str(i['priceIncrement'])).as_tuple().exponent)
+        i['size_increment'] = abs(decimal.Decimal(str(i['sizeIncrement'])).as_tuple().exponent)
+
+    return response
+
+
+def get_positions(user):
+    return ftx_request('/positions?showAvgPrice=true', 'GET', user)
+
+
+def get_open_orders(user):
+    return ftx_request('/orders', 'GET', user).get('result', [])
+
+
+def place_order(user, data):
+    response = ftx_request('/orders', 'POST', user, json=data)
+    return response
+
+
+def batch_cancel_orders(user, order_ids):
+    # response = ftx_request('/orders', 'POST', user, json=data)
+    # return response
+    print(order_ids)
+
+    for id in order_ids:
+        response = ftx_request(f'/orders/{id}', 'DELETE', user)
+
+    pass

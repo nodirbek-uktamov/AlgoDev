@@ -1,19 +1,16 @@
-import React, {createContext, useEffect, useRef, useState} from "react";
-import {parseGzip, WS_TYPES} from "../utils/websocket";
-import {useGetRequest, useLoad} from "../hooks/request";
-import {BALANCE} from "../urls";
-import {
-    FTX,
+import React, { createContext, useEffect, useRef, useState } from 'react'
+import { parseGzip, WS_TYPES } from '../utils/websocket'
+import { useGetRequest, useLoad } from '../hooks/request'
+import { BALANCE } from '../urls'
+import { FTX,
     getDefaultSymbol,
     getSymbolRequestOptions, getSymbolsList,
     handlePrivateWsMessage,
-    handlePublicWsMessage,
-    HUOBI
-} from "../exchanges/exchanges"
+    handlePublicWsMessage } from '../exchanges/exchanges'
 
 export const MainContext = createContext({})
 
-export default function MainContextWrapper({children}) {
+export default function MainContextWrapper({ children }) {
     const exchange = window.location.pathname.replace('/', '')
 
     const wsCallbacksRef = useRef({})
@@ -21,7 +18,7 @@ export default function MainContextWrapper({children}) {
     const callbacks = useRef({})
     const privateWs = useRef(null)
 
-    const initialSymbol = localStorage.getItem(exchange + '_symbol')
+    const initialSymbol = localStorage.getItem(`${exchange}_symbol`)
     const user = JSON.parse(localStorage.getItem('user'))
 
     const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : getDefaultSymbol(exchange))
@@ -31,11 +28,9 @@ export default function MainContextWrapper({children}) {
     const symbols = useLoad(getSymbolRequestOptions(exchange))
     const symbolsList = getSymbolsList(symbols.response || {}, exchange)
 
-    const balanceParams = useGetRequest({url: BALANCE.replace('{exchange}', exchange)})
+    const balanceParams = useGetRequest({ url: BALANCE.replace('{exchange}', exchange) })
 
     const symbolValue = symbol.value.toLowerCase()
-
-    console.log('symbol: ', symbol)
 
     useEffect(() => {
         connectPrivateWs()
@@ -57,17 +52,17 @@ export default function MainContextWrapper({children}) {
     }, [])
 
     function connectHuobi(s) {
-        publicWs.current.send(JSON.stringify({sub: WS_TYPES.orders.replace('{symbol}', s)}))
-        publicWs.current.send(JSON.stringify({sub: WS_TYPES.bidAsk.replace('{symbol}', s)}))
-        publicWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType)}))
+        publicWs.current.send(JSON.stringify({ sub: WS_TYPES.orders.replace('{symbol}', s) }))
+        publicWs.current.send(JSON.stringify({ sub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
+        publicWs.current.send(JSON.stringify({ sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
     }
 
     function disconnectHuobi() {
         const s = symbol.value.toLowerCase()
 
-        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.orders.replace('{symbol}', s)}))
-        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.bidAsk.replace('{symbol}', s)}))
-        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType)}))
+        publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.orders.replace('{symbol}', s) }))
+        publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.bidAsk.replace('{symbol}', s) }))
+        publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType) }))
     }
 
     function onClosePublicWs() {
@@ -88,7 +83,7 @@ export default function MainContextWrapper({children}) {
     }
 
     async function connectPrivateWs() {
-        const {response, success} = await balanceParams.request()
+        const { response, success } = await balanceParams.request()
         if (!success) return
 
         privateWs.current = new WebSocket(response.url)
@@ -107,7 +102,7 @@ export default function MainContextWrapper({children}) {
         privateWs.current.send(JSON.stringify(params))
 
         if (exchange === FTX) {
-            privateWs.current.send(JSON.stringify({op: 'subscribe', channel: 'orderbook', market: symbolValue}))
+            privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market: symbolValue }))
         }
     }
 
@@ -126,7 +121,7 @@ export default function MainContextWrapper({children}) {
         price,
         callbacks,
         exchange,
-        symbolsList
+        symbolsList,
     }
 
     return (

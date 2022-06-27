@@ -1,10 +1,10 @@
-import {baseChangeSymbol} from "./exchanges";
+import { baseChangeSymbol } from './exchanges'
 
 function updateOrderBook(oldOrders, ordersFromExchange, bid) {
     const newOrders = []
 
     oldOrders.map((item) => {
-        const orderDepthIndex = ordersFromExchange.findIndex(i => i[0] === item[0])
+        const orderDepthIndex = ordersFromExchange.findIndex((i) => i[0] === item[0])
         const orderDepth = ordersFromExchange[orderDepthIndex]
 
         if (orderDepthIndex > -1) ordersFromExchange.splice(orderDepthIndex, 1)
@@ -28,13 +28,12 @@ function updateOrderBook(oldOrders, ordersFromExchange, bid) {
     return newOrders.sort((a, b) => (a[0] > b[0]) - (a[0] < b[0]))
 }
 
-
 export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, user) => {
     const data = JSON.parse(event.data)
 
     if (data && data.data && data.channel === 'orderbook' && typeof wsCallbacksRef.current.setBook === 'function') {
         wsCallbacksRef.current.setBook((oldOrders) => {
-            if (data.type === 'partial') return {asks: data.data.asks, bids: data.data.bids}
+            if (data.type === 'partial') return { asks: data.data.asks, bids: data.data.bids }
 
             let newBids = []
             let newAsks = []
@@ -44,7 +43,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
                 newBids = updateOrderBook(oldOrders.bids, data.data.bids, true)
             }
 
-            return {bids: newBids, asks: newAsks}
+            return { bids: newBids, asks: newAsks }
         })
     }
 }

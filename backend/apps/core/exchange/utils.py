@@ -42,3 +42,6 @@ def generate_huobi_auth_params_ws(access_key, secret_key):
 
 def format_float(number, decimal_fields):
     return f'{number:.{decimal_fields}f}'
+
+
+twap_bot_order_interval = 60

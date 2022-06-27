@@ -1,3 +1,3 @@
-import HuobiOrdersList from './HuobiOrdersList';
+import HuobiOrdersList from './HuobiOrdersList'
 
-export {HuobiOrdersList}
+export { HuobiOrdersList }

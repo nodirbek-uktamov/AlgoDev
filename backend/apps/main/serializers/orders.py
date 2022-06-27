@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from core.utils.serializers import ValidatorSerializer
-from main.models import SymbolSetting
+from main.models import SymbolSetting, HUOBI
 
 
 class OrderValidatorSerializer(ValidatorSerializer):
@@ -10,7 +10,7 @@ class OrderValidatorSerializer(ValidatorSerializer):
     side = serializers.CharField()
 
     def validate(self, data):
-        symbol_setting = SymbolSetting.objects.get(symbol=data['symbol'])
+        symbol_setting = SymbolSetting.objects.get(symbol=data['symbol'], exchange=HUOBI)
         data['amount_precision'] = symbol_setting.amount_precision
         data['price_precision'] = symbol_setting.price_precision
 

@@ -98,6 +98,7 @@ class TradesSerializer(serializers.ModelSerializer):
         model = Trade
         fields = (
             'id',
+            'exchange',
             'symbol',
             'quantity',
             'trade_type',
