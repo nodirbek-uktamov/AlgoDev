@@ -259,7 +259,7 @@ export const LimitOptionsRenderer = {
         }
     },
     ladder: {
-        render(values, symbolSettings) {
+        render(values) {
             return (
                 <Fragment>
                     <InputField
@@ -362,11 +362,11 @@ const BotDataFactory = {
         }
     },
     ladder: {
-        create(newData, symbolSettings) {
+        create(newData, symbol) {
             const ladderTrades = []
 
             for (let i = 1; i <= newData.ladder_trades_count; i++) {
-                const defaultPrice = generateLadderPrice(newData, i).toFixed(symbolSettings.tpp)
+                const defaultPrice = generateLadderPrice(newData, i).toFixed(symbol.tpp)
 
                 ladderTrades.push({
                     amount: newData[`ladder_item_amount_${i}`],
@@ -396,7 +396,7 @@ const renderTabs = (props) => [
 
 export default React.memo(({onUpdate}) => {
     const createTrade = usePostRequest({url: TRADE})
-    const {symbol, wsCallbacksRef, symbolSettings} = useContext(MainContext)
+    const {symbol, wsCallbacksRef} = useContext(MainContext)
 
     const [tab, setTab] = useState(0)
     const [botType, setBotType] = useState({
@@ -422,7 +422,7 @@ export default React.memo(({onUpdate}) => {
             iceberg_price: data.iceberg_price || 0,
         }
 
-        const extendedData = BotDataFactory[botType.key].create(newData, symbolSettings);
+        const extendedData = BotDataFactory[botType.key].create(newData, symbol);
 
         const {success, error} = await createTrade.request({data: extendedData})
 

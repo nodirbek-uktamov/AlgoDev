@@ -13,10 +13,12 @@ export function OrdersTabsSection({botPrices}) {
             <Card>
                 <DepthTab botPrices={botPrices}/>
             </Card>
+
             <div style={{height: '100%', gap: '1.1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
                 <Card>
                     <OrdersListTab/>
                 </Card>
+
                 <Button
                     color='white'
                     text='Log out'

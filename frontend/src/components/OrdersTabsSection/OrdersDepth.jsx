@@ -4,8 +4,8 @@ import cn from 'classnames'
 import {MainContext} from "../../contexts/MainContext";
 
 function OrdersDepth({botPrices}) {
-    const {symbolSettings, symbol, wsCallbacksRef, callbacks} = useContext(MainContext)
-    const {tpp, tap} = symbolSettings
+    const {symbol, wsCallbacksRef, callbacks} = useContext(MainContext)
+    const {tpp, tap} = symbol
     const [book, setBook] = useState(null)
 
     useEffect(() => {
@@ -58,16 +58,16 @@ function OrdersDepth({botPrices}) {
 
     return (
         <div>
-            <tr className="table_head">
+            <div className="is-flex">
                 {columns.map((column) => (
-                    <th
+                    <p
                         className="table_headerCell"
                         style={{width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700}}
                         key={column.key}>
                         {column.title}
-                    </th>
+                    </p>
                 ))}
-            </tr>
+            </div>
 
             {book && <div className="p-4" style={{backgroundColor: '#000'}}>
                 <div>
@@ -78,7 +78,7 @@ function OrdersDepth({botPrices}) {
                     </div>
 
                     <div className="my-2 has-text-weight-bold is-size-5">
-                        {((asks[9][0] + bids[0][0]) / 2).toFixed(tpp)}
+                        {asks[9] && bids[0] ? ((asks[9][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
                     </div>
 
                     <div>

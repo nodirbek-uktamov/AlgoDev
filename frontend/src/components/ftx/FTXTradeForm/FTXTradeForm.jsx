@@ -51,7 +51,7 @@ const renderTabs = (props) => [
 
 export default React.memo(({onUpdate}) => {
     const createTrade = usePostRequest({url: TRADE})
-    const {symbol, wsCallbacksRef, symbolSettings} = useContext(MainContext)
+    const {symbol, wsCallbacksRef} = useContext(MainContext)
 
     const [tab, setTab] = useState(0)
     const [botType, setBotType] = useState({
@@ -73,12 +73,12 @@ export default React.memo(({onUpdate}) => {
 
         const newData = {
             ...data,
-            symbol: symbol.label,
+            symbol: symbol.value,
             trade_type: tradeType,
             botType: botType.key
         }
 
-        const extendedData = BotDataFactory[botType.key].create(newData, symbolSettings);
+        const extendedData = BotDataFactory[botType.key].create(newData, symbol);
 
         const {response, error} = await createTrade.request({url: FTX_PLACE_ORDER, data: extendedData})
 

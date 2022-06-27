@@ -1,11 +1,11 @@
-export function onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbolSettings) {
+export function onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue) {
     setSliderValue(value)
 
     const newAmount = (balance[symbol.pair2.toLowerCase()] || 0) * value / 100
-    setFieldValue('quantity', newAmount.toFixed(symbolSettings.tap || 0))
+    setFieldValue('quantity', newAmount.toFixed(symbol.tap || 0))
 }
 
-export function calcPair1Amount(values, botType, symbolSettings, initialPrice) {
+export function calcPair1Amount(values, botType, symbol, initialPrice) {
     let amount = values.quantity
 
     if (botType.key === 'iceberg') {
@@ -18,5 +18,5 @@ export function calcPair1Amount(values, botType, symbolSettings, initialPrice) {
         amount = amount / initialPrice
     }
 
-    return amount.toFixed(symbolSettings.tap || 0)
+    return amount.toFixed(symbol.tap || 0)
 }

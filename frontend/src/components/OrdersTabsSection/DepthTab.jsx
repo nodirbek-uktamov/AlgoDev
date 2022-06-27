@@ -18,15 +18,15 @@ function createDepthSteps(tpp) {
 }
 
 export function DepthTab({botPrices}) {
-    const {symbolSettings, huobiWs, setDepthType, depthType, symbolValue, symbol} = useContext(MainContext)
-    const {tpp} = symbolSettings
+    const {publicWs, setDepthType, depthType, symbolValue, symbol} = useContext(MainContext)
+    const {tpp} = symbol
 
-    const depthSteps = useCallback(createDepthSteps(tpp), [symbolSettings])
+    const depthSteps = useCallback(createDepthSteps(tpp), [symbol])
     const [depthStep, setDepthStep] = useState(null);
 
     function onChangeDepthType(value) {
-        huobiWs.current.send(JSON.stringify({unsub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', depthType)}))
-        huobiWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value)}))
+        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', depthType)}))
+        publicWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', symbolValue).replace('{type}', value)}))
     }
 
     useEffect(() => {
@@ -44,7 +44,7 @@ export function DepthTab({botPrices}) {
                 selectedOption={depthStep}
                 setSelectedOption={o => {
                     setDepthStep(o)
-                    huobiWs.current.readyState === 1 && onChangeDepthType(o.value)
+                    publicWs.current.readyState === 1 && onChangeDepthType(o.value)
                     setDepthType(o.value)
                 }}
                 defaultValue={depthSteps[0]}

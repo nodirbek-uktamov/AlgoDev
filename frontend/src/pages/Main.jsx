@@ -22,7 +22,6 @@ export default function Main() {
     }
 
     function onSubmit(data, actions) {
-        console.log(data)
         userSettings.request({data})
         actions.resetForm()
         userDetail.request()

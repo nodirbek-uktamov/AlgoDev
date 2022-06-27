@@ -1,173 +1,132 @@
 import React, {createContext, useEffect, useRef, useState} from "react";
 import {parseGzip, WS_TYPES} from "../utils/websocket";
 import {useGetRequest, useLoad} from "../hooks/request";
-import {BALANCE, HUOBI_SYMBOL_SETTINGS} from "../urls";
-import {FTX, handleAccountWsMessage, HUOBI} from "../exchanges/exchanges";
+import {BALANCE} from "../urls";
+import {
+    FTX,
+    getDefaultSymbol,
+    getSymbolRequestOptions, getSymbolsList,
+    handlePrivateWsMessage,
+    handlePublicWsMessage,
+    HUOBI
+} from "../exchanges/exchanges"
 
 export const MainContext = createContext({})
 
 export default function MainContextWrapper({children}) {
+    const exchange = window.location.pathname.replace('/', '')
+
     const wsCallbacksRef = useRef({})
-    const huobiWs = useRef({})
+    const publicWs = useRef({})
     const callbacks = useRef({})
+    const privateWs = useRef(null)
 
-    const initialSymbol = localStorage.getItem('symbol')
+    const initialSymbol = localStorage.getItem(exchange + '_symbol')
     const user = JSON.parse(localStorage.getItem('user'))
-    const defaultSymbol = {value: 'ETHUSDT', pair1: 'ETH', pair2: 'USDT'}
 
-    const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : defaultSymbol)
+    const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : getDefaultSymbol(exchange))
     const [depthType, setDepthType] = useState('step0')
     const [price, setPrice] = useState({})
 
-    const [symbolSettings, setSymbolSettings] = useState({})
+    const symbols = useLoad(getSymbolRequestOptions(exchange))
+    const symbolsList = getSymbolsList(symbols.response || {}, exchange)
 
-    const symbolPreccions = useLoad({
-        baseURL: HUOBI_SYMBOL_SETTINGS,
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        Referrer: ''
-    })
-
-    const exchange = window.location.pathname.replace('/', '')
-
-    const balanceParams = useGetRequest({url: BALANCE.replace('{exchange}',exchange)})
+    const balanceParams = useGetRequest({url: BALANCE.replace('{exchange}', exchange)})
 
     const symbolValue = symbol.value.toLowerCase()
 
-    useEffect(() => {
-        if (symbolPreccions.response) {
-            let data = symbolPreccions.response.data.find((i) => i.symbol === symbol.value.toLowerCase());
-            setSymbolSettings(data || {})
-        }
-
-    }, [symbolPreccions.response, symbol])
+    console.log('symbol: ', symbol)
 
     useEffect(() => {
-        connectAccountWs()
-
-        huobiWs.current = new WebSocket('wss://api.huobi.pro/ws')
-        huobiWs.current.onopen = () => connectHuobi(symbol.value.toLowerCase())
-        huobiWs.current.onclose = onClose
-        huobiWs.current.addEventListener('message', handleMessageMarketData)
+        connectPrivateWs()
+        if (exchange !== FTX) publicWsConnect()
 
         return () => {
-            if (huobiWs.current) {
-                huobiWs.current.onclose = () => {}
-                huobiWs.current.close()
+            if (publicWs.current) {
+                publicWs.current.onclose = () => {}
+
+                if (publicWs.current.close) publicWs.current.close()
             }
 
-            if (accountWs.current) {
-                accountWs.current.onclose = () => {}
-                accountWs.current.close()
+            if (privateWs.current) {
+                privateWs.current.onclose = () => {}
+                privateWs.current.close()
             }
         }
         // eslint-disable-next-line
     }, [])
 
     function connectHuobi(s) {
-        huobiWs.current.send(JSON.stringify({sub: WS_TYPES.orders.replace('{symbol}', s)}))
-        huobiWs.current.send(JSON.stringify({sub: WS_TYPES.bidAsk.replace('{symbol}', s)}))
-        huobiWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType)}))
+        publicWs.current.send(JSON.stringify({sub: WS_TYPES.orders.replace('{symbol}', s)}))
+        publicWs.current.send(JSON.stringify({sub: WS_TYPES.bidAsk.replace('{symbol}', s)}))
+        publicWs.current.send(JSON.stringify({sub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType)}))
     }
 
     function disconnectHuobi() {
         const s = symbol.value.toLowerCase()
 
-        huobiWs.current.send(JSON.stringify({unsub: WS_TYPES.orders.replace('{symbol}', s)}))
-        huobiWs.current.send(JSON.stringify({unsub: WS_TYPES.bidAsk.replace('{symbol}', s)}))
-        huobiWs.current.send(JSON.stringify({unsub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType)}))
+        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.orders.replace('{symbol}', s)}))
+        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.bidAsk.replace('{symbol}', s)}))
+        publicWs.current.send(JSON.stringify({unsub: WS_TYPES.book.replace('{symbol}', s).replace('{type}', depthType)}))
     }
 
-    function onClose() {
+    function onClosePublicWs() {
         setTimeout(() => {
             if (wsCallbacksRef.current.setLogs) {
-                wsCallbacksRef.current.setLogs((oldLogs) => ['Huobi socket is closed. Reconnect after 1 seconds', ...oldLogs])
+                wsCallbacksRef.current.setLogs((oldLogs) => [`${exchange} socket is closed. Reconnect after 1 seconds`, ...oldLogs])
             }
 
-            huobiWs.current = new WebSocket('wss://api.huobi.pro/ws')
-
-            huobiWs.current.onopen = () => {
-                connectHuobi(symbol.value.toLowerCase())
-            }
-
-            huobiWs.current.addEventListener('message', handleMessageMarketData)
-            huobiWs.current.onclose = onClose
+            publicWsConnect()
         }, 1000)
     }
 
-    function handleMessageMarketData(event) {
-        parseGzip(event, (msg) => {
-            const data = JSON.parse(msg)
-
-            if (data.ping) {
-                huobiWs.current.send(JSON.stringify({pong: data.ping}))
-            }
-
-            if (data.tick) {
-                if (data.ch.includes('bbo')) {
-                    if (typeof wsCallbacksRef.current.setBidAskData === 'function') {
-                        wsCallbacksRef.current.setBidAskData({[data.ch.split('.')[1]]: data.tick})
-                    }
-
-                    setPrice(oldValue => {
-                        if (oldValue[data.ch.split('.')[1]]) return oldValue
-                        return {[data.ch.split('.')[1]]: data.tick}
-                    })
-                }
-
-                if (data.ch.includes('trade.detail') && typeof wsCallbacksRef.current.setOrdersData === 'function') {
-                    wsCallbacksRef.current.setOrdersData(data.tick)
-                }
-
-                if (data.ch.includes('depth') && typeof wsCallbacksRef.current.setBook === 'function') {
-                    wsCallbacksRef.current.setBook(data.tick)
-                }
-            }
-        })
+    function publicWsConnect() {
+        publicWs.current = new WebSocket('wss://api.huobi.pro/ws')
+        publicWs.current.onopen = () => connectHuobi(symbol.value.toLowerCase())
+        publicWs.current.addEventListener('message', handlePublicWsMessage(exchange, publicWs, wsCallbacksRef, setPrice))
+        publicWs.current.onclose = onClosePublicWs
     }
 
-    const accountWs = useRef(null)
-
-    async function connectAccountWs() {
+    async function connectPrivateWs() {
         const {response, success} = await balanceParams.request()
-        console.log(response, success)
         if (!success) return
 
-        accountWs.current = new WebSocket(response.url)
-        accountWs.current.onopen = () => connect(response.params)
-        accountWs.current.onclose = () => {
+        privateWs.current = new WebSocket(response.url)
+        privateWs.current.onopen = () => privateWsConnect(response.params)
+
+        privateWs.current.onclose = () => {
             setTimeout(() => {
-                connectAccountWs()
+                connectPrivateWs()
             }, 2000)
         }
-        accountWs.current.addEventListener('message', handleAccountWsMessage(accountWs, symbol, wsCallbacksRef, user))
+
+        privateWs.current.addEventListener('message', handlePrivateWsMessage(exchange, privateWs, symbol, wsCallbacksRef, user))
     }
 
-    function connect(params) {
-        if (exchange === HUOBI) {
-            accountWs.current.send(JSON.stringify(params))
-        }
+    function privateWsConnect(params) {
+        privateWs.current.send(JSON.stringify(params))
 
-        // if (exchange === FTX) {
-        //     accountWs.current.send(JSON.stringify({'op': 'subscribe', 'channel': 'orders'}))
-        // }
+        if (exchange === FTX) {
+            privateWs.current.send(JSON.stringify({op: 'subscribe', channel: 'orderbook', market: symbolValue}))
+        }
     }
 
     const contextValues = {
         setSymbol,
         symbol,
-        symbolSettings,
         user,
         symbolValue,
-        huobiWs,
+        publicWs,
         disconnectHuobi,
         connectHuobi,
         wsCallbacksRef,
         depthType,
         setDepthType,
-        accountWs,
+        privateWs,
         price,
         callbacks,
-        exchange
+        exchange,
+        symbolsList
     }
 
     return (

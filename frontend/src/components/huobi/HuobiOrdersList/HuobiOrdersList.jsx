@@ -121,7 +121,7 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll
 };
 
 function HuobiOrdersList() {
-    const {wsCallbacksRef, symbolValue, symbolSettings} = useContext(MainContext)
+    const {wsCallbacksRef, symbolValue, symbol} = useContext(MainContext)
     const initialOrders = useLoad({url: OPEN_ORDERS.replace('{symbol}', symbolValue)})
     const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
@@ -216,7 +216,7 @@ function HuobiOrdersList() {
                 filter={filter}/>
 
             <OrdersTable
-                columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter, symbolSettings)}
+                columns={renderColumns(handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll, filter, symbol)}
                 tableData={filteredOrders(filter)}/>
         </div>
     )
