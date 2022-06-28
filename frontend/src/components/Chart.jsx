@@ -7,7 +7,7 @@ import { HuobiOrdersList } from './huobi/HuobiOrdersList'
 import { Card } from './common/Card'
 import { Select } from './common/Select'
 import { FTX, HUOBI } from '../exchanges/exchanges'
-import { FTXOrdersList } from './ftx/FTXOrdersList'
+import FTXOrders from './ftx/FTXOrders'
 import { huobiOnChangeSymbol } from '../exchanges/huobi'
 import { ftxOnChangeSymbol } from '../exchanges/ftx'
 
@@ -106,7 +106,7 @@ function Chart({ trades, cancelAllTrades }) {
                     trades={trades.response || []} />
 
                 {exchange === HUOBI && <HuobiOrdersList />}
-                {exchange === FTX && <FTXOrdersList />}
+                {exchange === FTX && <FTXOrders />}
             </Card>
         </div>
     )

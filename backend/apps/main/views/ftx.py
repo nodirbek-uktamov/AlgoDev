@@ -3,7 +3,7 @@ import decimal
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from core.exchange.ftx import ftx_request, get_markets, get_positions
+from core.exchange.ftx import ftx_request, get_markets, get_positions, get_open_orders
 
 
 class SymbolsListView(GenericAPIView):
@@ -15,6 +15,17 @@ class PositionsListView(GenericAPIView):
     def get(self, request):
         return Response(get_positions(request.user))
 
+
+class OpenOrdersListView(GenericAPIView):
+    def get(self, request):
+        response = get_open_orders(request.user)
+
+        for i in response:
+            i['orderSize'] = i['size']
+            i['orderPrice'] = i['price']
+            i['symbol'] = i['market']
+
+        return Response(response)
 
 # class PlaceFTXOrderView(GenericAPIView):
 #     def post(self, request):

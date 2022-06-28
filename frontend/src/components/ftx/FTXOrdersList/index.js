@@ -1,3 +1,3 @@
-import FTXOrdersList from './FTXOrdersList';
+import FTXOrdersList from './FTXOrdersList'
 
-export {FTXOrdersList}
+export { FTXOrdersList }

@@ -1,98 +1,77 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './FTXOrdersList.scss'
 import { Table } from '../../common/Table'
-import { FTX_POSITIONS_LIST } from '../../../urls'
+import { SIDE_TEXT_STYLE } from '../../huobi/HuobiOrdersList/HuobiOrdersList'
+import { MainContext } from '../../../contexts/MainContext'
 import { useLoad } from '../../../hooks/request'
+import { FTX_OPEN_ORDERS_LIST } from '../../../urls'
 
-const renderColumns = () => [
-    {
-        title: 'Symbol',
-        key: 'symbol',
-        hasSorting: true,
-        width: '5rem',
-        render: (rowData) => <span>{rowData.future}</span>,
-    },
+const renderColumns = (symbol) => [
     {
         title: 'Side',
         key: 'side',
         hasSorting: true,
-        width: '0',
+        width: '0%',
         render: (rowData) => (
-            <span style={{ color: rowData.side === 'buy' ? '#12b247' : '#E61739' }}>
+            <span className={`${SIDE_TEXT_STYLE[rowData.side]} is-capitalized`}>
                 {rowData.side}
             </span>
         ),
     },
     {
-        title: 'Position size',
-        key: 'size',
+        title: 'Quantity',
+        key: 'orderSize',
         hasSorting: true,
-        width: '6rem',
-        render: (rowData) => <span>{rowData.size}</span>,
+        width: '10%',
+        render: (rowData) => <span>{Number(rowData.orderSize).toFixed(symbol.tap || 0)}</span>,
     },
     {
-        title: 'Notional size',
-        key: 'notional_size',
+        title: 'Price',
+        key: 'orderPrice',
         hasSorting: true,
-        width: '6rem',
-        render: (rowData) => <span>{Math.abs(rowData.cost)} $</span>,
+        width: '10%',
+        render: (rowData) => <span>{Number(rowData.orderPrice).toFixed(symbol.tpp || 2)}</span>,
     },
     {
-        title: 'Est. liquidation price',
-        key: 'estimated_liquidation_price',
+        title: 'Symbol',
+        key: 'symbol',
         hasSorting: true,
-        width: '8rem',
-        render: (rowData) => <span>{Number(rowData.estimatedLiquidationPrice).toFixed(1)}</span>,
+        width: '10%',
+        render: (rowData) => <span className="is-uppercase">{rowData.symbol}</span>,
     },
     {
-        title: 'Mark price',
-        key: 'orderStatus',
+        title: 'Filled',
+        key: 'filled',
         hasSorting: true,
-        width: '5rem',
-        render: (rowData) => <span>{rowData.entryPrice}</span>,
-    },
-    {
-        title: 'PNL',
-        key: 'pnl',
-        hasSorting: true,
-        width: '5rem',
+        width: '10%',
         render: (rowData) => (
-            <span style={{ color: rowData.recentPnl < 0 ? '#E61739' : '#12b247' }}>
-                {rowData.recentPnl}
+            <span className="is-uppercase">
+                {Number(rowData.filledSize).toFixed(symbol.tap || 0)}
+                &nbsp; / &nbsp;
+                {Number(rowData.size).toFixed(symbol.tap || 0)}
             </span>
         ),
-    },
-    {
-        title: 'Avg open price',
-        key: 'avg_open_price',
-        hasSorting: true,
-        width: '5rem',
-        render: (rowData) => <span>{rowData.recentAverageOpenPrice}</span>,
-    },
-    {
-        title: 'Break-even price',
-        key: 'recent_break_even_price',
-        hasSorting: true,
-        width: '5rem',
-        render: (rowData) => <span>{rowData.recentBreakEvenPrice}</span>,
     },
 ]
 
 function FTXOrdersList() {
-    const positions = useLoad({ url: FTX_POSITIONS_LIST })
+    const { symbol, wsCallbacksRef } = useContext(MainContext)
+    const [items, setItems] = useState([])
+    const initialOrders = useLoad({ url: FTX_OPEN_ORDERS_LIST })
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            positions.request()
-        }, 4000)
-        return () => clearInterval(interval)
-    }, [positions])
+        wsCallbacksRef.current.setFTXOrdersList = setItems
 
-    const items = ((positions.response && positions.response.result) || []).filter((i) => i.size)
+        // eslint-disable-next-line
+    }, [])
+
+    useEffect(() => {
+        if (initialOrders.response) setItems(initialOrders.response)
+    }, [initialOrders.response])
 
     return (
         <div className="orders-list_container">
-            <Table tableData={items} columns={renderColumns()} />
+            <Table tableData={items} columns={renderColumns(symbol)} />
         </div>
     )
 }

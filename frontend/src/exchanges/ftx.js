@@ -49,7 +49,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
         })
     }
 
-    if (data.channel === 'trades' && typeof wsCallbacksRef.current.setBook === 'function') {
+    if (data.channel === 'trades' && typeof wsCallbacksRef.current.setOrdersData === 'function') {
         const newData = data.data.map((item) => ({
             ts: item.time,
             price: item.price,
@@ -58,6 +58,23 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
         }))
 
         wsCallbacksRef.current.setOrdersData({ data: newData })
+    }
+
+    if (data.channel === 'orders' && wsCallbacksRef.current.setFTXOrdersList) {
+        const newItem = {
+            ...data.data,
+            orderSize: data.data.size,
+            orderPrice: data.data.price,
+            symbol: data.data.market,
+        }
+
+        if (data.data.status === 'new') {
+            wsCallbacksRef.current.setFTXOrdersList((oldOrders) => [newItem, ...oldOrders])
+        }
+
+        if (data.data.status === 'closed') {
+            wsCallbacksRef.current.setFTXOrdersList((oldOrders) => oldOrders.filter((i) => i.id !== newItem.id))
+        }
     }
 }
 

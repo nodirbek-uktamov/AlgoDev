@@ -8,7 +8,7 @@ import { ORDERS_FILTER_TYPE } from '../../../utils/orders-filter-type'
 import './HuobiOrdersList.scss'
 import { Button } from '../../common/Button'
 
-const SIDE_TEXT_STYLE = {
+export const SIDE_TEXT_STYLE = {
     buy: 'has-text-success',
     sell: 'has-text-danger',
 }

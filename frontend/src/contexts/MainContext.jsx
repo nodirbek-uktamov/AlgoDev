@@ -104,6 +104,7 @@ export default function MainContextWrapper({ children }) {
         if (exchange === FTX) {
             privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market: symbolValue }))
             privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market: symbolValue }))
+            privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orders', market: symbolValue }))
         }
     }
 
