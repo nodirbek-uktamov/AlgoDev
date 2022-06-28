@@ -1,9 +1,9 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {Input} from "../common/Input";
-import {MainContext} from "../../contexts/MainContext";
+import React, { useContext, useEffect, useState } from 'react'
+import { Input } from '../common/Input'
+import { MainContext } from '../../contexts/MainContext'
 
 export function OrdersListTab() {
-    const {wsCallbacksRef, symbol} = useContext(MainContext)
+    const { wsCallbacksRef, symbol } = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
 
@@ -36,20 +36,20 @@ export function OrdersListTab() {
         localStorage.setItem('amountLimit', event.target.value)
     }
 
-    function RenderItem({item}) {
+    function RenderItem({ item }) {
         const color = item.direction === 'sell' ? '#FF0000' : '#6afd0a'
 
         return (
             <div className="columns p-0 m-0">
-                <div style={{color: '#808080'}} className="column p-0">
+                <div style={{ color: '#808080' }} className="column p-0">
                     {new Date(item.ts).toLocaleTimeString('it-IT')}
                 </div>
 
-                <div style={{color}} className="column p-0">
+                <div style={{ color }} className="column p-0">
                     {item.price.toFixed(symbol.tpp || 0)}
                 </div>
 
-                <div className="column p-0" style={{color, textAlign: 'end'}}>
+                <div className="column p-0" style={{ color, textAlign: 'end' }}>
                     {parseFloat(item.amount).toFixed(symbol.tap || 0)}
                 </div>
             </div>
@@ -59,47 +59,49 @@ export function OrdersListTab() {
     const columns = [
         {
             width: '1%',
-            title: "Date"
+            title: 'Date',
         },
         {
             width: '1%',
-            title: `Price (${symbol.pair2})`
+            title: `Price (${symbol.pair2})`,
         },
         {
             width: '1%',
-            title: `Value (${symbol.pair1})`
+            title: `Value (${symbol.pair1})`,
         },
     ]
 
-    return <div style={{minWidth: '15.4rem'}}>
-        <div className="mb-4">
-            <Input
-                label={`Amount from (${symbol.pair2})`}
-                step="0.00000001"
-                type="number"
-                value={amountLimit}
-                onChange={onChangeAmountLimit}/>
-        </div>
+    return (
+        <div style={{ minWidth: '15.4rem' }}>
+            <div className="mb-4">
+                <Input
+                    label={`Amount from (${symbol.pair2})`}
+                    step="0.00000001"
+                    type="number"
+                    value={amountLimit}
+                    onChange={onChangeAmountLimit} />
+            </div>
 
-        <table>
-            <tbody>
-                <tr className="table_head">
-                    {columns.map((column) => (
-                        <th
-                            className="table_headerCell"
-                            style={{width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700}}
-                            key={column.key}>
-                            {column.title}
-                        </th>
-                    ))}
-                </tr>
-            </tbody>
-        </table>
+            <table>
+                <tbody>
+                    <tr className="table_head">
+                        {columns.map((column) => (
+                            <th
+                                className="table_headerCell"
+                                style={{ width: column.width, textAlign: 'center', verticalAlign: 'bottom', fontWeight: 700 }}
+                                key={column.key}>
+                                {column.title}
+                            </th>
+                        ))}
+                    </tr>
+                </tbody>
+            </table>
 
-        <div className="p-3" style={{backgroundColor: orders.length > 0 ? '#000' : null}}>
-            {orders.map((item, index) => (
-                <RenderItem key={index} item={item}/>
-            ))}
+            <div className="p-3" style={{ backgroundColor: orders.length > 0 ? '#000' : null }}>
+                {orders.map((item, index) => (
+                    <RenderItem key={index} item={item} />
+                ))}
+            </div>
         </div>
-    </div>
+    )
 }
