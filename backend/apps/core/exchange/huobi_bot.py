@@ -239,7 +239,7 @@ class HuobiBot:
                 symbol=trade.symbol,
                 type=f'{trade_type}-limit',
                 price=format_float(price, precision.get('price', 0)),
-                client_order_id=int(round(trade.completed_at.timestamp() * 1000))
+                client_order_id=str(uuid.uuid1())
             ).data
 
             TakeProfitOrder.objects.create(user=trade.user, trade=trade, order_id=data.get('data'))
@@ -287,7 +287,7 @@ class HuobiBot:
                     symbol=trade.symbol,
                     type=f'{trade.trade_type}-limit',
                     price=format_float(price, precision.get('price', 0)),
-                    client_order_id=int(round(timezone.now().timestamp() * 1000))
+                    client_order_id=str(uuid.uuid1())
                 ).data
 
                 order_ids.append(int(order.get('data')))
