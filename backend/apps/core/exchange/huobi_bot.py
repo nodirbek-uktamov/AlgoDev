@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+import uuid
 
 import requests
 from django.db.models import Q
@@ -307,7 +308,7 @@ class HuobiBot:
 
             price = cost['bid'] * percent / 100
 
-            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            client_order_id = str(uuid.uuid1())
             amount = format_float(quantities_array[i] / price, precision.get('amount', 0))
 
             order = client.place(
@@ -339,7 +340,7 @@ class HuobiBot:
                 trade.hft_default_price_difference) + 100)
             price = cost['ask'] * percent / 100
 
-            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            client_order_id = str(uuid.uuid1())
             amount = format_float(float(quantities_array[i]) / price, precision.get('amount', 0))
 
             order = client.place(

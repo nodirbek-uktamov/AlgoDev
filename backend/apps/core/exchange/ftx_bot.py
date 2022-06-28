@@ -1,16 +1,19 @@
 import concurrent
 import json
 import logging
+import os
+import sys
 import time
 from django.db.models import Q
 from django.utils import timezone
+import uuid
 
 from core.exchange.ftx import batch_cancel_orders
 from core.exchange.utils import format_float
 from core.exchange import ftx
 from core.tasks import send_log
 from core.utils.helpers import random_array
-from core.utils.logs import bold
+from core.utils.logs import bold, red
 from main.models import FTX, Trade
 from users.models import User
 
@@ -101,6 +104,9 @@ class FTXBot:
                 work_time = (timezone.now() - started_at).total_seconds()
 
                 logger.info(f'bots work time: {work_time}')
+                print('')
+                print('')
+                print('')
 
     def bot_for_user(self, args):
         user, costs, precisions = args
@@ -125,19 +131,32 @@ class FTXBot:
 
                     return list(results)
 
+            return []
+
         except Exception as e:
             print(str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             return []
 
     def run_trade(self, args):
         costs, user, trade, precisions, orders = args
 
-        symbol = trade.symbol.upper()
-        precision = precisions[symbol]
-        cost = costs[symbol]
+        try:
+            symbol = trade.symbol.upper()
+            precision = precisions[symbol]
+            cost = costs[symbol]
 
-        if trade.hft_bot:
-            self.hft_bot(cost, user, trade, precision, orders, symbol)
+            if trade.hft_bot:
+                self.hft_bot(cost, user, trade, precision, orders, symbol)
+                return trade
+
+        except Exception as e:
+            print(str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             return trade
 
         return trade
@@ -167,6 +186,8 @@ class FTXBot:
                 client_order_ids = []
                 sell_orders_for_save = {}
                 buy_orders_for_save = {}
+                sell_orders_error = ''
+                buy_orders_error = ''
 
                 if len(sell_order_ids) < total_orders_count / 2:
                     for i in sell_orders:
@@ -179,7 +200,7 @@ class FTXBot:
                         precision.get('min_price')
                     )
 
-                    self.hft_place_sell_orders(
+                    sell_orders_error = self.hft_place_sell_orders(
                         cost,
                         client_order_ids,
                         sell_orders_for_save,
@@ -194,7 +215,17 @@ class FTXBot:
                     if buy_order_ids:
                         batch_cancel_orders(user, buy_order_ids)
 
-                    self.hft_place_buy_orders(cost, client_order_ids, buy_orders_for_save, user, trade, precision, bid_orders_q, symbol)
+                    if not sell_orders_error:
+                        buy_orders_error = self.hft_place_buy_orders(
+                            cost,
+                            client_order_ids,
+                            buy_orders_for_save,
+                            user,
+                            trade,
+                            precision,
+                            bid_orders_q,
+                            symbol
+                        )
 
                 else:
                     for i in buy_orders:
@@ -207,7 +238,7 @@ class FTXBot:
                         precision.get('min_price')
                     )
 
-                    self.hft_place_buy_orders(
+                    buy_orders_error = self.hft_place_buy_orders(
                         cost,
                         client_order_ids,
                         buy_orders_for_save,
@@ -222,7 +253,26 @@ class FTXBot:
                     if sell_order_ids:
                         batch_cancel_orders(user, sell_order_ids)
 
-                    self.hft_place_sell_orders(cost, client_order_ids, sell_orders_for_save, user, trade, precision, ask_orders_q, symbol)
+                    if not buy_orders_error:
+                        sell_orders_error = self.hft_place_sell_orders(
+                            cost,
+                            client_order_ids,
+                            sell_orders_for_save,
+                            user,
+                            trade,
+                            precision,
+                            ask_orders_q,
+                            symbol
+                        )
+
+                if buy_orders_error or sell_orders_error:
+                    self.handle_hft_error(
+                        user,
+                        trade,
+                        [*sell_orders_for_save.keys(), *buy_orders_for_save.keys()],
+                        sell_orders_error or buy_orders_error
+                    )
+                    return
 
                 trade.hft_order_ids = json.dumps(client_order_ids)
                 trade.active_order_ids = json.dumps([*buy_orders_for_save.keys(), *sell_orders_for_save.keys()])
@@ -248,19 +298,41 @@ class FTXBot:
         sell_order_ids = {}
         buy_order_ids = {}
 
-        try:
-            pass
-            # place orders:
-            print('placing orders')
-            self.hft_place_sell_orders(cost, client_order_ids, sell_order_ids, user, trade, precision, ask_orders_q, symbol)
-            self.hft_place_buy_orders(cost, client_order_ids, buy_order_ids, user, trade, precision, bid_orders_q, symbol)
+        print('placing orders')
+        buy_orders_error = ''
 
-        except Exception as e:
-            pass
-            # self.handle_error(trade, e, False, True)
+        sell_orders_error = self.hft_place_sell_orders(
+            cost,
+            client_order_ids,
+            sell_order_ids,
+            user,
+            trade,
+            precision,
+            ask_orders_q,
+            symbol
+        )
 
-            # if buy_order_ids or sell_order_ids:
-            #     client.batch_cancel(order_ids=[*buy_order_ids.keys(), *sell_order_ids.keys()])
+        if not sell_orders_error:
+            buy_orders_error = self.hft_place_buy_orders(
+                cost,
+                client_order_ids,
+                buy_order_ids,
+                user,
+                trade,
+                precision,
+                bid_orders_q,
+                symbol
+            )
+
+        if buy_orders_error or sell_orders_error:
+            self.handle_hft_error(
+                user,
+                trade,
+                [*buy_order_ids.keys(), *sell_order_ids.keys()],
+                sell_orders_error or buy_orders_error
+            )
+
+            return
 
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps([*buy_order_ids.keys(), *sell_order_ids.keys()])
@@ -268,6 +340,15 @@ class FTXBot:
         trade.hft_buy_orders = json.dumps(buy_order_ids)
         trade.hft_sell_orders = json.dumps(sell_order_ids)
 
+    def handle_hft_error(self, user, trade, trades_to_cancel, errors):
+        batch_cancel_orders(user, trades_to_cancel)
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=30)
+        send_log(trade.user.id, f'{trade.id}: ERROR: {red(errors)}. Will repeat after 30 seconds.')
+
+        trade.hft_order_ids = '[]'
+        trade.active_order_ids = '[]'
+        trade.hft_buy_orders = '{}'
+        trade.hft_sell_orders = '{}'
 
     def hft_place_buy_orders(
             self,
@@ -281,12 +362,15 @@ class FTXBot:
             symbol,
             start_from=0
     ):
+        error = ''
+
         for i in range(start_from, trade.hft_orders_on_each_side):
-            percent = 100 - (i + 1) * float(trade.hft_orders_price_difference) - float(trade.hft_default_price_difference)
+            percent = 100 - (i + 1) * float(trade.hft_orders_price_difference) - float(
+                trade.hft_default_price_difference)
 
             price = cost['bid'] * percent / 100
 
-            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            client_order_id = str(uuid.uuid1())
             amount = format_float(quantities_array[i], precision.get('amount', 0))
 
             response = ftx.place_order(user, {
@@ -297,11 +381,15 @@ class FTXBot:
                 'size': amount,
                 'clientId': client_order_id
             })
-            print(response)
 
             if response.get('success'):
                 order_ids[response['result']['id']] = quantities_array[i]
                 client_order_ids.append(client_order_id)
+            else:
+                error = response['error']
+                return error
+
+        return error
 
     def hft_place_sell_orders(
             self,
@@ -315,12 +403,15 @@ class FTXBot:
             symbol,
             start_from=0
     ):
+        error = ''
+
         for i in range(start_from, trade.hft_orders_on_each_side):
-            percent = (i + 1) * float(trade.hft_orders_price_difference) + float(trade.hft_default_price_difference) + 100
+            percent = (i + 1) * float(trade.hft_orders_price_difference) + float(
+                trade.hft_default_price_difference) + 100
 
             price = cost['ask'] * percent / 100
 
-            client_order_id = int(round(timezone.now().timestamp() * 100000))
+            client_order_id = str(uuid.uuid1())
             amount = format_float(float(quantities_array[i]), precision.get('amount', 0))
 
             response = ftx.place_order(user, {
@@ -331,8 +422,12 @@ class FTXBot:
                 'size': amount,
                 'clientId': client_order_id
             })
-            print(response)
 
             if response.get('success'):
                 order_ids[response['result']['id']] = quantities_array[i]
                 client_order_ids.append(client_order_id)
+            else:
+                error = response['error']
+                return error
+
+        return error
