@@ -31,7 +31,9 @@ function updateOrderBook(oldOrders, ordersFromExchange, bid) {
 export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, user) => {
     const data = JSON.parse(event.data)
 
-    if (data && data.data && data.channel === 'orderbook' && typeof wsCallbacksRef.current.setBook === 'function') {
+    if (!data || !data.data) return
+
+    if (data.channel === 'orderbook' && typeof wsCallbacksRef.current.setBook === 'function') {
         wsCallbacksRef.current.setBook((oldOrders) => {
             if (data.type === 'partial') return { asks: data.data.asks, bids: data.data.bids }
 
@@ -45,6 +47,17 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
 
             return { bids: newBids, asks: newAsks }
         })
+    }
+
+    if (data.channel === 'trades' && typeof wsCallbacksRef.current.setBook === 'function') {
+        const newData = data.data.map((item) => ({
+            ts: item.time,
+            price: item.price,
+            direction: item.side,
+            amount: item.size,
+        }))
+
+        wsCallbacksRef.current.setOrdersData({ data: newData })
     }
 }
 

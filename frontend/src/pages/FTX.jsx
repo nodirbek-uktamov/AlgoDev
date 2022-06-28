@@ -31,7 +31,13 @@ export default function FTX() {
 
             <div style={{ display: 'grid', gap: '1.1rem', gridTemplateColumns: 'repeat(3, auto)', padding: '1.1rem' }}>
                 <div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem', maxWidth: '18rem', width: '18rem' }}>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.1rem',
+                        maxWidth: '18rem',
+                        width: '18rem',
+                    }}>
                         <Card>
                             <FTXTradeForm onUpdate={onUpdate} />
                         </Card>
