@@ -9,7 +9,7 @@ from users.serializers.users import UserSerializer
 
 class CustomTokenAuthentication(TokenAuthentication):
     def authenticate_credentials(self, key):
-        token = Token.objects.select_related('user').filter(key=key, expires_at__gte=timezone.now()).first()
+        token = Token.objects.filter(key=key, expires_at__gte=timezone.now()).select_related('user').first()
 
         if token is None:
             raise AuthenticationFailed({'detail': _('Invalid or expired token.'), 'logout': 'true'})
