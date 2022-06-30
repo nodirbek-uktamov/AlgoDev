@@ -1,6 +1,7 @@
 git pull
 python3 backend/manage.py migrate
 systemctl restart gunicorn
+systemctl restart logs
 systemctl restart celery
 systemctl restart nginx
 systemctl restart huobi_bot
