@@ -10,12 +10,12 @@ import { Button } from '../../common/Button'
 
 const BOT_TYPES_LIMIT = [
     {
-        title: 'HFT',
-        key: 'hft',
-    },
-    {
         title: 'Limit',
         key: 'limit',
+    },
+    {
+        title: 'HFT',
+        key: 'hft',
     },
 ]
 

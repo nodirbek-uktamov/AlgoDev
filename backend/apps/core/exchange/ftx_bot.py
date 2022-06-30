@@ -8,7 +8,6 @@ from django.db.models import Q
 from django.utils import timezone
 import uuid
 
-from core.exchange.ftx import batch_cancel_orders
 from core.exchange.utils import format_float
 from core.exchange import ftx
 from core.tasks import send_log
@@ -152,6 +151,10 @@ class FTXBot:
                 self.hft_bot(cost, user, trade, precision, orders, symbol)
                 return trade
 
+            if trade.limit:
+                self.limit_bot(cost, user, trade, precision, orders, symbol)
+                return trade
+
         except Exception as e:
             print(str(e))
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -160,6 +163,24 @@ class FTXBot:
             return trade
 
         return trade
+
+    def limit_bot(self, cost, user, trade, precision, orders, symbol):
+        response = ftx.place_order(user, {
+            'market': symbol,
+            'side': 'buy',
+            'price': format_float(trade.limit_price, precision.get('price', 0)),
+            'type': 'limit',
+            'size': format_float(trade.quantity, precision.get('amount', 0)),
+            'clientId': trade.id
+        })
+
+        if response.get('error'):
+            print(response)
+            self.handle_error(user, trade, response['error'])
+            return
+
+        trade.is_completed = True
+        send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
 
     def hft_bot(self, cost, user, trade, precision, orders, symbol):
         total_orders_count = trade.hft_orders_on_each_side * 2
@@ -213,7 +234,7 @@ class FTXBot:
                     )
 
                     if buy_order_ids:
-                        batch_cancel_orders(user, buy_order_ids)
+                        ftx.batch_cancel_orders(user, buy_order_ids)
 
                     if not sell_orders_error:
                         buy_orders_error = self.hft_place_buy_orders(
@@ -251,7 +272,7 @@ class FTXBot:
                     )
 
                     if sell_order_ids:
-                        batch_cancel_orders(user, sell_order_ids)
+                        ftx.batch_cancel_orders(user, sell_order_ids)
 
                     if not buy_orders_error:
                         sell_orders_error = self.hft_place_sell_orders(
@@ -340,8 +361,15 @@ class FTXBot:
         trade.hft_buy_orders = json.dumps(buy_order_ids)
         trade.hft_sell_orders = json.dumps(sell_order_ids)
 
+    def handle_error(self, user, trade, error):
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=30)
+        trade.is_completed = True
+        trade.completed_at = timezone.now()
+
+        send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}.', {'delete': trade.id})
+
     def handle_hft_error(self, user, trade, trades_to_cancel, errors):
-        batch_cancel_orders(user, trades_to_cancel)
+        ftx.batch_cancel_orders(user, trades_to_cancel)
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=30)
         send_log(trade.user.id, f'{trade.id}: ERROR: {red(errors)}. Will repeat after 30 seconds.')
 

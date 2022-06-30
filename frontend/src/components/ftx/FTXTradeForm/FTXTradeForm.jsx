@@ -76,6 +76,8 @@ export const FTXLimitOptionsRenderer = {
 const BotDataFactory = {
     limit: {
         create(newData) {
+            newData.limit = true
+            newData.limit_price = newData.price
             return newData
         },
     },
