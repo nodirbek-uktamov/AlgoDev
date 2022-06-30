@@ -81,12 +81,12 @@ const renderColumns = () => [
 function FTXPositionsList() {
     const positions = useLoad({ url: FTX_POSITIONS_LIST })
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         positions.request()
-    //     }, 4000)
-    //     return () => clearInterval(interval)
-    // }, [positions])
+    useEffect(() => {
+        const interval = setInterval(() => {
+            positions.request()
+        }, 4000)
+        return () => clearInterval(interval)
+    }, [positions])
 
     const items = ((positions.response && positions.response.result) || []).filter((i) => i.size)
 
