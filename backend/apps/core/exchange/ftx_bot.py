@@ -155,6 +155,10 @@ class FTXBot:
                 self.limit_bot(cost, user, trade, precision, orders, symbol)
                 return trade
 
+            if trade.market:
+                self.market_bot(cost, user, trade, precision, orders, symbol)
+                return trade
+
         except Exception as e:
             print(str(e))
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -172,6 +176,23 @@ class FTXBot:
             'type': 'limit',
             'size': format_float(trade.quantity, precision.get('amount', 0)),
             'clientId': trade.id
+        })
+
+        if response.get('error'):
+            self.handle_error(user, trade, response['error'])
+            return
+
+        trade.is_completed = True
+        send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+
+    def market_bot(self, cost, user, trade, precision, orders, symbol):
+        response = ftx.place_order(user, {
+            'market': symbol,
+            'side': 'buy',
+            'type': 'market',
+            'size': format_float(trade.quantity, precision.get('amount', 0)),
+            'clientId': trade.id,
+            'price': None
         })
 
         if response.get('error'):

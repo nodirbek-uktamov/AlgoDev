@@ -9,6 +9,7 @@ import { Tabs } from '../../common/Tabs/Tabs'
 import { useMessage } from '../../../hooks/message'
 import { Button } from '../../common/Button'
 import { FTX } from '../../../exchanges/exchanges'
+import { Market } from './Market'
 
 const formValues = JSON.parse(localStorage.getItem('ftxSavedForms') || '{}')
 
@@ -31,6 +32,13 @@ export const FTXLimitOptionsRenderer = {
                         type="number"
                         label="Price" />
                 </>
+            )
+        },
+    },
+    market: {
+        render(values) {
+            return (
+                <></>
             )
         },
     },
@@ -87,6 +95,12 @@ const BotDataFactory = {
             return newData
         },
     },
+    market: {
+        create(newData) {
+            newData.market = true
+            return newData
+        },
+    },
 }
 
 const renderTabs = (props) => [
@@ -94,10 +108,10 @@ const renderTabs = (props) => [
         title: 'Limit',
         render: () => <Limit {...props} />,
     },
-    // {
-    //     title: 'Market',
-    //     render: () =>  <Market {...props} />
-    // }
+    {
+        title: 'Market',
+        render: () => <Market {...props} />,
+    },
 ]
 
 export default React.memo(({ onUpdate }) => {
