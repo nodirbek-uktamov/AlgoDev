@@ -59,7 +59,7 @@ pip3 --version
     WantedBy=sockets.target
     ``` 
 
-2. Open `nano /etc/systemd/system/gunicorn.service` and put
+2. Open `nano /etc/systemd/system/logs.service` and put
     
     ```
     [Unit]
@@ -76,6 +76,22 @@ pip3 --version
     [Install]
     WantedBy=multi-user.target
     ```
+
+2.1. Open `cat /etc/systemd/system/gunicorn.service` and put
+
+    [Unit]
+    Description=gunicorn daemon
+    Requires=gunicorn.socket
+    After=network.target
+    
+    [Service]
+    User=root
+    Group=www-data
+    WorkingDirectory=/home/terminal/backend
+    ExecStart=gunicorn --env DJANGO_SETTINGS_MODULE=config.settings --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock config.wsgi:application
+    
+    [Install]
+    WantedBy=multi-user.target
 
 3. Run `sudo systemctl start gunicorn.socket` `sudo systemctl enable gunicorn.socket`
 4. Check `curl --unix-socket /run/gunicorn.sock localhost` if error occurred run `journalctl -u gunicorn` to see logs
