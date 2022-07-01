@@ -4,7 +4,7 @@ from django.utils import timezone
 from config.celery import app
 
 
-# @app.task
+@app.task
 def _send_log(user_id, message, action=None):
     channel_layer = get_channel_layer()
 
@@ -19,4 +19,5 @@ def _send_log(user_id, message, action=None):
 
 
 def send_log(user_id, message, action=None):
-    _send_log(user_id, message, action)
+    start = timezone.now()
+    _send_log.delay(user_id, message, action)
