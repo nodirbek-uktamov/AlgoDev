@@ -8,7 +8,7 @@ import time
 import uuid
 
 import requests
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils import timezone
 from huobi.rest.error import HuobiRestiApiError
 
@@ -56,9 +56,24 @@ class HuobiBot:
 
         while not time.sleep(0.1):
             started_at = timezone.now()
+
             users = User.objects.filter(
-                trades__isnull=False, trades__is_completed=False, trades__exchange=HUOBI
-            ).distinct()
+                trades__isnull=False,
+                trades__is_completed=False,
+                trades__exchange=HUOBI
+            )
+
+            users = users.prefetch_related(
+                Prefetch(
+                    'trades',
+                    queryset=Trade.objects.filter(
+                        Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
+                        is_completed=False,
+                        exchange=HUOBI
+                    ).order_by('grid_bot')
+                ),
+                'trades__ladder_trades',
+            ).distinct('id')
 
             try:
                 costs_res = requests.get('https://api.huobi.pro/market/tickers').json()
@@ -74,7 +89,7 @@ class HuobiBot:
 
             del costs_res
 
-            users_count = users.count()
+            users_count = len(users)
 
             if users_count > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users_count) as pool:
@@ -548,11 +563,7 @@ class HuobiBot:
 
             account_id = user.huobi_spot_account_id
 
-            trades = user.trades.filter(
-                Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
-                is_completed=False,
-                exchange=HUOBI
-            ).prefetch_related('ladder_trades').order_by('grid_bot')
+            trades = user.trades.all()
 
             trades_count = trades.count()
 

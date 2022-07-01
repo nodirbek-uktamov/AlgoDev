@@ -1,10 +1,11 @@
 import concurrent
+# from query_counter.decorators import queries_counter
 import json
 import logging
 import os
 import sys
 import time
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils import timezone
 import uuid
 
@@ -20,6 +21,7 @@ logger = logging.getLogger('bot')
 
 
 class FTXBot:
+    # @queries_counter
     def run(self):
         from main.models import SymbolSetting
 
@@ -52,8 +54,22 @@ class FTXBot:
             started_at = timezone.now()
 
             users = User.objects.filter(
-                trades__isnull=False, trades__is_completed=False, trades__exchange=FTX
-            ).distinct()
+                trades__isnull=False,
+                trades__is_completed=False,
+                trades__exchange=FTX
+            )
+
+            users = users.prefetch_related(
+                Prefetch(
+                    'trades',
+                    queryset=Trade.objects.filter(
+                        Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
+                        is_completed=False,
+                        exchange=FTX
+                    ).order_by('grid_bot')
+                ),
+                'trades__ladder_trades'
+            ).distinct('id')
 
             try:
                 costs_res = ftx.get_markets()
@@ -69,7 +85,7 @@ class FTXBot:
 
             del costs_res
 
-            users_count = users.count()
+            users_count = len(users)
 
             if users_count > 0:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=users_count) as pool:
@@ -113,11 +129,7 @@ class FTXBot:
         try:
             orders = ftx.get_open_orders(user)
 
-            trades = user.trades.filter(
-                Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
-                is_completed=False,
-                exchange=FTX
-            ).prefetch_related('ladder_trades').order_by('grid_bot')
+            trades = user.trades.all()
 
             trades_count = trades.count()
 
