@@ -77,4 +77,5 @@ def batch_cancel_orders(user, order_ids):
 
 def cancel_order(user, id):
     response = ftx_request(f'/orders/{id}', 'DELETE', user)
+    return response
 

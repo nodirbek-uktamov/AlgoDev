@@ -135,6 +135,8 @@ class TradesSerializer(serializers.ModelSerializer):
             'limit',
             'limit_price',
 
+            'chase_bot',
+
             'market',
 
             'ladder_trades',

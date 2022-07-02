@@ -343,6 +343,7 @@ const BotDataFactory = {
     },
     chase_bot: {
         create(newData) {
+            newData.chase_bot = true
             return newData
         },
     },

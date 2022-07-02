@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Form, Formik } from 'formik'
 import { Limit } from './Limit'
-import { InputField } from '../../../forms'
+import { InputField, ToggleSwitchField } from '../../../forms'
 import { usePostRequest } from '../../../hooks/request'
 import { MainContext } from '../../../contexts/MainContext'
 import { FTX_PLACE_ORDER, TRADE } from '../../../urls'
@@ -39,6 +39,22 @@ export const FTXLimitOptionsRenderer = {
         render(values) {
             return (
                 <></>
+            )
+        },
+    },
+    chase_bot: {
+        render(values) {
+            return (
+                <>
+                    <ToggleSwitchField name="loop" text="Loop" />
+
+                    {values.loop && (
+                        <InputField
+                            name="time_interval"
+                            type="number"
+                            label="Interval" />
+                    )}
+                </>
             )
         },
     },
@@ -92,6 +108,12 @@ const BotDataFactory = {
     hft: {
         create(newData) {
             newData.hft_bot = true
+            return newData
+        },
+    },
+    chase_bot: {
+        create(newData) {
+            newData.chase_bot = true
             return newData
         },
     },

@@ -10,6 +10,10 @@ import { Button } from '../../common/Button'
 
 const BOT_TYPES_LIMIT = [
     {
+        title: 'Chase bot',
+        key: 'chase_bot',
+    },
+    {
         title: 'Limit',
         key: 'limit',
     },

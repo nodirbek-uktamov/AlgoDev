@@ -112,6 +112,7 @@ class FTXBot:
                         "ladder_order_ids",
                         "ladder_completed_orders",
                         "ladder_prices_sum",
+                        "completed_loops",
                     ]
 
                     Trade.objects.bulk_update(trades, update_fields)
@@ -171,6 +172,33 @@ class FTXBot:
                 self.market_bot(cost, user, trade, precision, orders, symbol)
                 return trade
 
+            if trade.chase_bot:
+                order = list(filter(lambda i: i.get('clientId') == trade.order_id, orders))
+
+                price = cost.get('bid')
+
+                if trade.trade_type == 'sell':
+                    price = cost.get('ask')
+
+                if order:
+                    order = order[0]
+
+                    if float(trade.price) != price:
+                        cancel_response = ftx.cancel_order(user, order['id'])
+
+                        if cancel_response.get('success'):
+                            trade.filled = float(trade.filled) + float(order.get('filledSize') or 0)
+                            self.chase_bot(price, user, trade, precision, orders, symbol)
+
+                    return trade
+
+                if float(trade.price) > 0:
+                    self.complete_trade(trade, user)
+                    return trade
+
+                self.chase_bot(price, user, trade, precision, orders, symbol)
+                return trade
+
         except Exception as e:
             print(str(e))
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -179,6 +207,30 @@ class FTXBot:
             return trade
 
         return trade
+
+    def complete_trade(self, trade, user):
+        trade.is_completed = True if not trade.loop else False
+        trade.filled = 0
+        trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
+        trade.price = 0
+        trade.completed_loops += 1
+
+        log_text = f'{trade.id}: {bold("Order completed")}.'
+
+        remove_from_list = True
+
+        if trade.loop:
+            log_text += f' Waiting {trade.time_interval} seconds'
+            remove_from_list = False
+
+        action = {'delete': trade.id} if remove_from_list else {}
+
+        action = {
+            **action, 'trade': trade.id, 'completed_loops': trade.completed_loops,
+            'price': {'price': 0, 'trade': trade.id}
+        }
+
+        send_log(user.id, log_text, action)
 
     def limit_bot(self, cost, user, trade, precision, orders, symbol):
         response = ftx.place_order(user, {
@@ -196,6 +248,32 @@ class FTXBot:
 
         trade.is_completed = True
         send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+
+    def chase_bot(self, price, user, trade, precision, orders, symbol):
+        print(trade.filled)
+        readable_price = format_float(price, precision.get('price', 0))
+        client_order_id = str(uuid.uuid1())
+
+        response = ftx.place_order(user, {
+            'market': symbol,
+            'side': trade.trade_type,
+            'price': readable_price,
+            'type': 'limit',
+            'size': format_float(float(trade.quantity) - float(trade.filled), precision.get('amount', 0)),
+            'clientId': client_order_id
+        })
+
+        if response.get('error'):
+            self.handle_error(user, trade, response['error'])
+        else:
+            send_log(
+                user.id,
+                f'{trade.id}   {trade.trade_type} order put: {price}',
+                {'price': {'price': readable_price, 'trade': trade.id, 'trade_type': trade.trade_type}}
+            )
+
+            trade.price = price
+            trade.order_id = client_order_id
 
     def market_bot(self, cost, user, trade, precision, orders, symbol):
         response = ftx.place_order(user, {

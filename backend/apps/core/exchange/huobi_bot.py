@@ -116,6 +116,7 @@ class HuobiBot:
                         "ladder_order_ids",
                         "ladder_completed_orders",
                         "ladder_prices_sum",
+                        "completed_loops"
                     ]
 
                     Trade.objects.bulk_update(trades, update_fields)
