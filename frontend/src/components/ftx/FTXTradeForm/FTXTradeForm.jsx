@@ -4,7 +4,7 @@ import { Limit } from './Limit'
 import { InputField, ToggleSwitchField } from '../../../forms'
 import { usePostRequest } from '../../../hooks/request'
 import { MainContext } from '../../../contexts/MainContext'
-import { FTX_PLACE_ORDER, TRADE } from '../../../urls'
+import { TRADE } from '../../../urls'
 import { Tabs } from '../../common/Tabs/Tabs'
 import { useMessage } from '../../../hooks/message'
 import { Button } from '../../common/Button'
@@ -16,14 +16,28 @@ const formValues = JSON.parse(localStorage.getItem('ftxSavedForms') || '{}')
 const tradeInitialValues = {
     quantity: '',
     price: 0,
+    loop: true,
+    time_interval: 120,
+    iceberg: false,
+    icebergs_count: 0,
+    twap_bot: false,
+    twap_bot_duration: 0,
+    iceberg_price: '',
     hft_orders_on_each_side: 0,
     hft_orders_price_difference: 0,
     hft_default_price_difference: 0,
+
+    ladder_trades_count: 0,
+    ladder_start_price: 0,
+    ladder_end_price: 0,
+
+    take_profit: false,
+    stop: false,
 }
 
 export const FTXLimitOptionsRenderer = {
     limit: {
-        render(values) {
+        render() {
             return (
                 <>
                     <InputField
@@ -36,7 +50,7 @@ export const FTXLimitOptionsRenderer = {
         },
     },
     market: {
-        render(values) {
+        render() {
             return (
                 <></>
             )
@@ -53,6 +67,45 @@ export const FTXLimitOptionsRenderer = {
                             name="time_interval"
                             type="number"
                             label="Interval" />
+                    )}
+                </>
+            )
+        },
+    },
+    iceberg: {
+        render(values) {
+            return (
+                <>
+                    <ToggleSwitchField name="loop" text="Loop" />
+
+                    {values.loop && (
+                        <InputField
+                            name="time_interval"
+                            type="number"
+                            label="Interval" />
+                    )}
+
+                    <InputField
+                        name="icebergs_count"
+                        type="number"
+                        label="Icebergs count" />
+
+                    <InputField
+                        name="iceberg_price"
+                        step="0.00000001"
+                        type="number"
+                        label="Price"
+                    />
+
+                    <ToggleSwitchField name="take_profit" text="TakeProfit" />
+
+                    {values.take_profit && (
+                        <InputField
+                            name="take_profit_percent"
+                            step="0.1"
+                            type="number"
+                            label="Take profit percent (%)"
+                        />
                     )}
                 </>
             )
@@ -117,6 +170,12 @@ const BotDataFactory = {
             return newData
         },
     },
+    iceberg: {
+        create(newData) {
+            newData.iceberg = true
+            return newData
+        },
+    },
     market: {
         create(newData) {
             newData.market = true
@@ -162,7 +221,8 @@ export default React.memo(({ onUpdate }) => {
             ...data,
             symbol: symbol.value,
             trade_type: tradeType,
-            botType: botType.key,
+            twap_bot_duration: data.twap_bot_duration * 60,
+            iceberg_price: data.iceberg_price || 0,
             exchange: FTX,
         }
 

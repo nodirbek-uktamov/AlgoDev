@@ -10,12 +10,16 @@ import { Button } from '../../common/Button'
 
 const BOT_TYPES_LIMIT = [
     {
+        title: 'Limit',
+        key: 'limit',
+    },
+    {
         title: 'Chase bot',
         key: 'chase_bot',
     },
     {
-        title: 'Limit',
-        key: 'limit',
+        title: 'Iceberg',
+        key: 'iceberg',
     },
     {
         title: 'HFT',
