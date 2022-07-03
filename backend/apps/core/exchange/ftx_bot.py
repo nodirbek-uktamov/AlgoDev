@@ -155,10 +155,16 @@ class FTXBot:
     def run_trade(self, args):
         costs, user, trade, precisions, orders = args
 
+        symbol = trade.symbol.upper()
+        precision = precisions[symbol]
+        cost = costs[symbol]
+
+        price = cost.get('bid')
+
+        if trade.trade_type == 'sell':
+            price = cost.get('ask')
+
         try:
-            symbol = trade.symbol.upper()
-            precision = precisions[symbol]
-            cost = costs[symbol]
 
             if trade.hft_bot:
                 self.hft_bot(cost, user, trade, precision, orders, symbol)
@@ -173,16 +179,11 @@ class FTXBot:
                 return trade
 
             if trade.iceberg:
-                self.iceberg_bot(cost, user, trade, precision, orders, symbol)
+                self.iceberg_bot(price, user, trade, precision, orders, symbol)
                 return trade
 
             if trade.chase_bot:
                 order = list(filter(lambda i: i.get('clientId') == trade.order_id, orders))
-
-                price = cost.get('bid')
-
-                if trade.trade_type == 'sell':
-                    price = cost.get('ask')
 
                 if order:
                     order = order[0]
@@ -253,7 +254,7 @@ class FTXBot:
         trade.is_completed = True
         send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
 
-    def iceberg_bot(self, cost, user, trade, precision, orders, symbol):
+    def iceberg_bot(self, price, user, trade, precision, orders, symbol):
         if trade.price:
             order = list(filter(lambda i: i.get('clientId') == trade.order_id, orders))
 
@@ -279,6 +280,7 @@ class FTXBot:
                     trade.completed_at = timezone.now() + timezone.timedelta(seconds=trade.time_interval)
                     trade.completed_loops += 1
                     trade.completed_icebergs = 0
+                    trade.market_making_array = ''
                 else:
                     action['delete'] = trade.id
                     trade.is_completed = True
@@ -290,12 +292,19 @@ class FTXBot:
 
         client_order_id = str(uuid.uuid1())
 
+        amount = float(trade.quantity) / trade.icebergs_count
+
+        if not trade.market_making:
+            price = trade.iceberg_price
+        else:
+            amount = self.get_mm_amount(trade, precision)
+
         response = ftx.place_order(user, {
             'market': symbol,
             'side': trade.trade_type,
-            'price': format_float(trade.iceberg_price, precision.get('price', 0)),
+            'price': format_float(price, precision.get('price', 0)),
             'type': 'limit',
-            'size': format_float(float(trade.quantity) / trade.icebergs_count, precision.get('amount', 0)),
+            'size': format_float(amount, precision.get('amount', 0)),
             'clientId': client_order_id
         })
 
@@ -627,3 +636,13 @@ class FTXBot:
                 return error
 
         return error
+
+    def get_mm_amount(self, trade, precision):
+        if not trade.market_making_array:
+            array = random_array(float(trade.quantity), trade.icebergs_count, precision.get('min_price'), 10)
+            trade.market_making_array = json.dumps(array)
+        else:
+            array = json.loads(trade.market_making_array)
+
+        return array[trade.completed_icebergs]
+

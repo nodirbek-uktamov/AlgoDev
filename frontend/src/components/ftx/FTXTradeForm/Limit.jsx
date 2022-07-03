@@ -22,6 +22,10 @@ const BOT_TYPES_LIMIT = [
         key: 'iceberg',
     },
     {
+        title: 'MM',
+        key: 'mm',
+    },
+    {
         title: 'HFT',
         key: 'hft',
     },

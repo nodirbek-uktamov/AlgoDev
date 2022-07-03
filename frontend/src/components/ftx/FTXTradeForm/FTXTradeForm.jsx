@@ -97,16 +97,47 @@ export const FTXLimitOptionsRenderer = {
                         label="Price"
                     />
 
-                    <ToggleSwitchField name="take_profit" text="TakeProfit" />
+                    {/* <ToggleSwitchField name="take_profit" text="TakeProfit" /> */}
 
-                    {values.take_profit && (
+                    {/* {values.take_profit && ( */}
+                    {/*    <InputField */}
+                    {/*        name="take_profit_percent" */}
+                    {/*        step="0.1" */}
+                    {/*        type="number" */}
+                    {/*        label="Take profit percent (%)" */}
+                    {/*    /> */}
+                    {/* )} */}
+                </>
+            )
+        },
+    },
+    mm: {
+        render(values) {
+            return (
+                <>
+                    <ToggleSwitchField name="loop" text="Loop" />
+
+                    {values.loop && (
                         <InputField
-                            name="take_profit_percent"
-                            step="0.1"
+                            name="time_interval"
                             type="number"
-                            label="Take profit percent (%)"
-                        />
+                            label="Interval" />
                     )}
+
+                    <InputField
+                        name="icebergs_count"
+                        type="number"
+                        label="Icebergs count" />
+
+                    {/* <ToggleSwitchField name="take_profit" text="TakeProfit" /> */}
+
+                    {/* {values.take_profit && ( */}
+                    {/*    <InputField */}
+                    {/*        name="take_profit_percent" */}
+                    {/*        step="0.1" */}
+                    {/*        type="number" */}
+                    {/*        label="Take profit percent (%)" /> */}
+                    {/* )} */}
                 </>
             )
         },
@@ -173,6 +204,13 @@ const BotDataFactory = {
     iceberg: {
         create(newData) {
             newData.iceberg = true
+            return newData
+        },
+    },
+    mm: {
+        create(newData) {
+            newData.iceberg = true
+            newData.market_making = true
             return newData
         },
     },
