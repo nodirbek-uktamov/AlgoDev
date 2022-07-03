@@ -142,6 +142,30 @@ export const FTXLimitOptionsRenderer = {
             )
         },
     },
+    grid: {
+        render(values) {
+            return (
+                <>
+                    <InputField
+                        name="grid_trades_count"
+                        type="number"
+                        label="Trades count" />
+
+                    <InputField
+                        name="grid_start_price"
+                        step="0.00000001"
+                        type="number"
+                        label="Start price" />
+
+                    <InputField
+                        name="grid_end_price"
+                        step="0.00000001"
+                        type="number"
+                        label="End price" />
+                </>
+            )
+        },
+    },
     hft: {
         render(values) {
             return (
@@ -211,6 +235,12 @@ const BotDataFactory = {
         create(newData) {
             newData.iceberg = true
             newData.market_making = true
+            return newData
+        },
+    },
+    grid: {
+        create(newData) {
+            newData.grid_bot = true
             return newData
         },
     },

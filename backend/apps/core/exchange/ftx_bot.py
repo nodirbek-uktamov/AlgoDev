@@ -182,6 +182,10 @@ class FTXBot:
                 self.iceberg_bot(price, user, trade, precision, orders, symbol)
                 return trade
 
+            if trade.grid_bot:
+                self.grid_bot(price, user, trade, precision, orders, symbol)
+                return trade
+
             if trade.chase_bot:
                 order = list(filter(lambda i: i.get('clientId') == trade.order_id, orders))
 
@@ -253,6 +257,46 @@ class FTXBot:
 
         trade.is_completed = True
         send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+
+    def grid_bot(self, cost, user, trade, precision, orders, symbol):
+        start_price = min(trade.grid_end_price, trade.grid_start_price)
+        end_price = max(trade.grid_end_price, trade.grid_start_price)
+
+        quantities_array = random_array(
+            float(trade.quantity),
+            trade.grid_trades_count,
+            precision.get('min_price'),
+            precision.get('amount', 0)
+        )
+
+        order_ids = []
+
+        for i in range(1, trade.grid_trades_count + 1):
+            price = start_price + i * (end_price - start_price) / (trade.grid_trades_count + 1)
+            quantity = quantities_array[i - 1]
+            clientId = str(uuid.uuid1())
+
+            response = ftx.place_order(user, {
+                'market': symbol,
+                'side': trade.trade_type,
+                'price': format_float(price, precision.get('price', 0)),
+                'type': 'limit',
+                'size': format_float(quantity, precision.get('amount', 0)),
+                'clientId': clientId
+            })
+
+            if response.get('error'):
+                self.handle_error(user, trade, response['error'])
+                ftx.batch_cancel_orders(user, order_ids)
+                return
+            else:
+                order_ids.append(response['result']['id'])
+
+        trade.active_order_ids = json.dumps(order_ids)
+        trade.is_completed = True
+
+        log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
+        send_log(trade.user.id, log_text, {'delete': trade.id})
 
     def iceberg_bot(self, price, user, trade, precision, orders, symbol):
         if trade.price:
@@ -639,10 +683,10 @@ class FTXBot:
 
     def get_mm_amount(self, trade, precision):
         if not trade.market_making_array:
-            array = random_array(float(trade.quantity), trade.icebergs_count, precision.get('min_price'), 10)
+            array = random_array(float(trade.quantity), trade.icebergs_count, precision.get('min_price'),
+                                 precision.get('amount'))
             trade.market_making_array = json.dumps(array)
         else:
             array = json.loads(trade.market_making_array)
 
         return array[trade.completed_icebergs]
-

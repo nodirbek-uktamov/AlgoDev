@@ -51,8 +51,19 @@ def get_markets():
     response = requests.get(FTX_REST_API + '/markets').json()
 
     for i in response.get('result', []):
-        i['price_increment'] = abs(decimal.Decimal(str(i['priceIncrement'])).as_tuple().exponent)
-        i['size_increment'] = abs(decimal.Decimal(str(i['sizeIncrement'])).as_tuple().exponent)
+        if i['priceIncrement'] == 1:
+            i['price_increment'] = 0
+            i['priceIncrement'] = 0
+        else:
+            i['price_increment'] = abs(decimal.Decimal(str(i['priceIncrement'])).as_tuple().exponent)
+            i['priceIncrement'] = i['price_increment']
+
+        if i['sizeIncrement'] == 1:
+            i['size_increment'] = 0
+            i['sizeIncrement'] = 0
+        else:
+            i['size_increment'] = abs(decimal.Decimal(str(i['sizeIncrement'])).as_tuple().exponent)
+            i['sizeIncrement'] = i['size_increment']
 
     return response
 
@@ -78,4 +89,3 @@ def batch_cancel_orders(user, order_ids):
 def cancel_order(user, id):
     response = ftx_request(f'/orders/{id}', 'DELETE', user)
     return response
-

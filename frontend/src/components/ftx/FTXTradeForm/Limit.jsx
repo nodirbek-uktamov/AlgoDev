@@ -26,6 +26,10 @@ const BOT_TYPES_LIMIT = [
         key: 'mm',
     },
     {
+        title: 'Grid',
+        key: 'grid',
+    },
+    {
         title: 'HFT',
         key: 'hft',
     },
