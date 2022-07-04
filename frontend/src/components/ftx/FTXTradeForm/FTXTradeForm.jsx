@@ -143,6 +143,22 @@ export const FTXLimitOptionsRenderer = {
             )
         },
     },
+    twap: {
+        render(values) {
+            return (
+                <>
+                    <InputField
+                        name="twap_bot_duration"
+                        type="number"
+                        label="Duration (minutes)" />
+
+                    {/* <p className="is-7 mb-2 is-italic">{(values.quantity || 0) / (values.twap_bot_duration || 1)} every */}
+                    {/*    minute */}
+                    {/* </p> */}
+                </>
+            )
+        },
+    },
     grid: {
         render(values) {
             return (
@@ -281,6 +297,12 @@ const BotDataFactory = {
         create(newData) {
             newData.iceberg = true
             newData.market_making = true
+            return newData
+        },
+    },
+    twap: {
+        create(newData) {
+            newData.twap_bot = true
             return newData
         },
     },

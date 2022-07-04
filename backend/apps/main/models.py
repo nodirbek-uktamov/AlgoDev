@@ -110,7 +110,7 @@ class Trade(models.Model):
 
         if self.twap_bot:
             trades_count = int(self.twap_bot_duration / twap_bot_order_interval) or 1
-            amount = self.quantity / trades_count
+            amount = (self.quantity / trades_count) * self.twap_bot_completed_trades
 
         return float(amount)
 
