@@ -165,9 +165,12 @@ class FTXBot:
             price = cost.get('ask')
 
         try:
-
             if trade.hft_bot:
                 self.hft_bot(cost, user, trade, precision, orders, symbol)
+                return trade
+
+            if trade.ladder:
+                self.ladder_bot(cost, user, trade, precision, orders, symbol)
                 return trade
 
             if trade.limit:
@@ -257,6 +260,107 @@ class FTXBot:
 
         trade.is_completed = True
         send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+
+    def ladder_bot(self, cost, user, trade, precision, orders, symbol):
+        from main.models import LadderTrade
+
+        ladder_order_ids = json.loads(trade.ladder_order_ids)
+        amount = trade.quantity
+
+        if ladder_order_ids:  # already put
+            trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
+            active_orders = list(filter(lambda i: i.get('id') in ladder_order_ids, orders))
+            active_orders_ids = list(map(lambda a: a['id'], active_orders))
+
+            completed_orders = list(set(ladder_order_ids) - set(active_orders_ids))
+
+            if completed_orders:
+                ladder_trades = trade.ladder_trades.filter(
+                    order_id__in=completed_orders,
+                    take_profit_order_id__isnull=True,
+                    stop_loss_order_id__isnull=True
+                )
+
+                for i in ladder_trades:
+                    amount_of_orders = amount * i.amount / 100
+
+                    trade.ladder_prices_sum += i.price
+                    trade.ladder_completed_orders += 1
+                    avg_price = trade.ladder_prices_sum / trade.ladder_completed_orders
+
+                    tp_params = self.get_tp_order_params(float(avg_price), trade.trade_type, i.take_profit)
+
+                    tp_response = ftx.place_trigger_order(user, {
+                        "market": symbol,
+                        "side": tp_params['trade_type'],
+                        "triggerPrice": format_float(tp_params['price'], precision.get('price', 0)),
+                        "size": format_float(amount_of_orders, precision.get('amount', 0)),
+                        "type": "takeProfit",
+                    })
+
+                    tp_params = self.get_tp_order_params(float(avg_price), trade.trade_type, i.stop_loss)
+
+                    sl_response = ftx.place_trigger_order(user, {
+                        "market": symbol,
+                        "side": tp_params['trade_type'],
+                        "triggerPrice": format_float(tp_params['price'], precision.get('price', 0)),
+                        "size": format_float(amount_of_orders, precision.get('amount', 0)),
+                        "type": "stop",
+                    })
+
+                    if tp_response.get('error'):
+                        self.send_error_log(trade, 'TP: ' + tp_response['error'])
+
+                    if sl_response.get('error'):
+                        self.send_error_log(trade, 'SL: ' + sl_response['error'])
+
+                    i.take_profit_order_id = tp_response.get('result', {}).get('id', 0)
+                    i.stop_loss_order_id = sl_response.get('result', {}).get('id', 0)
+                    i.save()
+
+                trade.ladder_order_ids = json.dumps(active_orders_ids)
+                trade.active_order_ids = json.dumps(active_orders_ids)
+
+            if not active_orders_ids:
+                trade.is_completed = True
+
+                log_text = f'{trade.id}: all orders are {bold(f"completed")}.'
+                send_log(trade.user.id, log_text, {'delete': trade.id})
+
+            return
+
+        order_ids = []
+
+        trades_for_update = []
+
+        for ladder_trade in trade.ladder_trades.all():
+            quantity = amount * ladder_trade.amount / 100
+
+            response = ftx.place_order(user, {
+                'market': symbol,
+                'side': trade.trade_type,
+                'price': format_float(ladder_trade.price, precision.get('price', 0)),
+                'type': 'limit',
+                'size': format_float(quantity, precision.get('amount', 0)),
+            })
+
+            if response.get('error'):
+                self.handle_error(user, trade, response['error'])
+                ftx.batch_cancel_orders(user, order_ids)
+                return
+
+            order_ids.append(response['result']['id'])
+            ladder_trade.order_id = response['result']['id']
+
+            trades_for_update.append(ladder_trade)
+
+        LadderTrade.objects.bulk_update(trades_for_update, ['order_id'])
+
+        trade.active_order_ids = json.dumps(order_ids)
+        trade.ladder_order_ids = json.dumps(order_ids)
+
+        log_text = f'{trade.id}: {bold(len(order_ids))} orders put.'
+        send_log(trade.user.id, log_text)
 
     def grid_bot(self, cost, user, trade, precision, orders, symbol):
         start_price = min(trade.grid_end_price, trade.grid_start_price)
@@ -582,12 +686,15 @@ class FTXBot:
         trade.hft_buy_orders = json.dumps(buy_order_ids)
         trade.hft_sell_orders = json.dumps(sell_order_ids)
 
+    def send_error_log(self, trade, error, action=None):
+        send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}.', action)
+
     def handle_error(self, user, trade, error):
         trade.completed_at = timezone.now() + timezone.timedelta(seconds=30)
         trade.is_completed = True
         trade.completed_at = timezone.now()
 
-        send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}.', {'delete': trade.id})
+        self.send_error_log(trade, error, {'delete': trade.id})
 
     def handle_hft_error(self, user, trade, trades_to_cancel, errors):
         ftx.batch_cancel_orders(user, trades_to_cancel)
@@ -690,3 +797,23 @@ class FTXBot:
             array = json.loads(trade.market_making_array)
 
         return array[trade.completed_icebergs]
+
+    def get_tp_order_params(self, price, trade_type, tp_percent):
+        if trade_type == 'sell':
+            tp_price = price * (100 - tp_percent) / 100
+            trade_type = 'buy'
+        else:
+            tp_price = price * (100 + tp_percent) / 100
+            trade_type = 'sell'
+
+        return {'price': tp_price, 'trade_type': trade_type}
+
+    def get_stop_order_params(self, price, trade_type, stop_loss_percent):
+        if trade_type == 'sell':
+            trade_type = 'buy'
+            stop_price = price * (100 + stop_loss_percent) / 100
+        else:
+            trade_type = 'sell'
+            stop_price = price * (100 - stop_loss_percent) / 100
+
+        return {'price': stop_price, 'trade_type': trade_type}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { Fragment, useContext, useEffect, useState } from 'react'
 import { Form, Formik } from 'formik'
 import { Limit } from './Limit'
 import { InputField, ToggleSwitchField } from '../../../forms'
@@ -10,6 +10,7 @@ import { useMessage } from '../../../hooks/message'
 import { Button } from '../../common/Button'
 import { FTX } from '../../../exchanges/exchanges'
 import { Market } from './Market'
+import { generateLadderPrice } from '../../../utils/common'
 
 const formValues = JSON.parse(localStorage.getItem('ftxSavedForms') || '{}')
 
@@ -203,6 +204,51 @@ export const FTXLimitOptionsRenderer = {
             )
         },
     },
+    ladder: {
+        render(values) {
+            return (
+                <Fragment>
+                    <InputField
+                        name="ladder_trades_count"
+                        type="number"
+                        pattern="[0-9]"
+                        label="Trades count" />
+
+                    <InputField
+                        name="ladder_start_price"
+                        type="number"
+                        step="0.00000001"
+                        label="Start price" />
+
+                    <InputField
+                        name="ladder_end_price"
+                        type="number"
+                        step="0.00000001"
+                        label="End price" />
+
+                    {values.ladder_trades_count > 0 && (
+                        <div className="columns is-mobile m-0 p-0">
+                            <div className="column pr-2 py-0">
+                                Price
+                            </div>
+
+                            <div className="column has-text-centered is-narrow p-0 mr-1">
+                                Amount %
+                            </div>
+
+                            <div className="column has-text-centered p-0 mr-1">
+                                SL %
+                            </div>
+
+                            <div className="column has-text-centered p-0 mr-1">
+                                TP %
+                            </div>
+                        </div>
+                    )}
+                </Fragment>
+            )
+        },
+    },
 }
 
 const BotDataFactory = {
@@ -247,6 +293,26 @@ const BotDataFactory = {
     market: {
         create(newData) {
             newData.market = true
+            return newData
+        },
+    },
+    ladder: {
+        create(newData, symbol) {
+            const ladderTrades = []
+
+            for (let i = 1; i <= newData.ladder_trades_count; i++) {
+                const defaultPrice = generateLadderPrice(newData, i).toFixed(symbol.tpp)
+
+                ladderTrades.push({
+                    amount: newData[`ladder_item_amount_${i}`],
+                    stop_loss: newData[`ladder_item_sl_${i}`],
+                    take_profit: newData[`ladder_item_tp_${i}`],
+                    price: newData[`ladder_item_price_${i}`] || defaultPrice,
+                })
+            }
+
+            newData.ladderTrades = ladderTrades
+            newData.ladder = true
             return newData
         },
     },

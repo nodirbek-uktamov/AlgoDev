@@ -81,6 +81,11 @@ def place_order(user, data):
     return response
 
 
+def place_trigger_order(user, data):
+    response = ftx_request('/conditional_orders', 'POST', user, json=data)
+    return response
+
+
 def batch_cancel_orders(user, order_ids):
     for id in order_ids:
         response = ftx_request(f'/orders/{id}', 'DELETE', user)

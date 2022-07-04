@@ -7,6 +7,7 @@ import { InputField } from '../../../forms'
 import { MainContext } from '../../../contexts/MainContext'
 import { Select } from '../../common/Select'
 import { Button } from '../../common/Button'
+import { Ladder } from '../../huobi/TradeForm/Ladder'
 
 const BOT_TYPES_LIMIT = [
     {
@@ -32,6 +33,10 @@ const BOT_TYPES_LIMIT = [
     {
         title: 'HFT',
         key: 'hft',
+    },
+    {
+        title: 'Ladder',
+        key: 'ladder',
     },
 ]
 
@@ -74,6 +79,8 @@ export const Limit = ({ values, botType, setBotType, balance, setTradeType, load
                 valueType="percent" />
 
             {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, symbol, botType.key)}
+
+            {botType.key === 'ladder' && <Ladder />}
 
             {botType.key !== 'hft' && (
                 <div className="is-flex" style={{ gap: '1.1rem' }}>
