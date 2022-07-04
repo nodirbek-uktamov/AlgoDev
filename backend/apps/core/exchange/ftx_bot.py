@@ -193,6 +193,10 @@ class FTXBot:
                 self.twap_bot(price, user, trade, precision, orders, symbol)
                 return trade
 
+            if trade.stop:
+                self.stop_bot(price, user, trade, precision, orders, symbol)
+                return trade
+
             if trade.chase_bot:
                 order = list(filter(lambda i: i.get('clientId') == trade.order_id, orders))
 
@@ -265,8 +269,23 @@ class FTXBot:
         trade.is_completed = True
         send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
 
+    def stop_bot(self, cost, user, trade, precision, orders, symbol):
+        response = ftx.place_trigger_order(user, {
+            "market": symbol,
+            "side": trade.trade_type,
+            "triggerPrice": format_float(trade.stop_price, precision.get('price', 0)),
+            "size": format_float(trade.quantity, precision.get('amount', 0)),
+            "type": "stop",
+        })
+
+        if response.get('error'):
+            self.handle_error(user, trade, response['error'])
+            return
+
+        trade.is_completed = True
+        send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+
     def twap_bot(self, cost, user, trade, precision, orders, symbol):
-        print('twap_bot')
         response = ftx.place_twap_order(user, {
             "market": symbol,
             "side": trade.trade_type,
@@ -319,12 +338,12 @@ class FTXBot:
                         "type": "takeProfit",
                     })
 
-                    tp_params = self.get_tp_order_params(float(avg_price), trade.trade_type, i.stop_loss)
+                    sl_params = self.get_sl_order_params(float(avg_price), trade.trade_type, i.stop_loss)
 
                     sl_response = ftx.place_trigger_order(user, {
                         "market": symbol,
-                        "side": tp_params['trade_type'],
-                        "triggerPrice": format_float(tp_params['price'], precision.get('price', 0)),
+                        "side": sl_params['trade_type'],
+                        "triggerPrice": format_float(sl_params['price'], precision.get('price', 0)),
                         "size": format_float(amount_of_orders, precision.get('amount', 0)),
                         "type": "stop",
                     })
@@ -829,7 +848,7 @@ class FTXBot:
 
         return {'price': tp_price, 'trade_type': trade_type}
 
-    def get_stop_order_params(self, price, trade_type, stop_loss_percent):
+    def get_sl_order_params(self, price, trade_type, stop_loss_percent):
         if trade_type == 'sell':
             trade_type = 'buy'
             stop_price = price * (100 + stop_loss_percent) / 100

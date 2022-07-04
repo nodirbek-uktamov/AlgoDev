@@ -220,6 +220,19 @@ export const FTXLimitOptionsRenderer = {
             )
         },
     },
+    stopLoss: {
+        render(values) {
+            return (
+                <Fragment>
+                    <InputField
+                        name="stop_price"
+                        type="number"
+                        step="0.00000001"
+                        label="Stop price" />
+                </Fragment>
+            )
+        },
+    },
     ladder: {
         render(values) {
             return (
@@ -278,6 +291,12 @@ const BotDataFactory = {
     hft: {
         create(newData) {
             newData.hft_bot = true
+            return newData
+        },
+    },
+    stopLoss: {
+        create(newData) {
+            newData.stop = true
             return newData
         },
     },
