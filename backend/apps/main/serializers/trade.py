@@ -144,4 +144,7 @@ class TradesSerializer(serializers.ModelSerializer):
             'ladder_trades_count',
             'ladder_start_price',
             'ladder_end_price',
+
+            'reduce_only',
+            'post_only',
         )

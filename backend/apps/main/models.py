@@ -96,6 +96,9 @@ class Trade(models.Model):
 
     active_order_ids = models.TextField(default='[]')
 
+    reduce_only = models.BooleanField(default=False)
+    post_only = models.BooleanField(default=False)
+
     @property
     def filled_amount(self):
         amount = 0

@@ -259,7 +259,9 @@ class FTXBot:
             'price': format_float(trade.limit_price, precision.get('price', 0)),
             'type': 'limit',
             'size': format_float(trade.quantity, precision.get('amount', 0)),
-            'clientId': trade.id
+            'clientId': trade.id,
+            'postOnly': trade.post_only,
+            'reduceOnly': trade.reduce_only
         })
 
         if response.get('error'):
@@ -553,7 +555,6 @@ class FTXBot:
         sell_orders = json.loads(trade.hft_sell_orders)
 
         if len(buy_orders.keys()) + len(sell_orders.keys()) > 0:
-            # print(orders)
             buy_active_orders = filter(lambda i: str(i.get('id')) in buy_orders.keys(), orders)
             sell_active_orders = filter(lambda i: str(i.get('id')) in sell_orders.keys(), orders)
 

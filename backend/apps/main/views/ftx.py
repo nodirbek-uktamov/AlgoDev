@@ -3,7 +3,10 @@ import decimal
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from core.exchange.ftx import ftx_request, get_markets, get_positions, get_open_orders
+from core.exchange.ftx import ftx_request, get_markets, get_positions, get_open_orders, place_order
+from core.tasks import send_log
+from core.utils.logs import red
+from main.serializers.ftx import ClosePositionSerializer
 
 
 class SymbolsListView(GenericAPIView):
@@ -26,6 +29,27 @@ class OpenOrdersListView(GenericAPIView):
             i['symbol'] = i['market']
 
         return Response(response)
+
+
+class PositionMarketOrderView(GenericAPIView):
+    def post(self, request):
+        data = ClosePositionSerializer.check(request.data)
+        side = 'sell' if data['side'] == 'buy' else 'buy'
+
+        response = place_order(request.user, {
+            'side': side,
+            'size': float(data['size']),
+            'market': data['future'],
+            'type': 'market',
+            'reduceOnly': True,
+            'price': None
+        })
+
+        if response.get('error'):
+            send_log(request.user.id, f'{data["future"]}: ERROR: {red(response["error"])}.')
+
+        return Response({'success': response.get('success') or False})
+
 
 # class PlaceFTXOrderView(GenericAPIView):
 #     def post(self, request):

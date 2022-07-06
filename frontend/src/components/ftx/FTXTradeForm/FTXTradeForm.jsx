@@ -46,6 +46,9 @@ export const FTXLimitOptionsRenderer = {
                         step="0.00000001"
                         type="number"
                         label="Price" />
+
+                    <ToggleSwitchField name="reduce_only" text="Reduce only" />
+                    <ToggleSwitchField name="post_only" text="POST" />
                 </>
             )
         },

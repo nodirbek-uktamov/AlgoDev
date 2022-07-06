@@ -12,7 +12,7 @@ class LogsConsumer(WebsocketConsumer):
 
         async_to_sync(self.channel_layer.group_add)(self.user_id, self.channel_name)
 
-        self.send(text_data=json.dumps({'message': 'Connected to logs'}))
+        self.send(text_data=json.dumps({'message': 'Terminal started'}))
 
     def chat_message(self, event):
         self.send(text_data=json.dumps(event))

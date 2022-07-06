@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import './FTXPositionsList.scss'
 import { Table } from '../../common/Table'
-import { FTX_POSITIONS_LIST } from '../../../urls'
-import { useLoad } from '../../../hooks/request'
+import { CLOSE_POSITION_MARKET, FTX_POSITIONS_LIST } from '../../../urls'
+import { useLoad, usePostRequest } from '../../../hooks/request'
+import { Button } from '../../common/Button'
+import { MainContext } from '../../../contexts/MainContext'
 
-const renderColumns = () => [
+const renderColumns = (handleClosePositionMarket, setTradeFormValue) => [
     {
         title: 'Symbol',
         key: 'symbol',
@@ -28,7 +30,7 @@ const renderColumns = () => [
         key: 'size',
         hasSorting: true,
         width: '6rem',
-        render: (rowData) => <span>{rowData.size}</span>,
+        render: (rowData) => <span className="pointer" onClick={() => setTradeFormValue('quantity', rowData.size)}>{rowData.size}</span>,
     },
     {
         title: 'Notional size',
@@ -58,7 +60,7 @@ const renderColumns = () => [
         width: '5rem',
         render: (rowData) => (
             <span style={{ color: rowData.recentPnl < 0 ? '#E61739' : '#12b247' }}>
-                {rowData.recentPnl}
+                {Number(rowData.recentPnl || 0).toFixed(2)}
             </span>
         ),
     },
@@ -76,10 +78,25 @@ const renderColumns = () => [
         width: '5rem',
         render: (rowData) => <span>{rowData.recentBreakEvenPrice}</span>,
     },
+    {
+        title: '',
+        key: 'actions',
+        hasSorting: true,
+        width: '5rem',
+        render: (rowData) => (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: '1.1rem' }}>
+                <Button scale={false} size="S"
+                    text="Market" color="danger"
+                    onClick={() => handleClosePositionMarket(rowData)} />
+            </div>
+        ),
+    },
 ]
 
 function FTXPositionsList() {
     const positions = useLoad({ url: FTX_POSITIONS_LIST })
+    const closePosition = usePostRequest({ url: CLOSE_POSITION_MARKET })
+    const { callbacks } = useContext(MainContext)
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -90,9 +107,16 @@ function FTXPositionsList() {
 
     const items = ((positions.response && positions.response.result) || []).filter((i) => i.size)
 
+    const handleClosePositionMarket = useCallback(async (item) => {
+        await closePosition.request({ data: item })
+        positions.request()
+
+        // eslint-disable-next-line
+    }, [])
+
     return (
         <div className="orders-list_container">
-            <Table tableData={items} columns={renderColumns()} />
+            <Table tableData={items} columns={renderColumns(handleClosePositionMarket, callbacks.current.setTradeFormValue)} />
         </div>
     )
 }
