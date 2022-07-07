@@ -584,7 +584,8 @@ class FTXBot:
                     bid_orders_q = random_array(
                         float(trade.quantity) / 2,
                         trade.hft_orders_on_each_side,
-                        precision.get('min_price')
+                        precision.get('min_price'),
+                        precision.get('amount', 0)
                     )
 
                     sell_orders_error = self.hft_place_sell_orders(
@@ -622,7 +623,8 @@ class FTXBot:
                     ask_orders_q = random_array(
                         float(trade.quantity) / 2,
                         trade.hft_orders_on_each_side,
-                        precision.get('min_price')
+                        precision.get('min_price'),
+                        precision.get('amount', 0)
                     )
 
                     buy_orders_error = self.hft_place_buy_orders(
@@ -672,14 +674,18 @@ class FTXBot:
         ask_orders_q = random_array(
             float(trade.quantity) / 2,
             trade.hft_orders_on_each_side,
-            precision.get('min_price')
+            precision.get('min_price'),
+            precision.get('amount', 0)
         )
 
         bid_orders_q = random_array(
             float(trade.quantity) / 2,
             trade.hft_orders_on_each_side,
-            precision.get('min_price')
+            precision.get('min_price'),
+            precision.get('amount', 0)
         )
+
+        print(bid_orders_q, ask_orders_q)
 
         client_order_ids = []
         sell_order_ids = {}

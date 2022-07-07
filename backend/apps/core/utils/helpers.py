@@ -59,6 +59,6 @@ def random_array(total_sum, count, min_value=0, decimal_fields=0):
     for n in numbers:
         normalised.append(round(n / sum(numbers) * total_sum, decimal_fields))
 
-    normalised[-1] += total_sum - sum(normalised)
+    normalised[-1] += round(total_sum - sum(normalised), decimal_fields)
 
     return normalised
