@@ -102,10 +102,20 @@ export default function MainContextWrapper({ children }) {
         privateWs.current.send(JSON.stringify(params))
 
         if (exchange === FTX) {
-            privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market: symbolValue }))
-            privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market: symbolValue }))
-            privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orders', market: symbolValue }))
+            connectFTXWs(symbolValue)
         }
+    }
+
+    function connectFTXWs(market) {
+        privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market }))
+        privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market }))
+        privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orders', market }))
+    }
+
+    function disconnectFTXWs(market) {
+        privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orderbook', market }))
+        privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'trades', market }))
+        privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orders', market }))
     }
 
     const contextValues = {
@@ -124,6 +134,8 @@ export default function MainContextWrapper({ children }) {
         callbacks,
         exchange,
         symbolsList,
+        disconnectFTXWs,
+        connectFTXWs,
     }
 
     return (

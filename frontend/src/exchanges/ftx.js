@@ -78,6 +78,9 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
     }
 }
 
-export const ftxOnChangeSymbol = (value, connectHuobi, symbolValue, exchange, setSymbol) => {
-    baseChangeSymbol(value, connectHuobi, symbolValue, exchange, setSymbol)
+export const ftxOnChangeSymbol = (value, exchange, setSymbol, oldSymbol, connectFTXWs, disconnectFTXWs) => {
+    console.log(value, oldSymbol)
+    baseChangeSymbol(value, exchange, setSymbol)
+    disconnectFTXWs(oldSymbol)
+    connectFTXWs(value.value)
 }

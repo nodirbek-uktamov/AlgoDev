@@ -1,5 +1,5 @@
-import {parseGzip} from "../utils/websocket";
-import {baseChangeSymbol} from "./exchanges";
+import { parseGzip } from '../utils/websocket'
+import { baseChangeSymbol } from './exchanges'
 
 export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, user) {
     const data = JSON.parse(event.data)
@@ -12,15 +12,15 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
 
         ws.current.send(JSON.stringify({
             action: 'sub',
-            ch: 'orders#' + symbol,
+            ch: `orders#${symbol}`,
         }))
     }
 
     if (data.action === 'ping') {
-        ws.current.send(JSON.stringify({action: 'pong', data: {ts: data.data.ts}}))
+        ws.current.send(JSON.stringify({ action: 'pong', data: { ts: data.data.ts } }))
     }
 
-    if (data.ch && data.ch.includes("orders") && data.action === 'push' && wsCallbacksRef.current.setOrders) {
+    if (data.ch && data.ch.includes('orders') && data.action === 'push' && wsCallbacksRef.current.setOrders) {
         const item = data.data
         item.side = item.type.split('-')[0]
         item.type = item.type.split('-')[1]
@@ -28,10 +28,10 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
         item.orderSize = item.orderSize || item.tradeVolume
         item.orderPrice = item.orderPrice || item.tradePrice
 
-        wsCallbacksRef.current.setOrders(oldOrders => {
-            if (oldOrders.filter(i => i.orderId === data.data.orderId).length > 0) {
-                return oldOrders.map(i => {
-                    if (i.orderId === data.data.orderId) return {...data.data, time: i.time}
+        wsCallbacksRef.current.setOrders((oldOrders) => {
+            if (oldOrders.filter((i) => i.orderId === data.data.orderId).length > 0) {
+                return oldOrders.map((i) => {
+                    if (i.orderId === data.data.orderId) return { ...data.data, time: i.time }
                     return i
                 })
             }
@@ -41,12 +41,10 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
     }
 
     if (data.action === 'push' && data.data.accountId === user.huobiSpotAccountId && wsCallbacksRef.current.setBalance) {
-        wsCallbacksRef.current.setBalance((oldBalance) => {
-            return ({
-                ...oldBalance,
-                [data.data.currency]: Number(data.data.available)
-            })
-        })
+        wsCallbacksRef.current.setBalance((oldBalance) => ({
+            ...oldBalance,
+            [data.data.currency]: Number(data.data.available),
+        }))
     }
 }
 
@@ -55,18 +53,18 @@ export const huobiHandleMessagePublicWs = (ws, wsCallbacksRef, setPrice, event) 
         const data = JSON.parse(msg)
 
         if (data.ping) {
-            ws.current.send(JSON.stringify({pong: data.ping}))
+            ws.current.send(JSON.stringify({ pong: data.ping }))
         }
 
         if (data.tick) {
             if (data.ch.includes('bbo')) {
                 if (typeof wsCallbacksRef.current.setBidAskData === 'function') {
-                    wsCallbacksRef.current.setBidAskData({[data.ch.split('.')[1]]: data.tick})
+                    wsCallbacksRef.current.setBidAskData({ [data.ch.split('.')[1]]: data.tick })
                 }
 
-                setPrice(oldValue => {
+                setPrice((oldValue) => {
                     if (oldValue[data.ch.split('.')[1]]) return oldValue
-                    return {[data.ch.split('.')[1]]: data.tick}
+                    return { [data.ch.split('.')[1]]: data.tick }
                 })
             }
 
@@ -90,17 +88,17 @@ export const huobiOnChangeSymbol = (value, connectHuobi, symbolValue, exchange, 
     disconnectHuobi()
     if (wsCallbacksRef.current.setOrders) wsCallbacksRef.current.setOrders([])
 
-    baseChangeSymbol(value, connectHuobi, symbolValue, exchange, setSymbol)
-    connectHuobi(value?.value?.toLowerCase())
+    baseChangeSymbol(value, exchange, setSymbol)
+    connectHuobi(value && value.value ? value.value.toLowerCase() : null)
 
     privateWs.current.send(JSON.stringify({
         action: 'unsub',
-        ch: 'orders#' + symbolValue,
+        ch: `orders#${symbolValue}`,
     }))
 
     privateWs.current.send(JSON.stringify({
         action: 'sub',
-        ch: 'orders#' + value.value.toLowerCase(),
+        ch: `orders#${value.value.toLowerCase()}`,
     }))
 
     if (wsCallbacksRef.current.updateInitialOrders) wsCallbacksRef.current.updateInitialOrders(value.value.toLowerCase())

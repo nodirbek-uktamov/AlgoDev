@@ -38,6 +38,8 @@ function Chart({ trades, cancelAllTrades }) {
         connectHuobi,
         privateWs,
         symbolsList,
+        connectFTXWs,
+        disconnectFTXWs,
     } = useContext(MainContext)
 
     const [interval, setInterval] = useState({
@@ -65,7 +67,7 @@ function Chart({ trades, cancelAllTrades }) {
             )
         }
 
-        if (exchange === FTX) ftxOnChangeSymbol(value, connectHuobi, symbolValue, exchange, setSymbol)
+        if (exchange === FTX) ftxOnChangeSymbol(value, exchange, setSymbol, symbolValue, connectFTXWs, disconnectFTXWs)
     }
 
     return (

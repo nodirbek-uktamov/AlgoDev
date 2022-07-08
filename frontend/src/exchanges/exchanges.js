@@ -71,7 +71,7 @@ export const getDefaultSymbol = (exchange) => {
     if (exchange === FTX) return { value: 'ETH-PERP', label: 'ETH-PERP', pair1: 'ETH', pair2: 'USD', tap: 3, tpp: 1 }
 }
 
-export const baseChangeSymbol = (value, connectHuobi, symbolValue, exchange, setSymbol) => {
+export const baseChangeSymbol = (value, exchange, setSymbol) => {
     localStorage.setItem(`${exchange}_symbol`, JSON.stringify(value))
     setSymbol(value)
 }
