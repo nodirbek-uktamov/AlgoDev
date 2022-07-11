@@ -745,6 +745,11 @@ class HuobiBot:
         ladder_order_ids = json.loads(trade.ladder_order_ids)
         amount = trade.quantity
 
+        if trade.ladder_trades_count <= 0:
+            trade.is_completed = True
+            send_log(trade.user.id, '', {'delete': trade.id})
+            return
+
         if ladder_order_ids:  # already put
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
             active_orders = list(filter(lambda i: str(i.get('id')) in ladder_order_ids, orders.get('data', [])))

@@ -312,7 +312,7 @@ class FTXBot:
         ladder_order_ids = json.loads(trade.ladder_order_ids)
         amount = trade.quantity
 
-        if not trade.ladder_trades_count:
+        if trade.ladder_trades_count <= 0:
             trade.is_completed = True
             send_log(trade.user.id, '', {'delete': trade.id})
             return
