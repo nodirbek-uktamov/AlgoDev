@@ -109,7 +109,7 @@ function FTXPositionsList() {
     useEffect(() => {
         const interval = setInterval(() => {
             positions.request()
-        }, 4000)
+        }, 3000)
         return () => clearInterval(interval)
     }, [positions])
 

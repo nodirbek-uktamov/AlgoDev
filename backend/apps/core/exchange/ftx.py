@@ -76,6 +76,18 @@ def get_open_orders(user):
     return ftx_request('/orders', 'GET', user).get('result', [])
 
 
+def get_orders_history(user, market):
+    return ftx_request(f'/orders/history?market={market}', 'GET', user).get('result', [])
+
+
+def get_trigger_orders(user, market):
+    return ftx_request(f'/conditional_orders?market={market}', 'GET', user).get('result', [])
+
+
+def get_twap_orders(user, market):
+    return ftx_request(f'/twap_orders?market={market}&status=running', 'GET', user).get('result', [])
+
+
 def place_order(user, data):
     response = ftx_request('/orders', 'POST', user, json=data)
     return response

@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 import time
+from pprint import pprint
+
 from django.db.models import Q, Prefetch
 from django.utils import timezone
 import uuid
@@ -310,6 +312,11 @@ class FTXBot:
         ladder_order_ids = json.loads(trade.ladder_order_ids)
         amount = trade.quantity
 
+        if not trade.ladder_trades_count:
+            trade.is_completed = True
+            send_log(trade.user.id, '', {'delete': trade.id})
+            return
+
         if ladder_order_ids:  # already put
             trade.completed_at = timezone.now() + timezone.timedelta(seconds=1)
             active_orders = list(filter(lambda i: i.get('id') in ladder_order_ids, orders))
@@ -317,7 +324,12 @@ class FTXBot:
 
             completed_orders = list(set(ladder_order_ids) - set(active_orders_ids))
 
+            orders_history = ftx.get_orders_history(user, symbol)
+            canceled_orders = list(map(lambda i: i['id'], filter(lambda i: i['status'] == 'closed' and i['id'] in completed_orders, orders_history)))
+
             if completed_orders:
+                completed_orders = list(set(completed_orders) - set(canceled_orders))
+
                 ladder_trades = trade.ladder_trades.filter(
                     order_id__in=completed_orders,
                     take_profit_order_id__isnull=True,
@@ -363,6 +375,10 @@ class FTXBot:
 
                 trade.ladder_order_ids = json.dumps(active_orders_ids)
                 trade.active_order_ids = json.dumps(active_orders_ids)
+
+            if canceled_orders:
+                log_text = f'{trade.id}: {len(canceled_orders)} orders {bold(f"canceled")}.'
+                send_log(trade.user.id, log_text)
 
             if not active_orders_ids:
                 trade.is_completed = True
@@ -504,7 +520,7 @@ class FTXBot:
             return
 
         trade.order_id = client_order_id
-        trade.price = trade.iceberg_price
+        trade.price = response.get('result', {}).get('price', 0)
         send_log(trade.user.id, f'{trade.id}: Order placed')
 
     def chase_bot(self, price, user, trade, precision, orders, symbol):

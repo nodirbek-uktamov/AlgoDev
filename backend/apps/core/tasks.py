@@ -12,7 +12,7 @@ def _send_log(user_id, message, action=None):
         f'user_{user_id}',
         {
             'type': 'chat_message',
-            'message': f'({timezone.now().strftime("%H:%M:%S")})&nbsp; &nbsp;{message}',
+            'message': f'({timezone.now().strftime("%H:%M:%S")})&nbsp; &nbsp;{message}' if message else '',
             'action': action
         }
     )
@@ -20,4 +20,4 @@ def _send_log(user_id, message, action=None):
 
 def send_log(user_id, message, action=None):
     start = timezone.now()
-    _send_log.delay(user_id, message, action)
+    _send_log(user_id, message, action)

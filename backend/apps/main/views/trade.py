@@ -46,7 +46,8 @@ class TradeDetailView(APIView):
     def put(self, request, pk):
         trade = get_object_or_404(Trade, pk=pk, user=request.user)
         trade.is_completed = True
-        trade.hft_orders_on_each_side = True
+        trade.hft_orders_on_each_side = 0
+        trade.ladder_trades_count = 0
         trade.save()
 
         try:
@@ -110,7 +111,7 @@ class CancelTradesView(APIView):
     def put(self, request, exchange):
         trades = Trade.objects.filter(user=request.user, exchange=exchange, is_completed=False)
         trades_list = list(trades)
-        trades.update(is_completed=True, hft_orders_on_each_side=0)
+        trades.update(is_completed=True, hft_orders_on_each_side=0, ladder_trades_count=0)
 
         channel_layer = get_channel_layer()
 

@@ -25,6 +25,8 @@ urlpatterns = [
         path('positions/market/', ftx.PositionMarketOrderView.as_view(), name='close-position'),
         path('orders/open/', ftx.OpenOrdersListView.as_view(), name='open-orders'),
         path('orders/cancel/<int:id>/', ftx.CancelOrderView.as_view(), name='open-orders'),
+        path('trigger-orders/<str:market>/', ftx.TriggerOrdersView.as_view(), name='open-trigger-orders'),
+        path('twap-orders/<str:market>/', ftx.TWAPOrdersView.as_view(), name='active-twap-orders'),
         # path('place/', ftx.PlaceFTXOrderView.as_view(), name='place'),
     ])),
 ]

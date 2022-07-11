@@ -44,9 +44,19 @@ export function getDateOtherFormat(date = new Date()) {
 }
 
 export function convertTimestamp(unixTimestamp) {
-    const date = new Date(unixTimestamp * 1000);
-    const hours = date.getHours();
-    const minutes = "0" + date.getMinutes();
-    const seconds = "0" + date.getSeconds();
-    return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    const date = new Date(unixTimestamp * 1000)
+    const hours = date.getHours()
+    const minutes = `0${date.getMinutes()}`
+    const seconds = `0${date.getSeconds()}`
+    return `${hours}:${minutes.substr(-2)}:${seconds.substr(-2)}`
+}
+
+export function secondsToHms(d) {
+    d = Number(d)
+    const h = Math.floor(d / 3600)
+    const m = Math.floor((d % 3600) / 60)
+
+    const hDisplay = h > 0 ? `${h}h` : ''
+    const mDisplay = m > 0 ? `${m}m` : ''
+    return `${hDisplay} ${mDisplay}`
 }

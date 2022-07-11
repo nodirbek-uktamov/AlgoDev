@@ -26,6 +26,8 @@ export const FTX_SYMBOLS = 'main/ftx/symbols/'
 export const FTX_POSITIONS_LIST = 'main/ftx/positions/'
 export const CLOSE_POSITION_MARKET = 'main/ftx/positions/market/'
 export const FTX_OPEN_ORDERS_LIST = 'main/ftx/orders/open/'
+export const FTX_OPEN_TRIGGER_ORDERS_LIST = 'main/ftx/trigger-orders/{symbol}/'
+export const FTX_ACTIVE_TWAP_ORDERS_LIST = 'main/ftx/twap-orders/{symbol}/'
 export const FTX_CANCEL_ORDER = 'main/ftx/orders/cancel/{id}/'
 // export const FTX_PLACE_ORDER = 'main/ftx/place/'
 

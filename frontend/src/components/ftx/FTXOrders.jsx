@@ -2,13 +2,17 @@ import React, { useState } from 'react'
 import { FTXPositionsList } from './FTXPositionsList'
 import { FTXOrdersList } from './FTXOrdersList'
 import { Tabs } from '../common/Tabs/Tabs'
+import { FTXTriggerOrdersList } from './FTXTriggerOrdersList'
+import { FTXTWAPOrdersList } from './FTXTWAPOrdersList'
 
 function FTXOrders() {
-    const [tab, setTab] = useState(1)
+    const [tab, setTab] = useState(3)
 
     const tabs = [
         { title: 'Positions', render: () => <FTXPositionsList /> },
         { title: 'Orders', render: () => <FTXOrdersList /> },
+        { title: 'Trigger orders', render: () => <FTXTriggerOrdersList /> },
+        { title: 'Active TWAP orders', render: () => <FTXTWAPOrdersList /> },
     ]
 
     return (
