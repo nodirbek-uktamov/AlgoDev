@@ -45,8 +45,6 @@ export const Limit = ({ values, botType, setBotType, balance, setTradeType, load
     const { setFieldValue } = useFormikContext()
     const [sliderValue, setSliderValue] = useState(40)
 
-    const initialPrice = price[symbol.value.toLowerCase()] ? price[symbol.value.toLowerCase()].ask : null
-
     useEffect(() => {
         setBotType(BOT_TYPES_LIMIT[0])
     }, [setBotType])
@@ -62,15 +60,7 @@ export const Limit = ({ values, botType, setBotType, balance, setTradeType, load
                 renderMenuOption={(o) => o.title}
                 color="white" />
 
-            {/* <div className="columns mb-0"> */}
-            {/*    <div className="column pr-0"> */}
-            {/*        {(balance[symbol.pair2.toLowerCase()] || 0).toFixed(2)} {symbol.pair2} */}
-            {/*    </div> */}
-
-            {/*    <div className="column is-narrow"> */}
-            {/*        {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbol.tap || 0)} {symbol.pair1} */}
-            {/*    </div> */}
-            {/* </div> */}
+            {(balance.freeValue || 0).toFixed(4)} USD
 
             <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`} />
 

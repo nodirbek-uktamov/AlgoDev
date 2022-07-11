@@ -46,15 +46,7 @@ export const Market = ({ values, botType, setBotType, balance, setTradeType, tab
                 renderMenuOption={(o) => o.title}
                 color="white" />
 
-            {/* <div className="columns mb-0"> */}
-            {/*    <div className="column pr-0"> */}
-            {/*        {(balance[symbol.pair2.toLowerCase()] || 0).toFixed(2)} {symbol.pair2} */}
-            {/*    </div> */}
-
-            {/*    <div className="column is-narrow"> */}
-            {/*        {(balance[symbol.pair1.toLowerCase()] || 0).toFixed(symbol.tap)} {symbol.pair1} */}
-            {/*    </div> */}
-            {/* </div> */}
+            {(balance.freeValue || 0).toFixed(4)} USD
 
             {/* <div className="columns mb-0"> */}
             {/*    <div className="column is-narrow" style={{ width: '60%' }}> */}

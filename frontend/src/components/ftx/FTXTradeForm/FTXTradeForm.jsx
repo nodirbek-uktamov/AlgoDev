@@ -2,9 +2,9 @@ import React, { Fragment, useContext, useEffect, useState } from 'react'
 import { Form, Formik } from 'formik'
 import { Limit } from './Limit'
 import { InputField, ToggleSwitchField } from '../../../forms'
-import { usePostRequest } from '../../../hooks/request'
+import { useLoad, usePostRequest } from '../../../hooks/request'
 import { MainContext } from '../../../contexts/MainContext'
-import { TRADE } from '../../../urls'
+import { FTX_BALANCES, TRADE } from '../../../urls'
 import { Tabs } from '../../common/Tabs/Tabs'
 import { useMessage } from '../../../hooks/message'
 import { Button } from '../../common/Button'
@@ -375,7 +375,7 @@ const renderTabs = (props) => [
 
 export default React.memo(({ onUpdate }) => {
     const createTrade = usePostRequest({ url: TRADE.replace('{exchange}', 'ftx') })
-    const { symbol, wsCallbacksRef } = useContext(MainContext)
+    const { symbol } = useContext(MainContext)
 
     const [tab, setTab] = useState(0)
     const [botType, setBotType] = useState({
@@ -384,13 +384,20 @@ export default React.memo(({ onUpdate }) => {
     })
 
     const [balance, setBalance] = useState({})
+    const balanceRequest = useLoad({ url: FTX_BALANCES })
     const [tradeType, setTradeType] = useState('buy')
 
     const [showMessage] = useMessage()
 
     useEffect(() => {
-        wsCallbacksRef.current.setBalance = setBalance
-    }, [wsCallbacksRef])
+        const interval = setInterval(async () => {
+            const { response } = await balanceRequest.request()
+            setBalance(response)
+        }, 1500)
+        return () => clearInterval(interval)
+
+        // eslint-disable-next-line
+    }, [])
 
     async function onSubmit(data) {
         localStorage.setItem('ftxSavedForms', JSON.stringify({ ...formValues, [symbol.value]: data }))

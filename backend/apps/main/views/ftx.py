@@ -4,7 +4,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from core.exchange.ftx import ftx_request, get_markets, get_positions, get_open_orders, place_order, cancel_order, \
-    get_trigger_orders, get_twap_orders
+    get_trigger_orders, get_twap_orders, get_balances
 from core.tasks import send_log
 from core.utils.logs import red
 from main.serializers.ftx import ClosePositionSerializer
@@ -13,6 +13,24 @@ from main.serializers.ftx import ClosePositionSerializer
 class SymbolsListView(GenericAPIView):
     def get(self, request):
         return Response(get_markets())
+
+
+class BalancesListView(GenericAPIView):
+    def get(self, request):
+        response = get_balances(request.user)
+
+        usd_value = 0
+        total_value = 0
+        free_value = 0
+
+        for i in response:
+            usd_value += i['usdValue']
+            total_value += i['total']
+            free_value += i['free']
+
+        print(total_value, free_value, usd_value)
+
+        return Response({'free_value': free_value})
 
 
 class PositionsListView(GenericAPIView):

@@ -21,6 +21,7 @@ urlpatterns = [
 
     path('ftx/', include([
         path('symbols/', ftx.SymbolsListView.as_view(), name='symbols'),
+        path('balances/', ftx.BalancesListView.as_view(), name='balances'),
         path('positions/', ftx.PositionsListView.as_view(), name='positions'),
         path('positions/market/', ftx.PositionMarketOrderView.as_view(), name='close-position'),
         path('orders/open/', ftx.OpenOrdersListView.as_view(), name='open-orders'),
