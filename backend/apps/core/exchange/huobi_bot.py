@@ -376,7 +376,7 @@ class HuobiBot:
         buy_orders = json.loads(trade.hft_buy_orders)
         sell_orders = json.loads(trade.hft_sell_orders)
 
-        if total_orders_count == 0:
+        if total_orders_count <= 0:
             trade.is_completed = True
             return
 
