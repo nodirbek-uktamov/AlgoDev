@@ -12,7 +12,7 @@ import Tabs from '../components/Tabs'
 export default function FTX() {
     const [botPrices, setBotPrices] = useState({})
 
-    const trades = useLoad({ url: TRADE })
+    const trades = useLoad({ url: TRADE.replace('{exchange}', 'ftx') })
     const cancelTrades = usePutRequest()
 
     async function cancelAllTrades() {

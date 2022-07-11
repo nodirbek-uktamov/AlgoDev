@@ -374,7 +374,7 @@ const renderTabs = (props) => [
 ]
 
 export default React.memo(({ onUpdate }) => {
-    const createTrade = usePostRequest({ url: TRADE })
+    const createTrade = usePostRequest({ url: TRADE.replace('{exchange}', 'ftx') })
     const { symbol, wsCallbacksRef } = useContext(MainContext)
 
     const [tab, setTab] = useState(0)

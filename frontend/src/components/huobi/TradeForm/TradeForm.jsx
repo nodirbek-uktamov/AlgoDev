@@ -418,7 +418,7 @@ const renderTabs = (props) => [
 ]
 
 export default React.memo(({ onUpdate }) => {
-    const createTrade = usePostRequest({ url: TRADE })
+    const createTrade = usePostRequest({ url: TRADE.replace('{exchange}', 'huobi') })
     const {
         symbol,
         wsCallbacksRef,

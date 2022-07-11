@@ -12,7 +12,7 @@ import Tabs from '../components/Tabs'
 export default function Huobi() {
     const [botPrices, setBotPrices] = useState({})
 
-    const trades = useLoad({ url: TRADE })
+    const trades = useLoad({ url: TRADE.replace('{exchange}', 'huobi') })
     const cancelTrades = usePutRequest()
 
     async function cancelAllTrades() {

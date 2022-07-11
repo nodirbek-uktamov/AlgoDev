@@ -7,10 +7,10 @@ from main.views.trade import TradeView, TradeDetailView, CancelTradesView, Marke
 
 
 urlpatterns = [
-    path('trades/', TradeView.as_view(), name='trade'),
-    path('trades/cancel/<str:exchange>', CancelTradesView.as_view(), name='trades-cancel'),
+    path('trades/cancel/<str:exchange>/', CancelTradesView.as_view(), name='trades-cancel'),
     path('trades/<int:pk>/', TradeDetailView.as_view(), name='trade-detail'),
-    path('ws-auth-params/<str:exchange>', AuthParamsView.as_view(), name='auth-params'),
+    path('trades/<str:exchange>/', TradeView.as_view(), name='trade'),
+    path('ws-auth-params/<str:exchange>/', AuthParamsView.as_view(), name='auth-params'),
 
     path('orders/cancel/', CancelAllOrdersView.as_view(), name='cancel-all-orders'),
     path('orders/cancel/<int:order_id>', CancelOrderView.as_view(), name='cancel-all-orders'),
