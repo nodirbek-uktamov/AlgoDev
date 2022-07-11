@@ -107,8 +107,8 @@ export default function MainContextWrapper({ children }) {
     }
 
     function connectFTXWs(market) {
-        // privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market }))
-        // privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market }))
+        privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market }))
+        privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market }))
         privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orders', market }))
     }
 
