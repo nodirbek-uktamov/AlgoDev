@@ -108,7 +108,7 @@ class TradeDetailView(APIView):
 
 class CancelTradesView(APIView):
     def put(self, request, exchange):
-        trades = Trade.objects.filter(user=request.user, is_completed=False)
+        trades = Trade.objects.filter(user=request.user, exchange=exchange, is_completed=False)
         trades_list = list(trades)
         trades.update(is_completed=True, hft_orders_on_each_side=0)
 
