@@ -269,6 +269,7 @@ class FTXBot:
             return
 
         trade.is_completed = True
+        trade.order_id = response.get('result', {}).get('id', 0)
         send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
 
     def stop_bot(self, cost, user, trade, precision, orders, symbol):
@@ -554,6 +555,10 @@ class FTXBot:
         buy_orders = json.loads(trade.hft_buy_orders)
         sell_orders = json.loads(trade.hft_sell_orders)
 
+        if total_orders_count == 0:
+            trade.is_completed = True
+            return
+
         if len(buy_orders.keys()) + len(sell_orders.keys()) > 0:
             buy_active_orders = filter(lambda i: str(i.get('id')) in buy_orders.keys(), orders)
             sell_active_orders = filter(lambda i: str(i.get('id')) in sell_orders.keys(), orders)
@@ -563,7 +568,7 @@ class FTXBot:
 
             active_order_ids = [*sell_order_ids, *buy_order_ids]
 
-            if len(active_order_ids) != total_orders_count:
+            if len(active_order_ids) < total_orders_count:
                 log_text = f'{trade.id}: {bold(f"{total_orders_count - len(active_order_ids)} orders completed, replacing orders")}.'
 
                 send_log(trade.user.id, log_text)

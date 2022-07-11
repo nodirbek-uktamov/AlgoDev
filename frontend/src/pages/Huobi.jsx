@@ -16,7 +16,7 @@ export default function Huobi() {
     const cancelTrades = usePutRequest()
 
     async function cancelAllTrades() {
-        const { success } = await cancelTrades.request({ url: CANCEL_TRADES })
+        const { success } = await cancelTrades.request({ url: CANCEL_TRADES.replace('{exchange}', 'huobi') })
 
         if (success) {
             trades.setResponse([])

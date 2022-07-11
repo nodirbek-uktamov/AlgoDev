@@ -14,7 +14,7 @@ export const OPEN_ORDERS = '/main/orders/{symbol}/'
 export const CANCEL_ALL_ORDERS = '/main/orders/cancel/'
 export const CANCEL_ORDER = '/main/orders/cancel/{id}'
 export const TRADE_DETAIL = '/main/trades/{id}/'
-export const CANCEL_TRADES = '/main/trades/cancel/'
+export const CANCEL_TRADES = '/main/trades/cancel/{exchange}'
 export const MARKET = '/main/market/'
 export const LIMIT = '/main/limit/'
 
@@ -25,7 +25,8 @@ export const HUOBI_SYMBOL_SETTINGS = `${HUOBI_DOMAIN}/v1/settings/common/symbols
 export const FTX_SYMBOLS = 'main/ftx/symbols/'
 export const FTX_POSITIONS_LIST = 'main/ftx/positions/'
 export const CLOSE_POSITION_MARKET = 'main/ftx/positions/market/'
-export const FTX_OPEN_ORDERS_LIST = 'main/ftx/open-orders/'
+export const FTX_OPEN_ORDERS_LIST = 'main/ftx/orders/open/'
+export const FTX_CANCEL_ORDER = 'main/ftx/orders/cancel/{id}/'
 // export const FTX_PLACE_ORDER = 'main/ftx/place/'
 
 export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`

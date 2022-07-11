@@ -7,6 +7,7 @@ from asgiref.sync import async_to_sync
 from rest_framework.views import APIView
 
 from core.exchange.client import CustomHuobiClient
+from core.exchange.ftx import get_open_orders, batch_cancel_orders
 from core.exchange.utils import format_float
 from main.models import Trade
 from main.serializers.orders import OrderValidatorSerializer
@@ -73,49 +74,85 @@ class TradeDetailView(APIView):
 
 
 class CancelTradesView(APIView):
-    def put(self, request):
+
+    def put(self, request, exchange):
         trades = Trade.objects.filter(user=request.user, is_completed=False)
         trades_list = list(trades)
-        trades.update(is_completed=True)
+        trades.update(is_completed=True, hft_orders_on_each_side=0)
+
         channel_layer = get_channel_layer()
 
-        client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
-        orders = client.open_orders().data
-        orders_for_cancel = []
+        if exchange == 'ftx':
+            orders = get_open_orders(request.user)
+            orders_for_cancel = []
 
-        for trade in trades_list:
-            order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+            print(trades_list)
 
-            if order:
-                orders_for_cancel.append(str(order[0].get('id')))
+            for trade in trades_list:
+                order = list(filter(lambda i: str(i.get('id')) == trade.order_id, orders))
 
-            if trade.hft_bot:
-                old_order_ids = json.loads(trade.hft_order_ids)
-                active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
-                active_orders = list(map(lambda a: a['id'], active_orders))
-                orders_for_cancel = [*orders_for_cancel, *active_orders]
+                if order:
+                    orders_for_cancel.append(str(order[0].get('id')))
 
-            if trade.ladder:
-                old_order_ids = json.loads(trade.ladder_order_ids)
-                active_orders = filter(lambda i: str(i.get('id')) in old_order_ids, orders.get('data', []))
-                active_orders = list(map(lambda a: a['id'], active_orders))
-                orders_for_cancel = [*orders_for_cancel, *active_orders]
+                if trade.hft_bot:
+                    old_order_ids = json.loads(trade.hft_order_ids)
+                    active_orders = filter(lambda i: i.get('clientId') in old_order_ids, orders)
+                    active_orders = list(map(lambda a: a['id'], active_orders))
+                    orders_for_cancel = [*orders_for_cancel, *active_orders]
 
-            if trade.grid_bot:
-                old_order_ids = json.loads(trade.active_order_ids)
-                active_orders = filter(lambda i: int(i.get('id')) in old_order_ids, orders.get('data', []))
-                orders_for_cancel = [*orders_for_cancel, *active_orders]
+                if trade.ladder:
+                    old_order_ids = json.loads(trade.ladder_order_ids)
+                    active_orders = filter(lambda i: int(i.get('id')) in old_order_ids, orders)
+                    active_orders = list(map(lambda a: a['id'], active_orders))
+                    orders_for_cancel = [*orders_for_cancel, *active_orders]
 
-        if orders_for_cancel:
-            client.batch_cancel(order_ids=orders_for_cancel)
+                if trade.grid_bot:
+                    old_order_ids = json.loads(trade.active_order_ids)
+                    active_orders = filter(lambda i: int(i.get('id')) in old_order_ids, orders)
+                    orders_for_cancel = [*orders_for_cancel, *active_orders]
+
+            batch_cancel_orders(request.user, orders_for_cancel)
+
+        if exchange == 'huobi':
+
+            client = CustomHuobiClient(access_key=request.user.huobi_api_key, secret_key=request.user._huobi_secret_key)
+            orders = client.open_orders().data
+            orders_for_cancel = []
+
+            for trade in trades_list:
+                order = list(filter(lambda i: i.get('client-order-id') == str(trade.id), orders.get('data', [])))
+
+                if order:
+                    orders_for_cancel.append(str(order[0].get('id')))
+
+                if trade.hft_bot:
+                    old_order_ids = json.loads(trade.hft_order_ids)
+                    active_orders = filter(lambda i: int(i.get('client-order-id')) in old_order_ids, orders.get('data', []))
+                    active_orders = list(map(lambda a: a['id'], active_orders))
+                    orders_for_cancel = [*orders_for_cancel, *active_orders]
+
+                if trade.ladder:
+                    old_order_ids = json.loads(trade.ladder_order_ids)
+                    active_orders = filter(lambda i: str(i.get('id')) in old_order_ids, orders.get('data', []))
+                    active_orders = list(map(lambda a: a['id'], active_orders))
+                    orders_for_cancel = [*orders_for_cancel, *active_orders]
+
+                if trade.grid_bot:
+                    old_order_ids = json.loads(trade.active_order_ids)
+                    active_orders = filter(lambda i: int(i.get('id')) in old_order_ids, orders.get('data', []))
+                    orders_for_cancel = [*orders_for_cancel, *active_orders]
+
+            if orders_for_cancel:
+                client.batch_cancel(order_ids=orders_for_cancel)
 
         async_to_sync(channel_layer.group_send)(
             f'user_{request.user.id}',
             {
                 'type': 'chat_message',
-                'message': "Orders canceled"
+                'message': "Trades canceled"
             }
         )
+        trades.update(is_completed=True)
         return Response({'ok': True})
 
 

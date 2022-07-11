@@ -8,7 +8,7 @@ from main.views.trade import TradeView, TradeDetailView, CancelTradesView, Marke
 
 urlpatterns = [
     path('trades/', TradeView.as_view(), name='trade'),
-    path('trades/cancel/', CancelTradesView.as_view(), name='trades-cancel'),
+    path('trades/cancel/<str:exchange>', CancelTradesView.as_view(), name='trades-cancel'),
     path('trades/<int:pk>/', TradeDetailView.as_view(), name='trade-detail'),
     path('ws-auth-params/<str:exchange>', AuthParamsView.as_view(), name='auth-params'),
 
@@ -23,7 +23,8 @@ urlpatterns = [
         path('symbols/', ftx.SymbolsListView.as_view(), name='symbols'),
         path('positions/', ftx.PositionsListView.as_view(), name='positions'),
         path('positions/market/', ftx.PositionMarketOrderView.as_view(), name='close-position'),
-        path('open-orders/', ftx.OpenOrdersListView.as_view(), name='open-orders'),
+        path('orders/open/', ftx.OpenOrdersListView.as_view(), name='open-orders'),
+        path('orders/cancel/<int:id>/', ftx.CancelOrderView.as_view(), name='open-orders'),
         # path('place/', ftx.PlaceFTXOrderView.as_view(), name='place'),
     ])),
 ]

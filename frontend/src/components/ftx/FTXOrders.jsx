@@ -4,7 +4,7 @@ import { FTXOrdersList } from './FTXOrdersList'
 import { Tabs } from '../common/Tabs/Tabs'
 
 function FTXOrders() {
-    const [tab, setTab] = useState(0)
+    const [tab, setTab] = useState(1)
 
     const tabs = [
         { title: 'Positions', render: () => <FTXPositionsList /> },
