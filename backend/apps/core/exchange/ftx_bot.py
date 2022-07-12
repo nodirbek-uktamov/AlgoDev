@@ -555,7 +555,8 @@ class FTXBot:
             'type': 'market',
             'size': format_float(trade.quantity, precision.get('amount', 0)),
             'clientId': trade.id,
-            'price': None
+            'price': None,
+            'reduceOnly': trade.reduce_only
         })
 
         if response.get('error'):

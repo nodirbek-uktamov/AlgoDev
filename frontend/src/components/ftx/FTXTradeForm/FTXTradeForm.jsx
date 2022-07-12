@@ -57,7 +57,9 @@ export const FTXLimitOptionsRenderer = {
     market: {
         render() {
             return (
-                <></>
+                <>
+                    <ToggleSwitchField name="reduce_only" text="Reduce only" />
+                </>
             )
         },
     },
