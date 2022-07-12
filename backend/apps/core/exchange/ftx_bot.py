@@ -288,7 +288,7 @@ class FTXBot:
             return
 
         trade.is_completed = True
-        send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+        send_log(trade.user.id, f'{trade.id}: {bold("Stop loss successfully placed")}', {'delete': trade.id})
 
     def twap_bot(self, cost, user, trade, precision, orders, symbol):
         response = ftx.place_twap_order(user, {
@@ -304,7 +304,7 @@ class FTXBot:
             return
 
         trade.is_completed = True
-        send_log(trade.user.id, f'{trade.id}: {bold("Successfully placed")}', {'delete': trade.id})
+        send_log(trade.user.id, f'{trade.id}: {bold("TWAP bot successfully placed")}', {'delete': trade.id})
 
     def ladder_bot(self, cost, user, trade, precision, orders, symbol):
         from main.models import LadderTrade
