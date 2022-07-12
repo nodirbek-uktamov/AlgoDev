@@ -108,10 +108,13 @@ function FTXPositionsList() {
 
     useEffect(() => {
         const interval = setInterval(() => {
+            console.log('asd')
             positions.request()
         }, 3000)
         return () => clearInterval(interval)
-    }, [positions])
+
+        // eslint-disable-next-line
+    }, [])
 
     const items = ((positions.response && positions.response.result) || []).filter((i) => i.size)
 
