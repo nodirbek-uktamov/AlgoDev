@@ -72,6 +72,10 @@ def get_positions(user):
     return ftx_request('/positions?showAvgPrice=true', 'GET', user)
 
 
+def get_account_information(user):
+    return ftx_request('/account', 'GET', user).get('result', {})
+
+
 def get_balances(user):
     return ftx_request('/wallet/balances', 'GET', user).get('result', [])
 

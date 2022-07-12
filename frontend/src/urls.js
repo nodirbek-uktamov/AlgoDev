@@ -29,6 +29,7 @@ export const FTX_OPEN_ORDERS_LIST = 'main/ftx/orders/open/'
 export const FTX_OPEN_TRIGGER_ORDERS_LIST = 'main/ftx/trigger-orders/{symbol}/'
 export const FTX_ACTIVE_TWAP_ORDERS_LIST = 'main/ftx/twap-orders/{symbol}/'
 export const FTX_BALANCES = 'main/ftx/balances/'
+export const FTX_ACCOUNT = 'main/ftx/account/'
 export const FTX_CANCEL_ORDER = 'main/ftx/orders/cancel/{id}/'
 // export const FTX_PLACE_ORDER = 'main/ftx/place/'
 

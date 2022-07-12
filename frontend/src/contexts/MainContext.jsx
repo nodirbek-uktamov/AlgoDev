@@ -26,11 +26,22 @@ export default function MainContextWrapper({ children }) {
     const [price, setPrice] = useState({})
 
     const symbols = useLoad(getSymbolRequestOptions(exchange))
-    const symbolsList = getSymbolsList(symbols.response || {}, exchange)
 
     const balanceParams = useGetRequest({ url: BALANCE.replace('{exchange}', exchange) })
+    const symbolsList = getSymbolsList(symbols.response || {}, exchange)
 
     const symbolValue = symbol.value.toLowerCase()
+
+    useEffect(() => {
+        if (exchange !== FTX) return
+
+        const s = symbolsList.filter((i) => i.value === symbolValue.toUpperCase())[0]
+
+        if (symbolsList) {
+            if (s) setPrice({ [symbolValue]: { ask: s.ask, bid: s.bid } })
+        }
+        // eslint-disable-next-line
+    }, [symbols.response, symbolValue])
 
     useEffect(() => {
         connectPrivateWs()
@@ -107,12 +118,14 @@ export default function MainContextWrapper({ children }) {
     }
 
     function connectFTXWs(market) {
+        if (!privateWs.current) return
         privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orderbook', market }))
         privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market }))
         privateWs.current.send(JSON.stringify({ op: 'subscribe', channel: 'orders', market }))
     }
 
     function disconnectFTXWs(market) {
+        if (!privateWs.current) return
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orderbook', market }))
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'trades', market }))
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orders', market }))

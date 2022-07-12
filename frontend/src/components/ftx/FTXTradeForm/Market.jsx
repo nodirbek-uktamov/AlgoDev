@@ -24,16 +24,17 @@ const BOT_TYPES_MARKET = [
 ]
 
 export const Market = ({ values, botType, setBotType, balance, setTradeType, tab }) => {
-    const { symbol, price } = useContext(MainContext)
+    const { symbol, price, symbolValue } = useContext(MainContext)
     const { setFieldValue } = useFormikContext()
 
     const [sliderValue, setSliderValue] = useState(40)
 
-    const initialPrice = price[symbol.value.toLowerCase()] ? price[symbol.value.toLowerCase()].ask : null
-
     useEffect(() => {
         setBotType(BOT_TYPES_MARKET[0])
     }, [setBotType, tab])
+
+    const initialPrice = price[symbolValue] ? price[symbolValue].ask : 0
+    const pair1Balance = (balance.freeValue * balance.leverage) / initialPrice
 
     return (
         <div style={{ display: 'grid', gap: '1.1rem' }}>
@@ -46,19 +47,19 @@ export const Market = ({ values, botType, setBotType, balance, setTradeType, tab
                 renderMenuOption={(o) => o.title}
                 color="white" />
 
-            {(balance.freeValue || 0).toFixed(4)} USD
+            <div className="columns mb-0">
+                <div className="column pr-0">
+                    {(balance.freeValue || 0).toFixed(4)} USD
+                </div>
 
-            {/* <div className="columns mb-0"> */}
-            {/*    <div className="column is-narrow" style={{ width: '60%' }}> */}
+                <div className="column is-narrow">
+                    {initialPrice && (pair1Balance).toFixed(symbol.tap || 0)} {symbol.pair1}
+                </div>
+            </div>
+
             <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`} />
-            {/*    </div> */}
 
-            {/*    <div className="column is-narrow" style={{ position: 'relative', top: '80%', transform: 'translateY(-50%)' }}> */}
-            {/*        {initialPrice ? calcPair1Amount(values, botType, symbol, initialPrice) : '—'} {symbol.pair1} */}
-            {/*    </div> */}
-            {/* </div> */}
-
-            <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbol)} valueType="percent" />
+            <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, pair1Balance, symbol, setFieldValue, symbol)} valueType="percent" />
 
             {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, botType.key)}
 

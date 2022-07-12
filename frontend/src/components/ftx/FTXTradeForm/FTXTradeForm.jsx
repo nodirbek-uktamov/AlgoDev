@@ -11,6 +11,7 @@ import { Button } from '../../common/Button'
 import { FTX } from '../../../exchanges/exchanges'
 import { Market } from './Market'
 import { generateLadderPrice } from '../../../utils/common'
+import { FTXContext } from '../../../pages/FTX'
 
 const formValues = JSON.parse(localStorage.getItem('ftxSavedForms') || '{}')
 
@@ -376,28 +377,14 @@ const renderTabs = (props) => [
 export default React.memo(({ onUpdate }) => {
     const createTrade = usePostRequest({ url: TRADE.replace('{exchange}', 'ftx') })
     const { symbol } = useContext(MainContext)
+    const { account } = useContext(FTXContext)
 
     const [tab, setTab] = useState(0)
-    const [botType, setBotType] = useState({
-        title: 'Limit',
-        key: 'limit',
-    })
-
-    const [balance, setBalance] = useState({})
-    const balanceRequest = useLoad({ url: FTX_BALANCES })
+    const [botType, setBotType] = useState({ title: 'Limit', key: 'limit' })
     const [tradeType, setTradeType] = useState('buy')
-
     const [showMessage] = useMessage()
 
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            const { response } = await balanceRequest.request()
-            setBalance(response)
-        }, 1500)
-        return () => clearInterval(interval)
-
-        // eslint-disable-next-line
-    }, [])
+    const balance = { freeValue: account.freeCollateral || 0, leverage: account.leverage || 0 }
 
     async function onSubmit(data) {
         localStorage.setItem('ftxSavedForms', JSON.stringify({ ...formValues, [symbol.value]: data }))

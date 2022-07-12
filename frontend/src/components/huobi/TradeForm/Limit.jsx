@@ -82,7 +82,7 @@ export const Limit = ({ values, botType, setBotType, balance, setTradeType, tab 
                 </div>
             </div>
 
-            <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbol)} valueType="percent" />
+            <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, (balance[symbol.pair2.toLowerCase()] || 0), symbol, setFieldValue, symbol)} valueType="percent" />
 
             {botType.key && LimitOptionsRenderer[botType.key].render(values, symbol, botType.key)}
 

@@ -29,6 +29,8 @@ export function getSymbolsList(symbols, exchange) {
                     label: i.name,
                     pair1: i.underlying,
                     pair2: 'USD',
+                    ask: i.ask,
+                    bid: i.bid,
                 })
             }
         })

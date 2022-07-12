@@ -6,7 +6,7 @@ import { FTXTriggerOrdersList } from './FTXTriggerOrdersList'
 import { FTXTWAPOrdersList } from './FTXTWAPOrdersList'
 
 function FTXOrders() {
-    const [tab, setTab] = useState(3)
+    const [tab, setTab] = useState(0)
 
     const tabs = [
         { title: 'Positions', render: () => <FTXPositionsList /> },

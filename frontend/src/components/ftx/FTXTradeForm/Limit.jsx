@@ -41,13 +41,18 @@ const BOT_TYPES_LIMIT = [
 ]
 
 export const Limit = ({ values, botType, setBotType, balance, setTradeType, loading }) => {
-    const { symbol, price } = useContext(MainContext)
+    const { symbol, price, symbolValue } = useContext(MainContext)
     const { setFieldValue } = useFormikContext()
     const [sliderValue, setSliderValue] = useState(40)
 
     useEffect(() => {
         setBotType(BOT_TYPES_LIMIT[0])
-    }, [setBotType])
+
+        // eslint-disable-next-line
+    }, [])
+
+    const initialPrice = price[symbolValue] ? price[symbolValue].ask : 0
+    const pair1Balance = initialPrice ? (balance.freeValue * balance.leverage) / initialPrice : 0
 
     return (
         <div style={{ display: 'grid', gap: '1.1rem' }}>
@@ -60,12 +65,20 @@ export const Limit = ({ values, botType, setBotType, balance, setTradeType, load
                 renderMenuOption={(o) => o.title}
                 color="white" />
 
-            {(balance.freeValue || 0).toFixed(4)} USD
+            <div className="columns mb-0">
+                <div className="column pr-0">
+                    {(balance.freeValue || 0).toFixed(4)} USD
+                </div>
+
+                <div className="column is-narrow">
+                    {initialPrice && (pair1Balance).toFixed(symbol.tap || 0)} {symbol.pair1}
+                </div>
+            </div>
 
             <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`} />
 
             <Slider defaultValue={sliderValue}
-                onValueChange={(value) => onChangeSlider(value, setSliderValue, balance, symbol, setFieldValue, symbol)}
+                onValueChange={(value) => onChangeSlider(value, setSliderValue, pair1Balance, symbol, setFieldValue, symbol)}
                 valueType="percent" />
 
             {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, symbol, botType.key)}
