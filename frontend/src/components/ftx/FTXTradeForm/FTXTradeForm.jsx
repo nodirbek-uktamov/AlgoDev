@@ -197,7 +197,7 @@ export const FTXLimitOptionsRenderer = {
                         <div className="column">
                             <InputField
                                 name="hft_default_price_difference"
-                                step="0.1"
+                                step="0.01"
                                 type="number"
                                 label={<>Initial <br /> difference</>} />
                         </div>
@@ -205,7 +205,7 @@ export const FTXLimitOptionsRenderer = {
                         <div className="column">
                             <InputField
                                 name="hft_orders_price_difference"
-                                step="0.1"
+                                step="0.01"
                                 type="number"
                                 label={<>Orders <br /> difference</>} />
                         </div>
