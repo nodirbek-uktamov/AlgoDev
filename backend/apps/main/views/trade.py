@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from core.exchange.client import CustomHuobiClient
 from core.exchange.ftx import get_open_orders, batch_cancel_orders
 from core.exchange.utils import format_float
+from core.tasks import send_log
 from main.models import Trade
 from main.serializers.orders import OrderValidatorSerializer
 from main.serializers.trade import TradesSerializer
@@ -49,6 +50,8 @@ class TradeDetailView(APIView):
         trade.hft_orders_on_each_side = 0
         trade.ladder_trades_count = 0
         trade.save()
+
+        send_log(request.user.id, f"{trade.id}: Canceling in progress")
 
         try:
             if trade.exchange == 'huobi':
@@ -104,6 +107,8 @@ class TradeDetailView(APIView):
         except Exception as e:
             print(str(e))
 
+        send_log(request.user.id, f"{trade.id}: Trade canceled")
+
         return Response({'ok': True})
 
 
@@ -113,13 +118,11 @@ class CancelTradesView(APIView):
         trades_list = list(trades)
         trades.update(is_completed=True, hft_orders_on_each_side=0, ladder_trades_count=0)
 
-        channel_layer = get_channel_layer()
+        send_log(request.user.id, "Canceling in progress")
 
         if exchange == 'ftx':
             orders = get_open_orders(request.user)
             orders_for_cancel = []
-
-            print(trades_list)
 
             for trade in trades_list:
                 order = list(filter(lambda i: str(i.get('id')) == trade.order_id, orders))
@@ -178,13 +181,7 @@ class CancelTradesView(APIView):
                 if orders_for_cancel:
                     client.batch_cancel(order_ids=orders_for_cancel)
 
-            async_to_sync(channel_layer.group_send)(
-                f'user_{request.user.id}',
-                {
-                    'type': 'chat_message',
-                    'message': "Trades canceled"
-                }
-            )
+            send_log(request.user.id, f"Trades canceled")
 
         except Exception as e:
             print(str(e))

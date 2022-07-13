@@ -582,7 +582,6 @@ class FTXBot:
         if total_orders_count <= 0:
             trade.is_completed = True
             ftx.batch_cancel_orders(user, active_order_ids)
-            print('otmenil posle: ', active_order_ids)
             return
 
         if len(buy_orders.keys()) + len(sell_orders.keys()) > 0:
