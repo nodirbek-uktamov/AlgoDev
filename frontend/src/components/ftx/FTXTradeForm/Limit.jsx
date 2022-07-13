@@ -65,15 +65,15 @@ export const Limit = ({ values, botType, setBotType, balance, setTradeType, load
                 renderMenuOption={(o) => o.title}
                 color="white" />
 
-            {/* <div className="columns mb-0"> */}
-            {/*    <div className="column pr-0"> */}
-            {/*        {(balance.freeValue || 0).toFixed(4)} USD */}
-            {/*    </div> */}
+            <div className="columns mb-0">
+                <div className="column pr-0">
+                    {(balance.freeValue || 0).toFixed(4)} USD
+                </div>
 
-            {/*    <div className="column is-narrow"> */}
-            {initialPrice && (pair1Balance).toFixed(symbol.tap || 0)} {symbol.pair1}
-            {/*    </div> */}
-            {/* </div> */}
+                <div className="column is-narrow">
+                    {initialPrice && (pair1Balance).toFixed(symbol.tap || 0)} {symbol.pair1}
+                </div>
+            </div>
 
             <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`} />
 
