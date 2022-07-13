@@ -106,15 +106,14 @@ function FTXPositionsList() {
     const closePosition = usePostRequest({ url: CLOSE_POSITION_MARKET })
     const { callbacks, symbol } = useContext(MainContext)
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            console.log('asd')
-            positions.request()
-        }, 3000)
-        return () => clearInterval(interval)
-
-        // eslint-disable-next-line
-    }, [])
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         positions.request()
+    //     }, 3000)
+    //     return () => clearInterval(interval)
+    //
+    //     // eslint-disable-next-line
+    // }, [])
 
     const items = ((positions.response && positions.response.result) || []).filter((i) => i.size)
 

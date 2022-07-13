@@ -27,13 +27,15 @@ export default function FTX() {
         // eslint-disable-next-line
     }, [])
 
-    async function cancelAllTrades() {
+    const cancelAllTrades = useCallback(async () => {
         const { success } = await cancelTrades.request({ url: CANCEL_TRADES.replace('{exchange}', 'ftx') })
 
         if (success) {
             trades.setResponse([])
         }
-    }
+
+        // eslint-disable-next-line
+    }, [])
 
     const onUpdate = useCallback(trades.request, [])
 
