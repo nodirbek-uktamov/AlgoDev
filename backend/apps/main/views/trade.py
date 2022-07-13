@@ -185,7 +185,6 @@ class CancelTradesView(APIView):
                     'message': "Trades canceled"
                 }
             )
-            trades.update(is_completed=True)
 
         except Exception as e:
             print(str(e))

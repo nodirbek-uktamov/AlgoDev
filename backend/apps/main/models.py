@@ -117,7 +117,7 @@ class Trade(models.Model):
 
         return float(amount)
 
-    def save(self, *args, **kwargs):
+    def send_data_to_frontend(self):
         channel_layer = get_channel_layer()
 
         t = threading.Thread(target=async_to_sync(channel_layer.group_send), args=(
@@ -133,8 +133,6 @@ class Trade(models.Model):
         ))
         t.daemon = True
         t.start()
-
-        super().save(*args, **kwargs)
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_trades'
