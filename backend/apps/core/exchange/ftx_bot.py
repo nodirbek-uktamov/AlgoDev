@@ -582,12 +582,9 @@ class FTXBot:
         if total_orders_count <= 0:
             trade.is_completed = True
             ftx.batch_cancel_orders(user, active_order_ids)
-            print('otmenili posle', active_order_ids)
             return
 
         if len(buy_orders.keys()) + len(sell_orders.keys()) > 0:
-            print('is completed v nachale: ', trade.is_completed)
-
             if len(active_order_ids) < total_orders_count:
                 log_text = f'{trade.id}: {bold(f"{total_orders_count - len(active_order_ids)} orders completed, replacing orders")}.'
 
@@ -688,14 +685,19 @@ class FTXBot:
                     )
                     return
 
+                active_order_ids = [*buy_orders_for_save.keys(), *sell_orders_for_save.keys()]
+
                 trade.hft_order_ids = json.dumps(client_order_ids)
-                trade.active_order_ids = json.dumps([*buy_orders_for_save.keys(), *sell_orders_for_save.keys()])
+                trade.active_order_ids = json.dumps(active_order_ids)
 
                 trade.hft_buy_orders = json.dumps(buy_orders_for_save)
                 trade.hft_sell_orders = json.dumps(sell_orders_for_save)
 
+                trade.active_order_ids = json.dumps(active_order_ids)
+                trade.save()
+
                 if trade.is_completed:
-                    ftx.batch_cancel_orders(user, [*buy_orders_for_save.keys(), *sell_orders_for_save.keys()])
+                    ftx.batch_cancel_orders(user, active_order_ids)
 
             return
 
@@ -760,6 +762,7 @@ class FTXBot:
 
         trade.hft_buy_orders = json.dumps(buy_order_ids)
         trade.hft_sell_orders = json.dumps(sell_order_ids)
+        trade.save()
 
     def send_error_log(self, trade, error, action=None):
         send_log(trade.user.id, f'{trade.id}: ERROR: {red(error)}.', action)
