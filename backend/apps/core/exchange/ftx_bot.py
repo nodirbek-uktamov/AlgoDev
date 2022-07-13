@@ -572,18 +572,21 @@ class FTXBot:
         buy_orders = json.loads(trade.hft_buy_orders)
         sell_orders = json.loads(trade.hft_sell_orders)
 
+        buy_active_orders = filter(lambda i: str(i.get('id')) in buy_orders.keys(), orders)
+        sell_active_orders = filter(lambda i: str(i.get('id')) in sell_orders.keys(), orders)
+
+        active_sell_order_ids = list(map(lambda a: a['id'], sell_active_orders))
+        active_buy_order_ids = list(map(lambda a: a['id'], buy_active_orders))
+        active_order_ids = [*active_sell_order_ids, *active_buy_order_ids]
+
         if total_orders_count <= 0:
             trade.is_completed = True
+            ftx.batch_cancel_orders(user, active_order_ids)
+            print('otmenili posle', active_order_ids)
             return
 
         if len(buy_orders.keys()) + len(sell_orders.keys()) > 0:
-            buy_active_orders = filter(lambda i: str(i.get('id')) in buy_orders.keys(), orders)
-            sell_active_orders = filter(lambda i: str(i.get('id')) in sell_orders.keys(), orders)
-
-            sell_order_ids = list(map(lambda a: a['id'], sell_active_orders))
-            buy_order_ids = list(map(lambda a: a['id'], buy_active_orders))
-
-            active_order_ids = [*sell_order_ids, *buy_order_ids]
+            print('is completed v nachale: ', trade.is_completed)
 
             if len(active_order_ids) < total_orders_count:
                 log_text = f'{trade.id}: {bold(f"{total_orders_count - len(active_order_ids)} orders completed, replacing orders")}.'
@@ -598,9 +601,9 @@ class FTXBot:
                 sell_orders_error = ''
                 buy_orders_error = ''
 
-                if len(sell_order_ids) < total_orders_count / 2:
+                if len(active_sell_order_ids) < total_orders_count / 2:
                     for i in sell_orders:
-                        if int(i) in sell_order_ids:
+                        if int(i) in active_sell_order_ids:
                             sell_orders_for_save[i] = sell_orders[i]
 
                     bid_orders_q = random_array(
@@ -619,11 +622,11 @@ class FTXBot:
                         precision,
                         list(reversed(sell_orders.values())),
                         symbol,
-                        start_from=len(sell_order_ids)
+                        start_from=len(active_sell_order_ids)
                     )
 
-                    if buy_order_ids:
-                        ftx.batch_cancel_orders(user, buy_order_ids)
+                    if active_buy_order_ids:
+                        ftx.batch_cancel_orders(user, active_buy_order_ids)
 
                     if not sell_orders_error:
                         buy_orders_error = self.hft_place_buy_orders(
@@ -639,7 +642,7 @@ class FTXBot:
 
                 else:
                     for i in buy_orders:
-                        if int(i) in buy_order_ids:
+                        if int(i) in active_buy_order_ids:
                             buy_orders_for_save[i] = buy_orders[i]
 
                     ask_orders_q = random_array(
@@ -658,11 +661,11 @@ class FTXBot:
                         precision,
                         list(reversed(buy_orders.values())),
                         symbol,
-                        start_from=len(buy_order_ids)
+                        start_from=len(active_buy_order_ids)
                     )
 
-                    if sell_order_ids:
-                        ftx.batch_cancel_orders(user, sell_order_ids)
+                    if active_sell_order_ids:
+                        ftx.batch_cancel_orders(user, active_sell_order_ids)
 
                     if not buy_orders_error:
                         sell_orders_error = self.hft_place_sell_orders(
@@ -690,6 +693,9 @@ class FTXBot:
 
                 trade.hft_buy_orders = json.dumps(buy_orders_for_save)
                 trade.hft_sell_orders = json.dumps(sell_orders_for_save)
+
+                if trade.is_completed:
+                    ftx.batch_cancel_orders(user, [*buy_orders_for_save.keys(), *sell_orders_for_save.keys()])
 
             return
 
