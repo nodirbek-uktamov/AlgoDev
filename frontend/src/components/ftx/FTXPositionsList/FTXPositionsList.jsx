@@ -5,6 +5,7 @@ import { CLOSE_POSITION_MARKET, FTX_POSITIONS_LIST } from '../../../urls'
 import { useLoad, usePostRequest } from '../../../hooks/request'
 import { Button } from '../../common/Button'
 import { MainContext } from '../../../contexts/MainContext'
+import { LOCAL_LOAD_INTERVAL } from '../../../constants'
 
 const renderColumns = (handleClosePositionMarket, setTradeFormValue, symbol) => [
     {
@@ -109,7 +110,7 @@ function FTXPositionsList() {
     useEffect(() => {
         const interval = setInterval(() => {
             positions.request()
-        }, 3000)
+        }, window.location.hostname === 'localhost' ? LOCAL_LOAD_INTERVAL : 3000)
         return () => clearInterval(interval)
 
         // eslint-disable-next-line

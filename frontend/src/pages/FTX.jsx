@@ -8,6 +8,7 @@ import MainContextWrapper from '../contexts/MainContext'
 import { OrdersTabsSection } from '../components/OrdersTabsSection'
 import { Card } from '../components/common/Card'
 import Tabs from '../components/Tabs'
+import { LOCAL_LOAD_INTERVAL } from '../constants'
 
 export const FTXContext = createContext({})
 
@@ -22,7 +23,7 @@ export default function FTX() {
     useEffect(() => {
         const interval = setInterval(() => {
             account.request()
-        }, 1500)
+        }, window.location.hostname === 'localhost' ? LOCAL_LOAD_INTERVAL : 1500)
         return () => clearInterval(interval)
         // eslint-disable-next-line
     }, [])
