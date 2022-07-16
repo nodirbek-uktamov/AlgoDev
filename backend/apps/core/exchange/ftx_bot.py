@@ -703,7 +703,7 @@ class FTXBot:
                 if trade.is_completed:
                     ftx.batch_cancel_orders(user, active_order_ids)
 
-            if timezone.now() < trade.hft_orders_check_time:
+            if timezone.now() > trade.hft_orders_check_time:
                 hft_all_orders = json.loads(trade.hft_all_orders)
                 all_orders_for_cancel = list(set(hft_all_orders) - set(active_order_ids))
                 active_orders_for_cancel = list(filter(lambda i: int(i.get('id')) in all_orders_for_cancel, orders))
