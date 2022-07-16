@@ -64,6 +64,7 @@ class TradeAdmin(admin.ModelAdmin):
     list_display = (
         'user',
         'exchange',
+        'is_completed'
     )
 
 # journalctl --unit=ftx_bot.service -n 100 --no-pager
