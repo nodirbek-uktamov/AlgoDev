@@ -695,9 +695,6 @@ class FTXBot:
                 trade.hft_sell_orders = json.dumps(sell_orders_for_save)
                 trade.hft_all_orders = json.dumps(hft_all_orders)
 
-                logger.info(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
-                print(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
-
                 trade.send_data_to_frontend()
 
                 if trade.is_completed:
@@ -777,9 +774,6 @@ class FTXBot:
 
         active_order_ids = [*buy_order_ids.keys(), *sell_order_ids.keys()]
         hft_all_orders = list({*json.loads(trade.hft_all_orders), *active_order_ids})
-
-        logger.info(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
-        print(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
 
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps(active_order_ids)
