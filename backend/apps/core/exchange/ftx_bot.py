@@ -696,6 +696,7 @@ class FTXBot:
                 trade.hft_all_orders = json.dumps(hft_all_orders)
 
                 logger.info(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
+                print(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
 
                 trade.send_data_to_frontend()
 
@@ -778,6 +779,7 @@ class FTXBot:
         hft_all_orders = list({*json.loads(trade.hft_all_orders), *active_order_ids})
 
         logger.info(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
+        print(f'{str(timezone.now())}.  {trade.id} hft_all_orders: {hft_all_orders}')
 
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps(active_order_ids)
