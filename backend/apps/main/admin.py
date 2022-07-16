@@ -68,5 +68,3 @@ class TradeAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = fields
-
-# journalctl --unit=ftx_bot.service -n 100 --no-pager
