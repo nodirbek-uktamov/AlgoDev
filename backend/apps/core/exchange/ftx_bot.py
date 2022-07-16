@@ -121,12 +121,6 @@ class FTXBot:
 
                     Trade.objects.bulk_update(trades, update_fields)
 
-                work_time = (timezone.now() - started_at).total_seconds()
-
-                logger.info(f'bots work time: {work_time}')
-                print('')
-                print('')
-                print('')
 
     def bot_for_user(self, args):
         user, costs, precisions = args
@@ -715,6 +709,10 @@ class FTXBot:
 
                 ftx.batch_cancel_orders(user, active_orders_for_cancel)
                 trade.hft_orders_check_time = timezone.now() + timezone.timedelta(minutes=2)
+
+                if active_orders_for_cancel:
+                    logger.info(f'{str(timezone.now())}.  {trade.id} canceled orders: {active_orders_for_cancel}')
+
                 trade.hft_all_orders = '[]'
 
             return

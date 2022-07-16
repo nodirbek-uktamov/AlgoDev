@@ -139,6 +139,8 @@ class Trade(models.Model):
 
     class Meta(AbstractUser.Meta):
         db_table = 'main_trades'
+        verbose_name_plural = 'Trades'
+        verbose_name = 'Trade'
 
 
 class TakeProfitOrder(models.Model):

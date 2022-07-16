@@ -123,8 +123,6 @@ class HuobiBot:
 
                 work_time = (timezone.now() - started_at).total_seconds()
 
-                logger.info(f'bots work time: {work_time}')
-
     def calc_amount(self, trade, precision, price=0):
         amount = float(trade.quantity)
 
