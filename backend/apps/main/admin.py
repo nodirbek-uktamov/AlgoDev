@@ -47,7 +47,6 @@ class TradeAdmin(admin.ModelAdmin):
         'hft_orders_on_each_side',
         'hft_order_ids',
         'hft_orders_check_time',
-        'hft_all_orders',
         'hft_buy_orders',
         'hft_sell_orders',
         'stop',

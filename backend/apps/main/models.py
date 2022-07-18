@@ -81,7 +81,6 @@ class Trade(models.Model):
     hft_order_ids = models.TextField(default='[]')
 
     hft_orders_check_time = models.DateTimeField(null=True, blank=True)
-    hft_all_orders = models.TextField(default='[]')
 
     hft_buy_orders = models.TextField(default='{}')
     hft_sell_orders = models.TextField(default='{}')

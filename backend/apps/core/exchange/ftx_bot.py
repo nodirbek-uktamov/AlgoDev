@@ -116,7 +116,6 @@ class FTXBot:
                         "ladder_prices_sum",
                         "completed_loops",
                         "hft_orders_check_time",
-                        "hft_all_orders",
                     ]
 
                     Trade.objects.bulk_update(trades, update_fields)
@@ -577,7 +576,7 @@ class FTXBot:
         active_order_ids = [*active_sell_order_ids, *active_buy_order_ids]
 
         if not trade.hft_orders_check_time:
-            trade.hft_orders_check_time = timezone.now() + timezone.timedelta(minutes=2)
+            trade.hft_orders_check_time = timezone.now() + timezone.timedelta(minutes=5)
 
         if total_orders_count <= 0:
             trade.is_completed = True
@@ -687,13 +686,11 @@ class FTXBot:
                     return
 
                 active_order_ids = [*buy_orders_for_save.keys(), *sell_orders_for_save.keys()]
-                hft_all_orders = list({*json.loads(trade.hft_all_orders), *active_order_ids})
 
                 trade.hft_order_ids = json.dumps(client_order_ids)
                 trade.active_order_ids = json.dumps(active_order_ids)
                 trade.hft_buy_orders = json.dumps(buy_orders_for_save)
                 trade.hft_sell_orders = json.dumps(sell_orders_for_save)
-                trade.hft_all_orders = json.dumps(hft_all_orders)
 
                 trade.send_data_to_frontend()
 
@@ -701,18 +698,22 @@ class FTXBot:
                     ftx.batch_cancel_orders(user, active_order_ids)
 
             if timezone.now() > trade.hft_orders_check_time:
-                hft_all_orders = json.loads(trade.hft_all_orders)
-                all_orders_for_cancel = list(set(hft_all_orders) - set(active_order_ids))
-                active_orders_for_cancel = list(filter(lambda i: int(i.get('id')) in all_orders_for_cancel, orders))
+                active_orders_for_cancel = list(
+                    filter(
+                        lambda i:
+                        int(i.get('id')) not in active_order_ids and
+                        i.get('market') == trade.symbol.upper() and
+                        i.get('clientId') != None,
+                        orders
+                    )
+                )
                 active_orders_for_cancel = list(map(lambda a: a['id'], active_orders_for_cancel))
 
                 ftx.batch_cancel_orders(user, active_orders_for_cancel)
-                trade.hft_orders_check_time = timezone.now() + timezone.timedelta(minutes=2)
+                trade.hft_orders_check_time = timezone.now() + timezone.timedelta(minutes=5)
 
                 if active_orders_for_cancel:
                     logger.info(f'{str(timezone.now())}.  {trade.id} canceled orders: {active_orders_for_cancel}')
-
-                trade.hft_all_orders = '[]'
 
             return
 
@@ -773,12 +774,9 @@ class FTXBot:
             return
 
         active_order_ids = [*buy_order_ids.keys(), *sell_order_ids.keys()]
-        hft_all_orders = list({*json.loads(trade.hft_all_orders), *active_order_ids})
 
         trade.hft_order_ids = json.dumps(client_order_ids)
         trade.active_order_ids = json.dumps(active_order_ids)
-
-        trade.hft_all_orders = json.dumps(hft_all_orders)
 
         trade.hft_buy_orders = json.dumps(buy_order_ids)
         trade.hft_sell_orders = json.dumps(sell_order_ids)
