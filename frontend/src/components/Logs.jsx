@@ -1,11 +1,9 @@
-import React, {useState, useEffect, useRef, useContext} from 'react'
-import {LOGS_WS} from '../urls'
-import {MainContext} from "../contexts/MainContext";
-import {Card} from "./common/Card";
+import React, { useState, useEffect, useRef, useContext } from 'react'
+import { LOGS_WS } from '../urls'
+import { MainContext } from '../contexts/MainContext'
 
-export default function Logs({setBotPrices, trades}) {
-
-    const {wsCallbacksRef} = useContext(MainContext)
+export default function Logs({ setBotPrices, trades }) {
+    const { wsCallbacksRef } = useContext(MainContext)
     const ws = useRef(null)
 
     const user = JSON.parse(localStorage.getItem('user'))
@@ -46,30 +44,30 @@ export default function Logs({setBotPrices, trades}) {
         if (log.action) {
             if (log.action.delete) {
                 trades.setResponse((oldTrades) => (oldTrades || []).filter((i) => i.id !== log.action.delete))
-                setBotPrices((oldPrices) => ({...(oldPrices || {}), [log.action.delete]: {price: 0}}))
-            } else if (log.action.take_profit_order) wsCallbacksRef.current.setTakeProfitOrderIds(oldIds => [log.action.take_profit_order, ...oldIds])
+                setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.delete]: { price: 0 } }))
+            } else if (log.action.take_profit_order) wsCallbacksRef.current.setTakeProfitOrderIds((oldIds) => [log.action.take_profit_order, ...oldIds])
             else {
                 if (log.action.price) {
-                    setBotPrices((oldPrices) => ({...(oldPrices || {}), [log.action.price.trade]: log.action}))
+                    setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.price.trade]: log.action }))
                 }
 
                 if (typeof log.action.filled_amount === 'number') {
                     trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
-                        if (i.id === log.action.trade) return {...i, filledAmount: log.action.filled_amount}
+                        if (i.id === log.action.trade) return { ...i, filledAmount: log.action.filled_amount }
                         return i
                     }))
                 }
 
                 if (typeof log.action.active_order_ids === 'object') {
                     trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
-                        if (i.id === log.action.trade) return {...i, activeOrderIds: log.action.active_order_ids}
+                        if (i.id === log.action.trade) return { ...i, activeOrderIds: log.action.active_order_ids }
                         return i
                     }))
                 }
 
                 if (typeof log.action.completed_loops === 'number') {
                     trades.setResponse((oldTrades) => (oldTrades || []).map((i) => {
-                        if (i.id === log.action.trade) return {...i, completedLoops: log.action.completed_loops}
+                        if (i.id === log.action.trade) return { ...i, completedLoops: log.action.completed_loops }
                         return i
                     }))
                 }
@@ -80,11 +78,9 @@ export default function Logs({setBotPrices, trades}) {
     }
 
     return (
-            <div style={{height: 426, overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit'}}>
-                {logs.map((message, index) => {
-                    return <div dangerouslySetInnerHTML={{ __html: message }} className="mb-2" key={index} />
-                })}
-            </div>
+        <div style={{ height: 426, overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit' }}>
+            {logs.map((message, index) => <div dangerouslySetInnerHTML={{ __html: message }} className="mb-2" key={index} />)}
+        </div>
 
     )
 }
