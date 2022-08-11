@@ -37,7 +37,7 @@ export default function Huobi() {
 
     const onUpdate = useCallback(trades.request, [])
 
-    function onResizeStop(val) {
+    function onChangeSize(val) {
         setContainerSizes(val)
         localStorage.setItem('huobi_default_layout', JSON.stringify(val))
     }
@@ -50,7 +50,8 @@ export default function Huobi() {
                 className="layout"
                 cols={100}
                 layout={containerSizes}
-                onResizeStop={onResizeStop}>
+                onResizeStop={onChangeSize}
+                onDragStop={onChangeSize}>
 
                 <div key={1}>
                     <Card>
