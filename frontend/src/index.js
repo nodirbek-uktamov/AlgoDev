@@ -6,6 +6,8 @@ import ReactDOM from 'react-dom'
 import moment from 'moment'
 import App from './Router'
 import 'moment/locale/ru'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
 
 moment.locale('ru')
 

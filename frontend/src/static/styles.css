@@ -5,6 +5,11 @@
     color: #FFFFFF;
 }
 
+.react-grid-item > .react-resizable-handle::after {
+    border-right: 2px solid #fff !important;
+    border-bottom: 2px solid #fff !important;
+}
+
 html {
     background-color: #000;
     font-size: 18px;

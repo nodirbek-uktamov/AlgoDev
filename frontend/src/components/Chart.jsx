@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, Fragment } from 'react'
 import TradingViewWidget from 'react-tradingview-widget'
 import { intervals } from '../utils/intervals'
 import { TradesList } from './TradesList'
@@ -10,6 +10,7 @@ import { FTX, HUOBI } from '../exchanges/exchanges'
 import FTXOrders from './ftx/FTXOrders'
 import { huobiOnChangeSymbol } from '../exchanges/huobi'
 import { ftxOnChangeSymbol } from '../exchanges/ftx'
+import { getHeight } from '../utils/helpers'
 
 const defaultOptions = {
     autosize: true,
@@ -27,7 +28,7 @@ const defaultOptions = {
     backgroundColor: '#abcabc',
 }
 
-function Chart({ trades, cancelAllTrades }) {
+function Chart() {
     const { exchange } = useContext(MainContext)
 
     const {
@@ -71,46 +72,32 @@ function Chart({ trades, cancelAllTrades }) {
     }
 
     return (
-        <div>
-            <Card color="black">
-                <div style={{ display: 'flex', gap: '1.1rem', marginBottom: '1.1rem' }}>
-                    <Select
-                        enableSearch
-                        searchBy={(o) => o.label}
-                        options={symbolsList}
-                        setSelectedOption={onChange}
-                        defaultValue={defaultSymbol}
-                        selectedOption={selectedSymbol}
-                        renderSelectedOption={(o) => o.label}
-                        renderMenuOption={(o) => o.label} />
+        <Card color="black" style={{ height: getHeight('chart-draggable-container'), paddingTop: 70 }}>
+            <div style={{ display: 'flex', gap: '1.1rem', marginBottom: '1.1rem', position: 'absolute', top: 15 }}>
+                <Select
+                    enableSearch
+                    searchBy={(o) => o.label}
+                    options={symbolsList}
+                    setSelectedOption={onChange}
+                    defaultValue={defaultSymbol}
+                    selectedOption={selectedSymbol}
+                    renderSelectedOption={(o) => o.label}
+                    renderMenuOption={(o) => o.label} />
 
-                    <Select
-                        defaultValue={intervals[6]}
-                        renderSelectedOption={(o) => o.label}
-                        renderMenuOption={(o) => o.label}
-                        options={intervals}
-                        selectedOption={interval}
-                        setSelectedOption={setInterval} />
-                </div>
+                <Select
+                    defaultValue={intervals[6]}
+                    renderSelectedOption={(o) => o.label}
+                    renderMenuOption={(o) => o.label}
+                    options={intervals}
+                    selectedOption={interval}
+                    setSelectedOption={setInterval} />
+            </div>
 
-                <div style={{ height: '21.5rem' }}>
-                    <TradingViewWidget
-                        {...defaultOptions}
-                        symbol={`${exchange.toUpperCase()}:${symbolValue.replace('-', '').toUpperCase()}`}
-                        interval={interval && interval.value} />
-                </div>
-            </Card>
-
-            <Card dense={false}>
-                <TradesList
-                    cancelAllTrades={cancelAllTrades}
-                    onCancel={trades.request}
-                    trades={trades.response || []} />
-
-                {exchange === HUOBI && <HuobiOrdersList />}
-                {exchange === FTX && <FTXOrders />}
-            </Card>
-        </div>
+            <TradingViewWidget
+                {...defaultOptions}
+                symbol={`${exchange.toUpperCase()}:${symbolValue.replace('-', '').toUpperCase()}`}
+                interval={interval && interval.value} />
+        </Card>
     )
 }
 

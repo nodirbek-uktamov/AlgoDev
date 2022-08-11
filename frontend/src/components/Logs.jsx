@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { LOGS_WS } from '../urls'
 import { MainContext } from '../contexts/MainContext'
+import { getHeight } from '../utils/helpers'
+import { Card } from './common/Card'
 
 export default function Logs({ setBotPrices, trades }) {
     const { wsCallbacksRef } = useContext(MainContext)
@@ -78,9 +80,10 @@ export default function Logs({ setBotPrices, trades }) {
     }
 
     return (
-        <div style={{ height: 426, overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit' }}>
-            {logs.map((message, index) => <div dangerouslySetInnerHTML={{ __html: message }} className="mb-2" key={index} />)}
-        </div>
-
+        <Card style={{ padding: 0 }}>
+            <div className="cardWrap" style={{ height: getHeight('logs-draggable-container'), overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit' }}>
+                {logs.map((message, index) => <div dangerouslySetInnerHTML={{ __html: message }} className="mb-2" key={index} />)}
+            </div>
+        </Card>
     )
 }
