@@ -104,3 +104,29 @@ html {
 .tabs li.is-active a {
     color: #3e8ed0
 }
+
+.new-trade-ask {
+  animation: new-trade-ask-animation 1s linear;
+}
+
+.new-trade-bid {
+  animation: new-trade-bid-animation 1s linear;
+}
+
+@keyframes new-trade-bid-animation {
+  0% {
+    background: hsl(141, 71%, 48%);
+  }
+  100% {
+    background: #000;
+  }
+}
+
+@keyframes new-trade-ask-animation {
+  0% {
+    background: hsl(348, 86%, 43%);
+  }
+  100% {
+    background: #000;
+  }
+}

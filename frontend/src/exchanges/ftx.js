@@ -51,6 +51,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
 
     if (data.channel === 'trades' && typeof wsCallbacksRef.current.setOrdersData === 'function') {
         const newData = data.data.map((item) => ({
+            ...item,
             ts: item.time,
             price: item.price,
             direction: item.side,

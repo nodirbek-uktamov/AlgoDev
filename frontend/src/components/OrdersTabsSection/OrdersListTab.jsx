@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Input } from '../common/Input'
 import { MainContext } from '../../contexts/MainContext'
+import notificationSound from '../../static/nofitication.mp3'
 
 export function OrdersListTab() {
     const { wsCallbacksRef, symbol } = useContext(MainContext)
@@ -25,6 +26,11 @@ export function OrdersListTab() {
                 newOrders = [item, ...newOrders]
                 return newOrders
             })
+
+            if (newOrders.length > 0 && +amountLimit !== 0) {
+                const audio = new Audio(notificationSound)
+                audio.play()
+            }
 
             setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, 30))
         }
@@ -98,8 +104,10 @@ export function OrdersListTab() {
             </table>
 
             <div className="p-3" style={{ backgroundColor: orders.length > 0 ? '#000' : null }}>
-                {orders.map((item, index) => (
-                    <RenderItem key={index} item={item} />
+                {orders.map((item) => (
+                    <div className={item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid'} key={item.tradeId}>
+                        <RenderItem item={item} />
+                    </div>
                 ))}
             </div>
         </div>
