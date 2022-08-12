@@ -2,9 +2,10 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Input } from '../common/Input'
 import { MainContext } from '../../contexts/MainContext'
 import notificationSound from '../../static/nofitication.mp3'
+import { updateFormPrices } from '../../utils/helpers'
 
 export function OrdersListTab() {
-    const { wsCallbacksRef, symbol } = useContext(MainContext)
+    const { wsCallbacksRef, symbol, callbacks } = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
 
@@ -44,6 +45,7 @@ export function OrdersListTab() {
 
     function RenderItem({ item }) {
         const color = item.direction === 'sell' ? '#FF0000' : '#6afd0a'
+        const price = item.price.toFixed(symbol.tpp || 0)
 
         return (
             <div className="columns p-0 m-0">
@@ -51,8 +53,8 @@ export function OrdersListTab() {
                     {new Date(item.ts).toLocaleTimeString('it-IT')}
                 </div>
 
-                <div style={{ color }} className="column p-0">
-                    {item.price.toFixed(symbol.tpp || 0)}
+                <div style={{ color }} className="column p-0 pointer" onMouseDown={() => updateFormPrices(price, callbacks.current.setTradeFormValue)}>
+                    {price}
                 </div>
 
                 <div className="column p-0" style={{ color, textAlign: 'end' }}>

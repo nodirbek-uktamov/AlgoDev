@@ -17,6 +17,7 @@ import { OrdersListTab } from '../components/OrdersTabsSection/OrdersListTab'
 import { Button } from '../components/common/Button'
 import { signOut } from '../utils/auth'
 import { getDefaultLayout } from '../utils/gridLayout'
+import { getHeight } from '../utils/helpers'
 
 const ReactGridLayout = WidthProvider(RGL)
 
@@ -66,11 +67,12 @@ export default function FTX() {
                 <ReactGridLayout
                     className="layout"
                     cols={100}
+                    rowHeight={15}
                     layout={containerSizes}
                     onResizeStop={onChangeSize}
                     onDragStop={onChangeSize}>
-                    <div key={1}>
-                        <Card>
+                    <div key={1} id="form-draggable-container">
+                        <Card style={{ height: getHeight('form-draggable-container') }}>
                             <FTXTradeForm onUpdate={onUpdate} />
                         </Card>
                     </div>

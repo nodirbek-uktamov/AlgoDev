@@ -101,6 +101,8 @@ class Trade(models.Model):
     reduce_only = models.BooleanField(default=False)
     post_only = models.BooleanField(default=False)
 
+    is_canceled = models.BooleanField(default=False)
+
     @property
     def filled_amount(self):
         amount = 0

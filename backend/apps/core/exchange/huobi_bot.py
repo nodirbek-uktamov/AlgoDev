@@ -69,6 +69,7 @@ class HuobiBot:
                     queryset=Trade.objects.filter(
                         Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
                         is_completed=False,
+                        is_canceled=False,
                         exchange=HUOBI
                     ).order_by('grid_bot')
                 ),
@@ -374,7 +375,7 @@ class HuobiBot:
         buy_orders = json.loads(trade.hft_buy_orders)
         sell_orders = json.loads(trade.hft_sell_orders)
 
-        if total_orders_count <= 0:
+        if total_orders_count <= 0 or trade.is_completed:
             trade.is_completed = True
             return
 
@@ -745,7 +746,7 @@ class HuobiBot:
         ladder_order_ids = json.loads(trade.ladder_order_ids)
         amount = trade.quantity
 
-        if trade.ladder_trades_count <= 0:
+        if trade.ladder_trades_count <= 0 or trade.is_canceled:
             trade.is_completed = True
             send_log(trade.user.id, '', {'delete': trade.id})
             return

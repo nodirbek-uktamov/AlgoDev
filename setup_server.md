@@ -165,7 +165,6 @@ pip3 --version
     ```
 11. Start/Restart bot: `sudo systemctl restart huobi_bot && sudo systemctl restart ftx_bot`
 12. Setup redis for logs:   
-Install docker
     ```
     docker run --name my-redis -p 6379:6379 -d redis
     pip install celery "celery[redis]"

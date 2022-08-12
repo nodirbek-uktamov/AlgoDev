@@ -37,34 +37,36 @@ export const Market = ({ values, botType, setBotType, balance, setTradeType, tab
     const pair1Balance = (balance.freeValue * balance.leverage) / initialPrice
 
     return (
-        <div style={{ display: 'grid', gap: '1.1rem' }}>
-            <Select
-                style={{ marginTop: '1.1rem' }}
-                options={BOT_TYPES_MARKET}
-                selectedOption={botType}
-                setSelectedOption={setBotType}
-                renderSelectedOption={(o) => o.title}
-                renderMenuOption={(o) => o.title}
-                color="white" />
+        <div>
+            <div style={{ display: 'grid', gap: '1.1rem' }}>
+                <Select
+                    style={{ marginTop: '1.1rem' }}
+                    options={BOT_TYPES_MARKET}
+                    selectedOption={botType}
+                    setSelectedOption={setBotType}
+                    renderSelectedOption={(o) => o.title}
+                    renderMenuOption={(o) => o.title}
+                    color="white" />
 
-            <div className="columns mb-0">
-                <div className="column pr-0">
-                    {(balance.freeValue || 0).toFixed(4)} USD
+                <div className="columns mb-0">
+                    <div className="column pr-0">
+                        {(balance.freeValue || 0).toFixed(4)} USD
+                    </div>
+
+                    <div className="column is-narrow">
+                        {initialPrice && (pair1Balance).toFixed(symbol.tap || 0)} {symbol.pair1}
+                    </div>
                 </div>
 
-                <div className="column is-narrow">
-                    {initialPrice && (pair1Balance).toFixed(symbol.tap || 0)} {symbol.pair1}
-                </div>
+                <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`} />
+
+                <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, pair1Balance, symbol, setFieldValue, symbol)} valueType="percent" />
+
+                {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, botType.key)}
             </div>
 
-            <InputField type="number" name="quantity" step="0.00000001" label={`Amount (${symbol.pair1})`} />
-
-            <Slider defaultValue={sliderValue} onValueChange={(value) => onChangeSlider(value, setSliderValue, pair1Balance, symbol, setFieldValue, symbol)} valueType="percent" />
-
-            {botType.key && FTXLimitOptionsRenderer[botType.key].render(values, botType.key)}
-
             {botType.key !== 'hft' && (
-                <div className="is-flex" style={{ gap: '1.1rem' }}>
+                <div className="is-flex" style={{ gap: '1.1rem', position: 'absolute', bottom: 10 }}>
                     <Button
                         color="success"
                         text="Buy / Long"

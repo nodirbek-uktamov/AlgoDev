@@ -56,6 +56,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
             price: item.price,
             direction: item.side,
             amount: item.size,
+            tradeId: item.id,
         }))
 
         wsCallbacksRef.current.setOrdersData({ data: newData })

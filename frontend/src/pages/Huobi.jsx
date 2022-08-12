@@ -16,6 +16,7 @@ import { Button } from '../components/common/Button'
 import { signOut } from '../utils/auth'
 import { TradesList } from '../components/TradesList'
 import { HuobiOrdersList } from '../components/huobi/HuobiOrdersList'
+import { getHeight } from '../utils/helpers'
 
 const ReactGridLayout = WidthProvider(RGL)
 
@@ -49,12 +50,13 @@ export default function Huobi() {
             <ReactGridLayout
                 className="layout"
                 cols={100}
+                rowHeight={15}
                 layout={containerSizes}
                 onResizeStop={onChangeSize}
                 onDragStop={onChangeSize}>
 
-                <div key={1}>
-                    <Card>
+                <div key={1} id="form-draggable-container">
+                    <Card style={{ height: getHeight('form-draggable-container') }}>
                         <TradeForm onUpdate={onUpdate} />
                     </Card>
                 </div>

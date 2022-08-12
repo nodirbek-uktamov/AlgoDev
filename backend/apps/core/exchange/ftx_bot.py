@@ -67,6 +67,7 @@ class FTXBot:
                     queryset=Trade.objects.filter(
                         Q(completed_at__isnull=True) | Q(completed_at__lte=timezone.now()),
                         is_completed=False,
+                        is_canceled=False,
                         exchange=FTX
                     ).order_by('grid_bot')
                 ),
@@ -168,6 +169,10 @@ class FTXBot:
             if trade.ladder:
                 self.ladder_bot(cost, user, trade, precision, orders, symbol)
                 return trade
+
+            # for skip running bots, if they were canceled
+            if trade.is_canceled:
+                return
 
             if trade.limit:
                 self.limit_bot(cost, user, trade, precision, orders, symbol)
@@ -306,7 +311,7 @@ class FTXBot:
         ladder_order_ids = json.loads(trade.ladder_order_ids)
         amount = trade.quantity
 
-        if trade.ladder_trades_count <= 0:
+        if trade.ladder_trades_count <= 0 or trade.is_canceled:
             trade.is_completed = True
             send_log(trade.user.id, '', {'delete': trade.id})
             return
@@ -575,7 +580,7 @@ class FTXBot:
         active_buy_order_ids = list(map(lambda a: a['id'], buy_active_orders))
         active_order_ids = [*active_sell_order_ids, *active_buy_order_ids]
 
-        if total_orders_count <= 0:
+        if total_orders_count <= 0 or trade.is_completed:
             trade.is_completed = True
             ftx.batch_cancel_orders(user, active_order_ids)
             return
