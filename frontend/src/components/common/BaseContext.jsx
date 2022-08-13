@@ -5,20 +5,25 @@ import Modal from './Modal'
 export const Context = createContext()
 
 export default function BaseContextWrapper({ children }) {
-    const [text, setText] = useState()
+    const [texts, setTexts] = useState([])
     const [className, setClassName] = useState('')
     const [modalComponent, setModalComponent] = useState()
 
     return (
-        <Context.Provider value={{ setText, setClassName, setModalComponent }}>
+        <Context.Provider value={{ setTexts, setClassName, setModalComponent }}>
             {children}
 
-            {text ? (
+            {texts.length > 0 ? texts.map((item, index) => (
                 <Message
-                    text={text}
-                    className={className}
-                    closeMessage={() => setText(null)} />
-            ) : null}
+                    key={item.key}
+                    text={typeof item === 'string' ? item : item.label}
+                    index={index}
+                    deleteKey={item.key}
+                    className={typeof item === 'string' ? className : item.className}
+                    closeMessage={(key) => {
+                        setTexts((oldTexts) => oldTexts.filter((i) => i.key !== key))
+                    }} />
+            )) : null}
 
             {modalComponent ? (
                 <Modal

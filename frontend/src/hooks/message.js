@@ -2,15 +2,16 @@ import { useContext } from 'react'
 import { Context } from '../components/common/BaseContext'
 
 export function useMessage() {
-    const { setText, setClassName } = useContext(Context)
+    const { setTexts, setClassName } = useContext(Context)
 
     return [
-        (text, className = null) => {
-            if (setText) setText(text)
+        (newTexts, className = null) => {
+            if (setTexts && typeof newTexts !== 'string') setTexts((oldTexts) => [...oldTexts, ...newTexts])
+            else setTexts((oldTexts) => [...oldTexts, newTexts])
             if (setClassName) setClassName(className || 'is-dark')
         },
         () => {
-            setText(null)
+            setTexts([])
             setClassName('')
         },
     ]

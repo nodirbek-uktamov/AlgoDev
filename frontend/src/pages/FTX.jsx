@@ -71,7 +71,7 @@ export default function FTX() {
                     layout={containerSizes}
                     onResizeStop={onChangeSize}
                     onDragStop={onChangeSize}>
-                    <div key={1} id="form-draggable-container">
+                    <div key={1} id="form-draggable-container" className="form-draggable-container">
                         <Card style={{ height: getHeight('form-draggable-container') }}>
                             <FTXTradeForm onUpdate={onUpdate} />
                         </Card>
@@ -83,31 +83,24 @@ export default function FTX() {
                         </div>
                     </div>
 
-                    <div key={4}>
-                        <Card>
+                    <div key={4} id="depth-draggable-container">
+                        <Card style={{ height: getHeight('depth-draggable-container') }}>
                             <DepthTab botPrices={botPrices} />
                         </Card>
                     </div>
 
-                    <div key={5}>
-                        <div style={{ height: '100%', gap: '1.1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                            <Card>
-                                <OrdersListTab />
-                            </Card>
-
-                            <Button
-                                color="white"
-                                text="Log out"
-                                onClick={() => signOut(history)} />
-                        </div>
+                    <div key={5} id="orders-list-draggable-container">
+                        <Card style={{ height: getHeight('orders-list-draggable-container') }}>
+                            <OrdersListTab />
+                        </Card>
                     </div>
 
                     <div key={6} id="chart-draggable-container">
                         <Chart containerSizes={containerSizes} />
                     </div>
 
-                    <div key={7}>
-                        <Card dense={false}>
+                    <div key={7} id="trades-draggable-container">
+                        <Card dense={false} style={{ height: getHeight('trades-draggable-container') }}>
                             <TradesList
                                 cancelAllTrades={cancelAllTrades}
                                 onCancel={trades.request}

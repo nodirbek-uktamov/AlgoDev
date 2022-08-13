@@ -1,3 +1,3 @@
-import TradesList from  './TradesList';
+import TradesList from './TradesList'
 
-export {TradesList}
+export { TradesList }

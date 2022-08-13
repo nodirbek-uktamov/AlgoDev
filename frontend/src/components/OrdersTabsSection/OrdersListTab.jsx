@@ -3,11 +3,13 @@ import { Input } from '../common/Input'
 import { MainContext } from '../../contexts/MainContext'
 import notificationSound from '../../static/nofitication.mp3'
 import { updateFormPrices } from '../../utils/helpers'
+import { useMessage } from '../../hooks/message'
 
 export function OrdersListTab() {
     const { wsCallbacksRef, symbol, callbacks } = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
+    const [showMessage] = useMessage()
 
     useEffect(() => {
         wsCallbacksRef.current.setOrdersData = onChangeData
@@ -16,6 +18,7 @@ export function OrdersListTab() {
 
     useEffect(() => {
         setOrders([])
+        // eslint-disable-next-line
     }, [symbol])
 
     function onChangeData(data) {
@@ -31,6 +34,12 @@ export function OrdersListTab() {
             if (newOrders.length > 0 && +amountLimit !== 0) {
                 const audio = new Audio(notificationSound)
                 audio.play()
+
+                showMessage(newOrders.map((item) => ({
+                    label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,
+                    key: item.tradeId,
+                    className: item.direction === 'sell' ? 'is-danger' : 'is-success',
+                })), 'is-info')
             }
 
             setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, 30))
