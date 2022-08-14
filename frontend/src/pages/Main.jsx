@@ -1,16 +1,16 @@
 import React from 'react'
-import Tabs from "../components/Tabs";
-import {Form, Formik} from "formik";
-import {Card} from "../components/common/Card";
-import {Button} from "../components/common/Button";
-import {useLoad, usePostRequest, usePutRequest} from "../hooks/request";
-import InputOld from "../components/common/InputOld";
-import {USER_DETAIL, USER_SETTINGS} from "../urls";
-import Loader from "../components/common/Loader";
+import { Form, Formik } from 'formik'
+import Tabs from '../components/Tabs'
+import { Card } from '../components/common/Card'
+import { Button } from '../components/common/Button'
+import { useLoad, usePutRequest } from '../hooks/request'
+import InputOld from '../components/common/InputOld'
+import { USER_DETAIL, USER_SETTINGS } from '../urls'
+import Loader from '../components/common/Loader'
 
 export default function Main() {
-    const userDetail = useLoad({url: USER_DETAIL})
-    const userSettings = usePutRequest({url: USER_SETTINGS})
+    const userDetail = useLoad({ url: USER_DETAIL })
+    const userSettings = usePutRequest({ url: USER_SETTINGS })
     const user = userDetail.response
 
     const initialValues = {
@@ -22,16 +22,16 @@ export default function Main() {
     }
 
     function onSubmit(data, actions) {
-        userSettings.request({data})
+        userSettings.request({ data })
         actions.resetForm()
         userDetail.request()
     }
 
     return (
         <div>
-            <Tabs style={{marginLeft: '1.1rem'}}/>
+            <Tabs style={{ marginLeft: '1.1rem' }} />
 
-            <div style={{padding: '1.1rem'}}>
+            <div style={{ padding: '1.1rem' }}>
                 {user && (
                     <Formik onSubmit={onSubmit} enableReinitialize initialValues={initialValues}>
                         <Form>
@@ -43,12 +43,12 @@ export default function Main() {
                                         <InputOld
                                             className="input_main has-text-white"
                                             name="huobiApiKey"
-                                            label={`Api key` + (user.huobiApiKey ? " (Already exists)" : '')}/>
+                                            label={`Api key${user.huobiApiKey ? ' (Already exists)' : ''}`} />
 
                                         <InputOld
                                             className="input_main has-text-white"
                                             name="huobiSecretKey"
-                                            label={`Secret key` + (user.huobiSecretKey ? " (Already exists)" : '')}/>
+                                            label={`Secret key${user.huobiSecretKey ? ' (Already exists)' : ''}`} />
                                     </Card>
                                 </div>
 
@@ -59,12 +59,12 @@ export default function Main() {
                                         <InputOld
                                             className="input_main has-text-white"
                                             name="ftxApiKey"
-                                            label={`Api key` + (user.ftxApiKey ? " (Already exists)" : '')}/>
+                                            label={`Api key${user.ftxApiKey ? ' (Already exists)' : ''}`} />
 
                                         <InputOld
                                             className="input_main has-text-white"
                                             name="ftxSecretKey"
-                                            label={`Secret key` + (user.ftxSecretKey ? " (Already exists)" : '')}/>
+                                            label={`Secret key${user.ftxSecretKey ? ' (Already exists)' : ''}`} />
 
                                         <InputOld
                                             className="input_main has-text-white"
@@ -73,10 +73,10 @@ export default function Main() {
                                     </Card>
                                 </div>
 
-                                <div className="column"/>
+                                <div className="column" />
 
                                 <div className="column is-narrow">
-                                    <Button isLoading={userSettings.loading} type="submit" color="success" text="Save" style={{width: '10rem'}}/>
+                                    <Button isLoading={userSettings.loading} type="submit" color="success" text="Save" style={{ width: '10rem' }} />
                                 </div>
                             </div>
                         </Form>
@@ -84,7 +84,7 @@ export default function Main() {
                 )}
             </div>
 
-            {userDetail.loading && <Loader center large/>}
+            {userDetail.loading && <Loader center large />}
         </div>
     )
 }

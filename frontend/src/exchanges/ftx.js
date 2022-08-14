@@ -75,6 +75,16 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
         }
 
         if (data.data.status === 'closed') {
+            if (data.data.filledSize > 0 && typeof wsCallbacksRef.current.showOrderMessage === 'function') {
+                wsCallbacksRef.current.showOrderMessage([{
+                    label: `${data.data.market} Order Filled  ${parseFloat(data.data.filledSize).toFixed(symbol.tap || 0)} ${symbol.pair1}`,
+                    key: data.data.id,
+                    className: data.data.side === 'sell' ? 'is-danger' : 'is-success',
+                }])
+
+                if (wsCallbacksRef.current.playNotificationVoice) wsCallbacksRef.current.playNotificationVoice()
+            }
+
             wsCallbacksRef.current.setFTXOrdersList((oldOrders) => oldOrders.filter((i) => i.id !== newItem.id))
         }
     }

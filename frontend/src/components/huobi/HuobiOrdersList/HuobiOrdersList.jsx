@@ -7,6 +7,7 @@ import { CANCEL_ALL_ORDERS, CANCEL_ORDER, LIMIT, MARKET, OPEN_ORDERS } from '../
 import { ORDERS_FILTER_TYPE } from '../../../utils/orders-filter-type'
 import './HuobiOrdersList.scss'
 import { Button } from '../../common/Button'
+import { useMessage } from '../../../hooks/message'
 
 export const SIDE_TEXT_STYLE = {
     buy: 'has-text-success',
@@ -127,6 +128,7 @@ function HuobiOrdersList() {
     const cancelOrder = usePostRequest()
     const closeMarket = usePostRequest({ url: MARKET })
     const closeLimit = usePostRequest({ url: LIMIT })
+    const [showMessage] = useMessage()
 
     const onCloseMarket = async (rowData) => closeMarket.request({ data: rowData })
 
@@ -135,11 +137,13 @@ function HuobiOrdersList() {
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
         wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
+        wsCallbacksRef.current.showOrderMessage = showMessage
+
         wsCallbacksRef.current.updateInitialOrders = (symbol) => {
             setOrders([])
             initialOrders.request({ url: OPEN_ORDERS.replace('{symbol}', symbol) })
         }
-    }, [initialOrders, wsCallbacksRef])
+    }, [initialOrders, showMessage, wsCallbacksRef])
 
     useEffect(() => {
         if (!initialOrders.response) return

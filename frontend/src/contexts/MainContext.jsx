@@ -7,6 +7,7 @@ import { FTX,
     getSymbolRequestOptions, getSymbolsList,
     handlePrivateWsMessage,
     handlePublicWsMessage } from '../exchanges/exchanges'
+import notificationSound from '../static/nofitication.mp3'
 
 export const MainContext = createContext({})
 
@@ -44,6 +45,8 @@ export default function MainContextWrapper({ children }) {
     }, [symbols.response, symbolValue])
 
     useEffect(() => {
+        wsCallbacksRef.current.playNotificationVoice = playNotificationVoice
+
         connectPrivateWs()
         if (exchange !== FTX) publicWsConnect()
 
@@ -129,6 +132,12 @@ export default function MainContextWrapper({ children }) {
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orderbook', market }))
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'trades', market }))
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orders', market }))
+    }
+
+    function playNotificationVoice() {
+        const audio = new Audio(notificationSound)
+        audio.play()
+        console.log('playing')
     }
 
     const contextValues = {

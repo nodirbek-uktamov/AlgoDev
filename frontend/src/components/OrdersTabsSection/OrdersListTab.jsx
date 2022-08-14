@@ -32,8 +32,7 @@ export function OrdersListTab() {
             })
 
             if (newOrders.length > 0 && +amountLimit !== 0) {
-                const audio = new Audio(notificationSound)
-                audio.play()
+                if (wsCallbacksRef.current.playNotificationVoice) wsCallbacksRef.current.playNotificationVoice()
 
                 showMessage(newOrders.map((item) => ({
                     label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,

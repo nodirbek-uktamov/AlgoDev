@@ -12,7 +12,7 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
 
         ws.current.send(JSON.stringify({
             action: 'sub',
-            ch: `orders#${symbol}`,
+            ch: `orders#${symbol.value.toLowerCase()}`,
         }))
     }
 
@@ -38,6 +38,16 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
 
             return [data.data, ...oldOrders]
         })
+
+        if (data.data.orderStatus === 'filled' && wsCallbacksRef.current.showOrderMessage) {
+            wsCallbacksRef.current.showOrderMessage([{
+                label: `${symbol.label} Order Filled ${parseFloat(data.data.tradeVolume).toFixed(symbol.tap || 0)} ${symbol.pair1}`,
+                key: data.data.orderId,
+                className: data.data.side === 'sell' ? 'is-danger' : 'is-success',
+            }])
+
+            if (wsCallbacksRef.current.playNotificationVoice) wsCallbacksRef.current.playNotificationVoice()
+        }
     }
 
     if (data.action === 'push' && data.data.accountId === user.huobiSpotAccountId && wsCallbacksRef.current.setBalance) {
