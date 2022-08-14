@@ -1,12 +1,13 @@
 export const defaultLayout = [
     {
         w: 18,
-        h: 26,
+        h: 30,
         minH: 26,
         minW: 18,
         x: 0,
         y: 0,
         i: '1',
+        draggableHandle: '.form-draggable-header',
     },
     {
         w: 18,
@@ -34,7 +35,7 @@ export const defaultLayout = [
     },
     {
         w: 46,
-        h: 26,
+        h: 30,
         x: 18,
         y: 0,
         i: '6',
@@ -50,8 +51,8 @@ export const defaultLayout = [
 ]
 
 export function getDefaultLayout(exchange) {
-    // const savedLayout = localStorage.getItem(`${exchange}_default_layout`)
-    // if (savedLayout) return JSON.parse(savedLayout)
+    const savedLayout = localStorage.getItem(`${exchange}_default_layout`)
+    if (savedLayout) return JSON.parse(savedLayout)
 
     return defaultLayout
 }

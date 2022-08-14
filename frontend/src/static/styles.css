@@ -113,6 +113,11 @@ html {
   animation: new-trade-bid-animation 1s linear;
 }
 
+.no-border-top {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
 @keyframes new-trade-bid-animation {
   0% {
     background: hsl(141, 71%, 48%);

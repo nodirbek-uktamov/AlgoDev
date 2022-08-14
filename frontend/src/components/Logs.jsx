@@ -80,7 +80,7 @@ export default function Logs({ setBotPrices, trades }) {
     }
 
     return (
-        <Card style={{ padding: 0 }}>
+        <Card style={{ padding: 0 }} className="no-border-top">
             <div className="cardWrap" style={{ height: getHeight('logs-draggable-container'), overflowX: 'hidden', overflowY: 'visible', backgroundColor: 'inherit' }}>
                 {logs.map((message, index) => <div dangerouslySetInnerHTML={{ __html: message }} className="mb-2" key={index} />)}
             </div>
