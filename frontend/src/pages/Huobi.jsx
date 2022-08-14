@@ -56,7 +56,6 @@ export default function Huobi() {
                 draggableHandle=".draggable-header"
                 onResizeStop={onChangeSize}
                 onDragStop={onChangeSize}>
-
                 <div key={1} id="form-draggable-container">
                     <DraggableHeader label="Create bot form" className="draggable-header" />
 
