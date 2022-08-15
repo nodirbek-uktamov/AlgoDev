@@ -183,7 +183,7 @@ AUTH_USER_MODEL = 'users.User'
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_URL = '/api/v1/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'files/static')
-MEDIA_URL = '/files/uploads/'
+MEDIA_URL = '/api/v1/files/uploads/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'files/uploads')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
