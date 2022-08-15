@@ -45,7 +45,8 @@ export default function MainContextWrapper({ children }) {
     }, [symbols.response, symbolValue])
 
     useEffect(() => {
-        wsCallbacksRef.current.playNotificationVoice = playNotificationVoice
+        wsCallbacksRef.current.playFilledVoice = playFilledVoice
+        wsCallbacksRef.current.playNewOrderVoice = playNewOrderVoice
 
         connectPrivateWs()
         if (exchange !== FTX) publicWsConnect()
@@ -134,10 +135,14 @@ export default function MainContextWrapper({ children }) {
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orders', market }))
     }
 
-    function playNotificationVoice() {
-        const audio = new Audio(notificationSound)
+    function playFilledVoice(type) {
+        const audio = new Audio(user.filledAudio)
         audio.play()
-        console.log('playing')
+    }
+
+    function playNewOrderVoice(type) {
+        const audio = new Audio(user.newOrderAudio)
+        audio.play()
     }
 
     const contextValues = {

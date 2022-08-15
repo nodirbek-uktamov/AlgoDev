@@ -1,19 +1,24 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Form, Formik } from 'formik'
 import Tabs from '../components/Tabs'
 import { Card } from '../components/common/Card'
 import { Button } from '../components/common/Button'
-import { useLoad, usePutRequest } from '../hooks/request'
+import { useLoad, usePatchRequest } from '../hooks/request'
 import InputOld from '../components/common/InputOld'
 import { USER_DETAIL, USER_SETTINGS } from '../urls'
 import Loader from '../components/common/Loader'
+import Checkbox from '../components/common/Checkbox'
 
 export default function Main() {
     const userDetail = useLoad({ url: USER_DETAIL })
-    const userSettings = usePutRequest({ url: USER_SETTINGS })
+    const userSettings = usePatchRequest({ url: USER_SETTINGS })
     const user = userDetail.response
 
+    const [selectedFilledVoice, setSelectedFilledVoice] = useState(null)
+    const [selectedNewOrderVoice, setSelectedNewOrderVoice] = useState(null)
+
     const initialValues = {
+        ...(user || {}),
         huobiApiKey: '',
         huobiSecretKey: '',
         ftxApiKey: '',
@@ -21,11 +26,30 @@ export default function Main() {
         ftxSubAccount: (user && user.ftxSubAccount) || '',
     }
 
-    function onSubmit(data, actions) {
-        userSettings.request({ data })
+    async function onSubmit(data, actions) {
+        await userSettings.request({ data })
+        await userDetail.request()
         actions.resetForm()
-        userDetail.request()
     }
+
+    async function onSubmitVoices(otherData, resetForm) {
+        const data = new FormData()
+
+        if (selectedNewOrderVoice) data.append('new_order_audio', selectedNewOrderVoice)
+        if (selectedFilledVoice) data.append('filled_audio', selectedFilledVoice)
+
+        data.append('new_order_audio_active', otherData.newOrderAudioActive)
+        data.append('filled_audio_active', otherData.filledAudioActive)
+
+        await userSettings.request({ data })
+        await userDetail.request()
+
+        resetForm()
+    }
+
+    useEffect(() => {
+        if (user) localStorage.setItem('user', JSON.stringify(user))
+    }, [user])
 
     return (
         <div>
@@ -34,52 +58,91 @@ export default function Main() {
             <div style={{ padding: '1.1rem' }}>
                 {user && (
                     <Formik onSubmit={onSubmit} enableReinitialize initialValues={initialValues}>
-                        <Form>
-                            <div className="columns is-multiline">
-                                <div className="column  is-half">
-                                    <Card className="pb-5">
-                                        <p className="is-size-4">Huobi</p>
+                        {({ values, resetForm }) => (
+                            <Form>
+                                <div className="columns is-multiline">
+                                    <div className="column is-flex is-fullwidth is-3by1">
+                                        <Card className="pb-5 column">
+                                            <p className="is-size-4">Huobi</p>
 
-                                        <InputOld
-                                            className="input_main has-text-white"
-                                            name="huobiApiKey"
-                                            label={`Api key${user.huobiApiKey ? ' (Already exists)' : ''}`} />
+                                            <InputOld
+                                                className="input_main has-text-white"
+                                                name="huobiApiKey"
+                                                label={`Api key${user.huobiApiKey ? ' (Already exists)' : ''}`} />
 
-                                        <InputOld
-                                            className="input_main has-text-white"
-                                            name="huobiSecretKey"
-                                            label={`Secret key${user.huobiSecretKey ? ' (Already exists)' : ''}`} />
-                                    </Card>
+                                            <InputOld
+                                                className="input_main has-text-white"
+                                                name="huobiSecretKey"
+                                                label={`Secret key${user.huobiSecretKey ? ' (Already exists)' : ''}`} />
+
+                                            <Button isLoading={userSettings.loading} type="submit" color="success"
+                                                text="Save" style={{ width: '10rem' }} />
+                                        </Card>
+                                    </div>
+
+                                    <div className="column is-flex is-fullwidth is-3by1">
+                                        <Card className="pb-5 column">
+                                            <p className="is-size-4">FTX</p>
+
+                                            <InputOld
+                                                className="input_main has-text-white"
+                                                name="ftxApiKey"
+                                                label={`Api key${user.ftxApiKey ? ' (Already exists)' : ''}`} />
+
+                                            <InputOld
+                                                className="input_main has-text-white"
+                                                name="ftxSecretKey"
+                                                label={`Secret key${user.ftxSecretKey ? ' (Already exists)' : ''}`} />
+
+                                            <InputOld
+                                                className="input_main has-text-white"
+                                                name="ftxSubAccount"
+                                                label="Sub account" />
+
+                                            <Button isLoading={userSettings.loading} type="submit" color="success"
+                                                text="Save" style={{ width: '10rem' }} />
+                                        </Card>
+                                    </div>
+
+                                    <div className="column is-flex is-fullwidth is-3by1">
+                                        <Card className="pb-5 column">
+                                            <p className="is-size-4 mb-1">Voice settings</p>
+
+                                            <p className="is-size-5">Voice on filled</p>
+
+                                            <InputOld accept=".mp3,audio/*"
+                                                onChange={(event) => setSelectedFilledVoice(event.target.files[0])}
+                                                type="file" name="filled_audio" />
+
+                                            {user.filledAudio && (
+                                                <audio controls>
+                                                    <source src={user.filledAudio} type="audio/mpeg" />
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                            )}
+
+                                            <Checkbox name="filledAudioActive" label="Active ?" />
+                                            <p className="is-size-5">Voice on new order</p>
+
+                                            <InputOld accept=".mp3,audio/*"
+                                                onChange={(event) => setSelectedNewOrderVoice(event.target.files[0])}
+                                                type="file" name="new_order_audio" />
+
+                                            {user.newOrderAudio && (
+                                                <audio controls>
+                                                    <source src={user.newOrderAudio} type="audio/mpeg" />
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                            )}
+                                            <Checkbox name="newOrderAudioActive" label="Active ?" />
+
+                                            <Button isLoading={userSettings.loading} onClick={() => onSubmitVoices(values, resetForm)}
+                                                color="success" text="Save" style={{ width: '10rem' }} />
+                                        </Card>
+                                    </div>
                                 </div>
-
-                                <div className="column is-half">
-                                    <Card className="pb-5 column">
-                                        <p className="is-size-4">FTX</p>
-
-                                        <InputOld
-                                            className="input_main has-text-white"
-                                            name="ftxApiKey"
-                                            label={`Api key${user.ftxApiKey ? ' (Already exists)' : ''}`} />
-
-                                        <InputOld
-                                            className="input_main has-text-white"
-                                            name="ftxSecretKey"
-                                            label={`Secret key${user.ftxSecretKey ? ' (Already exists)' : ''}`} />
-
-                                        <InputOld
-                                            className="input_main has-text-white"
-                                            name="ftxSubAccount"
-                                            label="Sub account" />
-                                    </Card>
-                                </div>
-
-                                <div className="column" />
-
-                                <div className="column is-narrow">
-                                    <Button isLoading={userSettings.loading} type="submit" color="success" text="Save" style={{ width: '10rem' }} />
-                                </div>
-                            </div>
-                        </Form>
+                            </Form>
+                        )}
                     </Formik>
                 )}
             </div>

@@ -28,6 +28,19 @@ class UserSerializer(ModelSerializer):
         instance.ftx_api_key = data.get('ftx_api_key') or instance.ftx_api_key
         instance.ftx_secret_key = data.get('ftx_secret_key') or instance.ftx_secret_key
         instance.ftx_sub_account = data.get('ftx_sub_account')
+
+        if data.get('filled_audio'):
+            instance.filled_audio = data.get('filled_audio')
+
+        if data.get('new_order_audio'):
+            instance.new_order_audio = data.get('new_order_audio')
+
+        if isinstance(data.get('filled_audio_active'), bool):
+            instance.filled_audio_active = data.get('filled_audio_active')
+
+        if isinstance(data.get('new_order_audio_active'), bool):
+            instance.new_order_audio_active = data.get('new_order_audio_active')
+
         instance.save()
         return instance
 
@@ -45,6 +58,11 @@ class UserSerializer(ModelSerializer):
             'ftx_api_key',
             'ftx_secret_key',
             'ftx_sub_account',
+
+            'filled_audio',
+            'filled_audio_active',
+            'new_order_audio',
+            'new_order_audio_active',
         )
         extra_kwargs = {
             'email': {'read_only': True},

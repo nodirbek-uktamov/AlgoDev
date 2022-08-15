@@ -4,13 +4,16 @@ import { auth, signOut } from '../utils/auth'
 import baseAxios from '../utils/request'
 import { useMessage } from './message'
 
-
 export function usePostRequest(options = {}) {
     return useRequest({ method: 'POST', ...options })
 }
 
 export function usePutRequest(options = {}) {
     return useRequest({ method: 'PUT', ...options })
+}
+
+export function usePatchRequest(options = {}) {
+    return useRequest({ method: 'PATCH', ...options })
 }
 
 export function useGetRequest(options = {}) {
@@ -71,7 +74,6 @@ export function useInfiniteScroll(options, dependencies = []) {
     const items = useGetRequest({ ...options, params: { ...options.params, page } })
     const [hasMore, setHasMore] = useState(false)
     const observer = useRef()
-
 
     useEffect(() => {
         loadItems()
