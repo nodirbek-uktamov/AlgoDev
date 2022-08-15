@@ -82,7 +82,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
                     className: data.data.side === 'sell' ? 'is-danger' : 'is-success',
                 }])
 
-                if (wsCallbacksRef.current.playNotificationVoice) wsCallbacksRef.current.playNotificationVoice()
+                if (wsCallbacksRef.current.playFilledVoice && user.filledAudioActive) wsCallbacksRef.current.playFilledVoice()
             }
 
             wsCallbacksRef.current.setFTXOrdersList((oldOrders) => oldOrders.filter((i) => i.id !== newItem.id))

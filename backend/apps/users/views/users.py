@@ -37,5 +37,5 @@ class ChangePasswordView(GenericAPIView):
 
 class UserDetailView(APIView):
     def get(self, request):
-        data = UserSerializer(request.user).data
+        data = UserSerializer(request.user, context={'request': request}).data
         return Response(data)

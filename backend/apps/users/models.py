@@ -29,6 +29,12 @@ class User(AbstractUser):
 
     decode_key = models.CharField(null=True, blank=True, max_length=255)
 
+    filled_audio = models.FileField(null=True, blank=True)
+    filled_audio_active = models.BooleanField(default=True)
+
+    new_order_audio = models.FileField(null=True, blank=True)
+    new_order_audio_active = models.BooleanField(default=True)
+
     @property
     def _huobi_secret_key(self):
         secret_key = hash.encode(settings.DECODE_KEY, self.huobi_secret_key)

@@ -6,7 +6,7 @@ import { updateFormPrices } from '../../utils/helpers'
 import { useMessage } from '../../hooks/message'
 
 export function OrdersListTab() {
-    const { wsCallbacksRef, symbol, callbacks } = useContext(MainContext)
+    const { wsCallbacksRef, symbol, callbacks, user } = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
     const [showMessage] = useMessage()
@@ -32,7 +32,8 @@ export function OrdersListTab() {
             })
 
             if (newOrders.length > 0 && +amountLimit !== 0) {
-                if (wsCallbacksRef.current.playNotificationVoice) wsCallbacksRef.current.playNotificationVoice()
+                console.log(user.newOrderAudioActive)
+                if (wsCallbacksRef.current.playNewOrderVoice && user.newOrderAudioActive) wsCallbacksRef.current.playNewOrderVoice()
 
                 showMessage(newOrders.map((item) => ({
                     label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,
