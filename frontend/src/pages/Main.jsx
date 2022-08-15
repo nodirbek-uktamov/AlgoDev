@@ -106,11 +106,11 @@ export default function Main() {
 
                                     <div className="column is-flex is-fullwidth is-3by1">
                                         <Card className="pb-5 column">
-                                            <p className="is-size-4 mb-1">Voice settings</p>
+                                            <p className="is-size-4 mb-1">Sound settings</p>
 
-                                            <p className="is-size-5">Voice on filled</p>
+                                            <p className="is-size-5">Sound when Order Filled</p>
 
-                                            <InputOld accept=".mp3,audio/*"
+                                            <InputOld style={{ backgroundColor: 'transparent', color: 'white', border: 0 }} accept=".mp3,audio/*"
                                                 onChange={(event) => setSelectedFilledVoice(event.target.files[0])}
                                                 type="file" name="filled_audio" />
 
@@ -122,9 +122,9 @@ export default function Main() {
                                             )}
 
                                             <Checkbox name="filledAudioActive" label="Active ?" />
-                                            <p className="is-size-5">Voice on new order</p>
+                                            <p className="is-size-5">Sound when New trade in All trades</p>
 
-                                            <InputOld accept=".mp3,audio/*"
+                                            <InputOld style={{ backgroundColor: 'transparent', color: 'white', border: 0 }} accept=".mp3,audio/*"
                                                 onChange={(event) => setSelectedNewOrderVoice(event.target.files[0])}
                                                 type="file" name="new_order_audio" />
 
