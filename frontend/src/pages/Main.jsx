@@ -120,7 +120,13 @@ export default function Main() {
                                                     <p>Buy</p>
 
                                                     <InputOld accept=".mp3,audio/*"
-                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, buyFilledAudio: event.target.files[0] }))}
+                                                        onChange={(event) => {
+                                                            event.persist()
+                                                            setVoices((oldData) => ({
+                                                                ...oldData,
+                                                                buyFilledAudio: event.target.files[0],
+                                                            }))
+                                                        }}
                                                         type="file"
                                                         name="buy_filled_audio"
                                                         className="file-field" />
@@ -136,7 +142,13 @@ export default function Main() {
                                                 <div className="column">
                                                     <p>Sell</p>
                                                     <InputOld accept=".mp3,audio/*"
-                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, sellFilledAudio: event.target.files[0] }))}
+                                                        onChange={(event) => {
+                                                            event.persist()
+                                                            setVoices((oldData) => ({
+                                                                ...oldData,
+                                                                sellFilledAudio: event.target.files[0],
+                                                            }))
+                                                        }}
                                                         type="file" name="sell_filled_audio" className="file-field" />
 
                                                     {user.sellFilledAudio && (
@@ -158,7 +170,13 @@ export default function Main() {
 
                                                     <InputOld
                                                         accept=".mp3,audio/*"
-                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, buyNewOrderAudio: event.target.files[0] }))}
+                                                        onChange={(event) => {
+                                                            event.persist()
+                                                            setVoices((oldData) => ({
+                                                                ...oldData,
+                                                                buyNewOrderAudio: event.target.files[0],
+                                                            }))
+                                                        }}
                                                         type="file"
                                                         name="buy_new_order_audio"
                                                         className="file-field" />
@@ -176,7 +194,13 @@ export default function Main() {
 
                                                     <InputOld
                                                         accept=".mp3,audio/*"
-                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, sellNewOrderAudio: event.target.files[0] }))}
+                                                        onChange={(event) => {
+                                                            event.persist()
+                                                            setVoices((oldData) => ({
+                                                                ...oldData,
+                                                                sellNewOrderAudio: event.target.files[0],
+                                                            }))
+                                                        }}
                                                         type="file"
                                                         name="sell_new_order_audio"
                                                         className="file-field" />
