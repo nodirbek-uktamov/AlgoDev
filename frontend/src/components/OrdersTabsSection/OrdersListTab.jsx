@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Input } from '../common/Input'
 import { MainContext } from '../../contexts/MainContext'
 import notificationSound from '../../static/nofitication.mp3'
-import { updateFormPrices } from '../../utils/helpers'
+import { getHeight, updateFormPrices } from '../../utils/helpers'
 import { useMessage } from '../../hooks/message'
 
 export function OrdersListTab() {
@@ -34,14 +34,14 @@ export function OrdersListTab() {
             if (newOrders.length > 0 && +amountLimit !== 0) {
                 if (wsCallbacksRef.current.playNewOrderVoice && user.newOrderAudioActive) wsCallbacksRef.current.playNewOrderVoice(newOrders[0].direction)
 
-                showMessage(newOrders.map((item) => ({
-                    label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,
-                    key: item.tradeId,
-                    className: item.direction === 'sell' ? 'is-danger' : 'is-success',
-                })), 'is-info')
+                // showMessage(newOrders.map((item) => ({
+                //     label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,
+                //     key: item.tradeId,
+                //     className: item.direction === 'sell' ? 'is-danger' : 'is-success',
+                // })), 'is-info')
             }
 
-            setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, 30))
+            setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, (getHeight('orders-list-draggable-container') / 1000) * 70))
         }
     }
 
@@ -87,8 +87,10 @@ export function OrdersListTab() {
         },
     ]
 
+    console.log(orders.length)
+
     return (
-        <div style={{ minWidth: '15.4rem' }}>
+        <div style={{ minWidth: '15.4rem', overflow: 'hidden' }}>
             <div className="mb-4">
                 <Input
                     label={`Amount from (${symbol.pair2})`}

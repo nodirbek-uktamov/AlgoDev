@@ -138,8 +138,10 @@ export default function MainContextWrapper({ children }) {
         let audio
 
         if (direction === 'sell') {
+            if (!user.sellFilledAudio) return
             audio = new Audio(user.sellFilledAudio)
         } else {
+            if (!user.buyFilledAudio) return
             audio = new Audio(user.buyFilledAudio)
         }
 
@@ -150,8 +152,10 @@ export default function MainContextWrapper({ children }) {
         let audio
 
         if (direction === 'sell') {
+            if (!user.sellNewOrderAudio) return
             audio = new Audio(user.sellNewOrderAudio)
         } else {
+            if (!user.buyNewOrderAudio) return
             audio = new Audio(user.buyNewOrderAudio)
         }
 

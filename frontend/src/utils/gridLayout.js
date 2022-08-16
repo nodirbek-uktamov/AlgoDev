@@ -25,6 +25,7 @@ export const defaultLayout = [
         i: '4',
         minH: 35,
         minW: 17,
+        isBounded: true,
     },
     {
         w: 19,
@@ -56,8 +57,8 @@ export const defaultLayout = [
 ]
 
 export function getDefaultLayout(exchange) {
-    const savedLayout = localStorage.getItem(`${exchange}_default_layout`)
-    if (savedLayout) return JSON.parse(savedLayout)
+    // const savedLayout = localStorage.getItem(`${exchange}_default_layout`)
+    // if (savedLayout) return JSON.parse(savedLayout)
 
     return defaultLayout
 }

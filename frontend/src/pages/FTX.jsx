@@ -14,8 +14,6 @@ import { TradesList } from '../components/TradesList'
 import FTXOrders from '../components/ftx/FTXOrders'
 import { DepthTab } from '../components/OrdersTabsSection/DepthTab'
 import { OrdersListTab } from '../components/OrdersTabsSection/OrdersListTab'
-import { Button } from '../components/common/Button'
-import { signOut } from '../utils/auth'
 import { getDefaultLayout } from '../utils/gridLayout'
 import { getHeight } from '../utils/helpers'
 import DraggableHeader from '../components/DraggableHeader'
@@ -97,8 +95,10 @@ export default function FTX() {
                     <div key={5} id="orders-list-draggable-container">
                         <DraggableHeader label="Trades" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('orders-list-draggable-container') }} className="no-border-top">
-                            <OrdersListTab />
+                        <Card style={{ height: getHeight('orders-list-draggable-container'), padding: 15 }} className="no-border-top">
+                            <div style={{ overflow: 'hidden', height: getHeight('orders-list-draggable-container') - 30 }}>
+                                <OrdersListTab />
+                            </div>
                         </Card>
                     </div>
 
