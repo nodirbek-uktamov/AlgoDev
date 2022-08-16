@@ -46,7 +46,7 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
                 className: data.data.side === 'sell' ? 'is-danger' : 'is-success',
             }])
 
-            if (wsCallbacksRef.current.playFilledVoice && user.filledAudioActive) wsCallbacksRef.current.playFilledVoice()
+            if (wsCallbacksRef.current.playFilledVoice && user.filledAudioActive) wsCallbacksRef.current.playFilledVoice(data.data.side)
         }
     }
 

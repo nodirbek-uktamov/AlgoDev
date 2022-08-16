@@ -118,6 +118,12 @@ html {
     border-top-right-radius: 0 !important;
 }
 
+.file-field {
+    background-color: transparent;
+    color: white;
+    border: 0;
+}
+
 @keyframes new-trade-bid-animation {
   0% {
     background: hsl(141, 71%, 48%);

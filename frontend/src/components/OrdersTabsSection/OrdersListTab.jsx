@@ -32,8 +32,7 @@ export function OrdersListTab() {
             })
 
             if (newOrders.length > 0 && +amountLimit !== 0) {
-                console.log(user.newOrderAudioActive)
-                if (wsCallbacksRef.current.playNewOrderVoice && user.newOrderAudioActive) wsCallbacksRef.current.playNewOrderVoice()
+                if (wsCallbacksRef.current.playNewOrderVoice && user.newOrderAudioActive) wsCallbacksRef.current.playNewOrderVoice(newOrders[0].direction)
 
                 showMessage(newOrders.map((item) => ({
                     label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,

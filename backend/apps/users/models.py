@@ -29,10 +29,12 @@ class User(AbstractUser):
 
     decode_key = models.CharField(null=True, blank=True, max_length=255)
 
-    filled_audio = models.FileField(null=True, blank=True)
+    buy_filled_audio = models.FileField(null=True, blank=True)
+    sell_filled_audio = models.FileField(null=True, blank=True)
     filled_audio_active = models.BooleanField(default=True)
 
-    new_order_audio = models.FileField(null=True, blank=True)
+    buy_new_order_audio = models.FileField(null=True, blank=True)
+    sell_new_order_audio = models.FileField(null=True, blank=True)
     new_order_audio_active = models.BooleanField(default=True)
 
     @property

@@ -29,11 +29,17 @@ class UserSerializer(ModelSerializer):
         instance.ftx_secret_key = data.get('ftx_secret_key') or instance.ftx_secret_key
         instance.ftx_sub_account = data.get('ftx_sub_account')
 
-        if data.get('filled_audio'):
-            instance.filled_audio = data.get('filled_audio')
+        if data.get('buy_filled_audio'):
+            instance.buy_filled_audio = data.get('buy_filled_audio')
 
-        if data.get('new_order_audio'):
-            instance.new_order_audio = data.get('new_order_audio')
+        if data.get('sell_filled_audio'):
+            instance.sell_filled_audio = data.get('sell_filled_audio')
+
+        if data.get('buy_new_order_audio'):
+            instance.buy_new_order_audio = data.get('buy_new_order_audio')
+
+        if data.get('sell_new_order_audio'):
+            instance.sell_new_order_audio = data.get('sell_new_order_audio')
 
         if isinstance(data.get('filled_audio_active'), bool):
             instance.filled_audio_active = data.get('filled_audio_active')
@@ -59,9 +65,13 @@ class UserSerializer(ModelSerializer):
             'ftx_secret_key',
             'ftx_sub_account',
 
-            'filled_audio',
+            'buy_filled_audio',
+            'sell_filled_audio',
+
+            'buy_new_order_audio',
+            'sell_new_order_audio',
+
             'filled_audio_active',
-            'new_order_audio',
             'new_order_audio_active',
         )
         extra_kwargs = {

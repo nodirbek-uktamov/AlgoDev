@@ -14,8 +14,7 @@ export default function Main() {
     const userSettings = usePatchRequest({ url: USER_SETTINGS })
     const user = userDetail.response
 
-    const [selectedFilledVoice, setSelectedFilledVoice] = useState(null)
-    const [selectedNewOrderVoice, setSelectedNewOrderVoice] = useState(null)
+    const [voices, setVoices] = useState({})
 
     const initialValues = {
         ...(user || {}),
@@ -26,20 +25,26 @@ export default function Main() {
         ftxSubAccount: (user && user.ftxSubAccount) || '',
     }
 
-    async function onSubmit(data, actions) {
+    async function onSubmit(initData, actions) {
+        const { buyFilledAudio, sellFilledAudio, buyNewOrderAudio, sellNewOrderAudio, ...data } = initData
+
         await userSettings.request({ data })
         await userDetail.request()
+
         actions.resetForm()
     }
 
     async function onSubmitVoices(otherData, resetForm) {
         const data = new FormData()
 
-        if (selectedNewOrderVoice) data.append('new_order_audio', selectedNewOrderVoice)
-        if (selectedFilledVoice) data.append('filled_audio', selectedFilledVoice)
+        if (voices.buyFilledAudio) data.append('buy_filled_audio', voices.buyFilledAudio)
+        if (voices.sellFilledAudio) data.append('sell_filled_audio', voices.sellFilledAudio)
+        if (voices.buyNewOrderAudio) data.append('buy_new_order_audio', voices.buyNewOrderAudio)
+        if (voices.sellNewOrderAudio) data.append('sell_new_order_audio', voices.sellNewOrderAudio)
 
         data.append('new_order_audio_active', otherData.newOrderAudioActive)
         data.append('filled_audio_active', otherData.filledAudioActive)
+        data.append('ftx_sub_account', user.ftxSubAccount)
 
         await userSettings.request({ data })
         await userDetail.request()
@@ -110,30 +115,81 @@ export default function Main() {
 
                                             <p className="is-size-5">Sound when Order Filled</p>
 
-                                            <InputOld style={{ backgroundColor: 'transparent', color: 'white', border: 0 }} accept=".mp3,audio/*"
-                                                onChange={(event) => setSelectedFilledVoice(event.target.files[0])}
-                                                type="file" name="filled_audio" />
+                                            <div className="columns">
+                                                <div className="column">
+                                                    <p>Buy</p>
 
-                                            {user.filledAudio && (
-                                                <audio controls>
-                                                    <source src={user.filledAudio} type="audio/mpeg" />
-                                                    Your browser does not support the audio element.
-                                                </audio>
-                                            )}
+                                                    <InputOld accept=".mp3,audio/*"
+                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, buyFilledAudio: event.target.files[0] }))}
+                                                        type="file"
+                                                        name="buy_filled_audio"
+                                                        className="file-field" />
+
+                                                    {user.buyFilledAudio && (
+                                                        <audio controls>
+                                                            <source src={user.buyFilledAudio} type="audio/mpeg" />
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    )}
+                                                </div>
+
+                                                <div className="column">
+                                                    <p>Sell</p>
+                                                    <InputOld accept=".mp3,audio/*"
+                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, sellFilledAudio: event.target.files[0] }))}
+                                                        type="file" name="sell_filled_audio" className="file-field" />
+
+                                                    {user.sellFilledAudio && (
+                                                        <audio controls>
+                                                            <source src={user.sellFilledAudio} type="audio/mpeg" />
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    )}
+
+                                                </div>
+                                            </div>
 
                                             <Checkbox name="filledAudioActive" label="Active ?" />
                                             <p className="is-size-5">Sound when New trade in All trades</p>
 
-                                            <InputOld style={{ backgroundColor: 'transparent', color: 'white', border: 0 }} accept=".mp3,audio/*"
-                                                onChange={(event) => setSelectedNewOrderVoice(event.target.files[0])}
-                                                type="file" name="new_order_audio" />
+                                            <div className="columns">
+                                                <div className="column">
+                                                    <p>Buy</p>
 
-                                            {user.newOrderAudio && (
-                                                <audio controls>
-                                                    <source src={user.newOrderAudio} type="audio/mpeg" />
-                                                    Your browser does not support the audio element.
-                                                </audio>
-                                            )}
+                                                    <InputOld
+                                                        accept=".mp3,audio/*"
+                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, buyNewOrderAudio: event.target.files[0] }))}
+                                                        type="file"
+                                                        name="buy_new_order_audio"
+                                                        className="file-field" />
+
+                                                    {user.buyNewOrderAudio && (
+                                                        <audio controls>
+                                                            <source src={user.buyNewOrderAudio} type="audio/mpeg" />
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    )}
+                                                </div>
+
+                                                <div className="column">
+                                                    <p>Sell</p>
+
+                                                    <InputOld
+                                                        accept=".mp3,audio/*"
+                                                        onChange={(event) => setVoices((oldData) => ({ ...oldData, sellNewOrderAudio: event.target.files[0] }))}
+                                                        type="file"
+                                                        name="sell_new_order_audio"
+                                                        className="file-field" />
+
+                                                    {user.sellNewOrderAudio && (
+                                                        <audio controls>
+                                                            <source src={user.sellNewOrderAudio} type="audio/mpeg" />
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    )}
+                                                </div>
+                                            </div>
+
                                             <Checkbox name="newOrderAudioActive" label="Active ?" />
 
                                             <Button isLoading={userSettings.loading} onClick={() => onSubmitVoices(values, resetForm)}

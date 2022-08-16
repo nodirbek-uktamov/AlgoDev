@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
-import { parseGzip, WS_TYPES } from '../utils/websocket'
+import { WS_TYPES } from '../utils/websocket'
 import { useGetRequest, useLoad } from '../hooks/request'
 import { BALANCE } from '../urls'
 import { FTX,
@@ -7,7 +7,6 @@ import { FTX,
     getSymbolRequestOptions, getSymbolsList,
     handlePrivateWsMessage,
     handlePublicWsMessage } from '../exchanges/exchanges'
-import notificationSound from '../static/nofitication.mp3'
 
 export const MainContext = createContext({})
 
@@ -135,13 +134,27 @@ export default function MainContextWrapper({ children }) {
         privateWs.current.send(JSON.stringify({ op: 'unsubscribe', channel: 'orders', market }))
     }
 
-    function playFilledVoice(type) {
-        const audio = new Audio(user.filledAudio)
+    function playFilledVoice(direction) {
+        let audio
+
+        if (direction === 'sell') {
+            audio = new Audio(user.sellFilledAudio)
+        } else {
+            audio = new Audio(user.buyFilledAudio)
+        }
+
         audio.play()
     }
 
-    function playNewOrderVoice(type) {
-        const audio = new Audio(user.newOrderAudio)
+    function playNewOrderVoice(direction) {
+        let audio
+
+        if (direction === 'sell') {
+            audio = new Audio(user.sellNewOrderAudio)
+        } else {
+            audio = new Audio(user.buyNewOrderAudio)
+        }
+
         audio.play()
     }
 
