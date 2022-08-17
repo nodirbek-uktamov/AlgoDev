@@ -51,6 +51,8 @@ function OrdersDepth({ botPrices }) {
     const asks = book ? book.asks.slice(0, ordersCountOnEachSide) : []
     const bids = book ? book.bids.slice(0, ordersCountOnEachSide) : []
 
+    console.log()
+
     return (
         <div style={{ height: containerHeight }}>
             <div className="is-flex" id="order-book-header">
@@ -66,7 +68,7 @@ function OrdersDepth({ botPrices }) {
 
             {book && (
                 <div className="p-4" style={{ backgroundColor: '#000', height: orderbookHeight }}>
-                    <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', flexDirection: 'column-reverse', display: 'flex', flexFlow: 'column wrap' }} className="mp-1">
+                    <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column-reverse wrap' }} className="mp-1">
                         {asks.map((item) => (
                             <div className="change-ask-book" style={{ width: '100%' }} key={item}>
                                 <RenderItem color="#FF0000" tradeType="sell" item={item} />
@@ -75,7 +77,7 @@ function OrdersDepth({ botPrices }) {
                     </div>
 
                     <div className="my-2 has-text-weight-bold is-size-5">
-                        {asks[9] && bids[0] ? ((asks[9][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
+                        {asks[0] && bids[0] ? ((asks[0][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
                     </div>
 
                     <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column wrap' }}>
