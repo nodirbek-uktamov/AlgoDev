@@ -69,7 +69,7 @@ function Chart() {
     }
 
     return (
-        <Card color="black" style={{ height: getHeight('chart-draggable-container'), paddingBottom: '5rem' }} className="no-border-top">
+        <Card color="black" style={{ height: getHeight('chart-draggable-container'), paddingBottom: '5rem' }} className="no-border-top-radius">
             <div style={{ display: 'flex', gap: '1.1rem', marginBottom: '1rem' }}>
                 <Select
                     enableSearch

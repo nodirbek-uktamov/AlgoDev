@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { css, StyleSheet } from 'aphrodite'
 import cn from 'classnames'
 import { MainContext } from '../../contexts/MainContext'
-import { updateFormPrices } from '../../utils/helpers'
+import { getHeight, updateFormPrices } from '../../utils/helpers'
 
 function OrdersDepth({ botPrices }) {
     const { symbol, wsCallbacksRef, callbacks } = useContext(MainContext)
@@ -44,12 +44,16 @@ function OrdersDepth({ botPrices }) {
         },
     ]
 
-    const asks = book ? book.asks.slice(0, 10).reverse() : []
-    const bids = book ? book.bids.slice(0, 10) : []
+    const containerHeight = getHeight('depth-tab-component-container', 0) - getHeight('depth-tab-component-form', 0) - 15
+    const orderbookHeight = containerHeight - getHeight('order-book-header', 0)
+
+    const ordersCountOnEachSide = (orderbookHeight / 700) * 30
+    const asks = book ? book.asks.slice(0, ordersCountOnEachSide) : []
+    const bids = book ? book.bids.slice(0, ordersCountOnEachSide) : []
 
     return (
-        <div>
-            <div className="is-flex">
+        <div style={{ height: containerHeight }}>
+            <div className="is-flex" id="order-book-header">
                 {columns.map((column) => (
                     <p
                         className="table_headerCell"
@@ -61,23 +65,25 @@ function OrdersDepth({ botPrices }) {
             </div>
 
             {book && (
-                <div className="p-4" style={{ backgroundColor: '#000' }}>
-                    <div>
-                        <div>
-                            {asks.map((item) => (
+                <div className="p-4" style={{ backgroundColor: '#000', height: orderbookHeight }}>
+                    <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', flexDirection: 'column-reverse', display: 'flex', flexFlow: 'column wrap' }} className="mp-1">
+                        {asks.map((item) => (
+                            <div className="change-ask-book" style={{ width: '100%' }} key={item}>
                                 <RenderItem color="#FF0000" tradeType="sell" item={item} />
-                            ))}
-                        </div>
+                            </div>
+                        ))}
+                    </div>
 
-                        <div className="my-2 has-text-weight-bold is-size-5">
-                            {asks[9] && bids[0] ? ((asks[9][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
-                        </div>
+                    <div className="my-2 has-text-weight-bold is-size-5">
+                        {asks[9] && bids[0] ? ((asks[9][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
+                    </div>
 
-                        <div>
-                            {bids.map((item) => (
-                                <RenderItem color="#6afd0a" tradeType="buy" item={item} />
-                            ))}
-                        </div>
+                    <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column wrap' }}>
+                        {bids.map((item) => (
+                            <div className="change-bid-book" style={{ width: '100%' }} key={item}>
+                                <RenderItem color="#02C77A" tradeType="buy" item={item} />
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}

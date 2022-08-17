@@ -36,8 +36,8 @@ export function DepthTab({ botPrices }) {
     }, [depthStep, depthSteps, symbol])
 
     return (
-        <div style={{ minWidth: '14.9rem' }}>
-            <div className="mb-4">
+        <div id="depth-tab-component-container" style={{ minWidth: '14.9rem', height: '100%' }}>
+            <div id="depth-tab-component-form" className="mb-4">
                 <span>Orders book</span>
 
                 <Select

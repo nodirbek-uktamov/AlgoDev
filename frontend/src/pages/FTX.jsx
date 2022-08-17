@@ -74,7 +74,7 @@ export default function FTX() {
                     <div key={1} id="form-draggable-container" className="form-draggable-container">
                         <DraggableHeader label="Create bot form" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('form-draggable-container') }} className="no-border-top">
+                        <Card style={{ height: getHeight('form-draggable-container') }} className="no-border-top-radius">
                             <FTXTradeForm onUpdate={onUpdate} />
                         </Card>
                     </div>
@@ -87,7 +87,7 @@ export default function FTX() {
                     <div key={4} id="depth-draggable-container">
                         <DraggableHeader label="Orderbook" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('depth-draggable-container') }} className="no-border-top">
+                        <Card style={{ height: getHeight('depth-draggable-container') }} className="no-border-top-radius">
                             <DepthTab botPrices={botPrices} />
                         </Card>
                     </div>
@@ -95,7 +95,7 @@ export default function FTX() {
                     <div key={5} id="orders-list-draggable-container">
                         <DraggableHeader label="Trades" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('orders-list-draggable-container'), padding: 15 }} className="no-border-top">
+                        <Card style={{ height: getHeight('orders-list-draggable-container'), padding: 15 }} className="no-border-top-radius">
                             <div style={{ overflow: 'hidden', height: getHeight('orders-list-draggable-container') - 30 }}>
                                 <OrdersListTab />
                             </div>
@@ -111,7 +111,7 @@ export default function FTX() {
                     <div key={7} id="trades-draggable-container">
                         <DraggableHeader label="Orders" className="draggable-header" />
 
-                        <Card dense={false} style={{ height: getHeight('trades-draggable-container') }} className="no-border-top">
+                        <Card dense={false} style={{ height: getHeight('trades-draggable-container') }} className="no-border-top-radius">
                             <TradesList
                                 cancelAllTrades={cancelAllTrades}
                                 onCancel={trades.request}

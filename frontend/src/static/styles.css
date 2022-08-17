@@ -105,6 +105,14 @@ html {
     color: #3e8ed0
 }
 
+.change-ask-book {
+  animation: new-trade-ask-animation 350ms linear;
+}
+
+.change-bid-book {
+  animation: new-trade-bid-animation 350ms linear;
+}
+
 .new-trade-ask {
   animation: new-trade-ask-animation 1s linear;
 }
@@ -113,7 +121,7 @@ html {
   animation: new-trade-bid-animation 1s linear;
 }
 
-.no-border-top {
+.no-border-top-radius {
     border-top-left-radius: 0 !important;
     border-top-right-radius: 0 !important;
 }
@@ -126,7 +134,7 @@ html {
 
 @keyframes new-trade-bid-animation {
   0% {
-    background: hsl(141, 71%, 48%);
+    background: rgba(2, 199, 122, 0.25);
   }
   100% {
     background: #000;
@@ -135,7 +143,7 @@ html {
 
 @keyframes new-trade-ask-animation {
   0% {
-    background: hsl(348, 86%, 43%);
+    background: rgba(255, 59, 105, 0.25);
   }
   100% {
     background: #000;

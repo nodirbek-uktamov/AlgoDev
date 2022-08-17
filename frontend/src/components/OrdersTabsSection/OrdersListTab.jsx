@@ -87,8 +87,6 @@ export function OrdersListTab() {
         },
     ]
 
-    console.log(orders.length)
-
     return (
         <div style={{ minWidth: '15.4rem', overflow: 'hidden' }}>
             <div className="mb-4">
