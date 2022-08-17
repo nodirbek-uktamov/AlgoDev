@@ -4,7 +4,7 @@ import cn from 'classnames'
 import { MainContext } from '../../contexts/MainContext'
 import { getHeight, updateFormPrices } from '../../utils/helpers'
 
-function OrdersDepth({ botPrices }) {
+function OrdersDepth({ botPrices, amountLimit }) {
     const { symbol, wsCallbacksRef, callbacks } = useContext(MainContext)
     const { tpp, tap } = symbol
     const [book, setBook] = useState(null)
@@ -37,10 +37,12 @@ function OrdersDepth({ botPrices }) {
         {
             width: '50%',
             title: `Price (${symbol.pair2})`,
+            key: 'price',
         },
         {
             width: '50%',
             title: `Value (${symbol.pair1})`,
+            key: 'value',
         },
     ]
 
@@ -50,8 +52,6 @@ function OrdersDepth({ botPrices }) {
     const ordersCountOnEachSide = (orderbookHeight / 700) * 30
     const asks = book ? book.asks.slice(0, ordersCountOnEachSide) : []
     const bids = book ? book.bids.slice(0, ordersCountOnEachSide) : []
-
-    console.log()
 
     return (
         <div style={{ height: containerHeight }}>
@@ -70,7 +70,7 @@ function OrdersDepth({ botPrices }) {
                 <div className="p-4" style={{ backgroundColor: '#000', height: orderbookHeight }}>
                     <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column-reverse wrap' }} className="mp-1">
                         {asks.map((item) => (
-                            <div className="change-ask-book" style={{ width: '100%' }} key={item}>
+                            <div className={item[1] > +amountLimit ? 'change-ask-book' : null} style={{ width: '100%' }} key={item}>
                                 <RenderItem color="#FF0000" tradeType="sell" item={item} />
                             </div>
                         ))}
@@ -82,7 +82,7 @@ function OrdersDepth({ botPrices }) {
 
                     <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column wrap' }}>
                         {bids.map((item) => (
-                            <div className="change-bid-book" style={{ width: '100%' }} key={item}>
+                            <div className={item[1] > +amountLimit ? 'change-bid-book' : null} style={{ width: '100%' }} key={item}>
                                 <RenderItem color="#02C77A" tradeType="buy" item={item} />
                             </div>
                         ))}

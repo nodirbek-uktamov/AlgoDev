@@ -76,14 +76,17 @@ export function OrdersListTab() {
         {
             width: '1%',
             title: 'Date',
+            key: 'date',
         },
         {
             width: '1%',
             title: `Price (${symbol.pair2})`,
+            key: 'price',
         },
         {
             width: '1%',
             title: `Value (${symbol.pair1})`,
+            key: 'value',
         },
     ]
 

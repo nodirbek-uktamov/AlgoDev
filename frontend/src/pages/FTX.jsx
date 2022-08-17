@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react'
 import RGL, { WidthProvider } from 'react-grid-layout'
-import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
 import FTXTradeForm from '../components/ftx/FTXTradeForm/FTXTradeForm'
 import { useLoad, usePutRequest } from '../hooks/request'
@@ -31,7 +30,6 @@ export default function FTX() {
     const cancelTrades = usePutRequest()
 
     const account = useLoad({ url: FTX_ACCOUNT })
-    const history = useHistory()
 
     useEffect(() => {
         const interval = setInterval(() => {

@@ -12,17 +12,17 @@ export default function Tabs({ ...props }) {
         <div className="columns mt-3">
             <div className="tabs column " {...props}>
                 <ul>
-                    <li className={path === '/' && 'is-active'}>
+                    <li className={path === '/' ? 'is-active' : ''}>
                         <a onClick={() => history.push('/')}>
                             Settings
                         </a>
                     </li>
 
-                    <li className={path.includes(HUOBI) && 'is-active'}>
+                    <li className={path.includes(HUOBI) ? 'is-active' : ''}>
                         <a onClick={() => history.push(HUOBI)}>Huobi</a>
                     </li>
 
-                    <li className={path.includes(FTX) && 'is-active'}>
+                    <li className={path.includes(FTX) ? 'is-active' : ''}>
                         <a onClick={() => history.push(FTX)}>FTX</a>
                     </li>
                 </ul>

@@ -33,7 +33,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
 
     if (!data || !data.data) return
 
-    if (data.channel === 'orderbook' && typeof wsCallbacksRef.current.setBook === 'function') {
+    if (['orderbook', 'orderbookGrouped'].includes(data.channel) && typeof wsCallbacksRef.current.setBook === 'function') {
         wsCallbacksRef.current.setBook((oldOrders) => {
             if (data.type === 'partial') return { asks: data.data.asks, bids: data.data.bids }
 

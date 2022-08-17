@@ -4,9 +4,10 @@ import { useGetRequest, useLoad } from '../hooks/request'
 import { BALANCE } from '../urls'
 import { FTX,
     getDefaultSymbol,
-    getSymbolRequestOptions, getSymbolsList,
+    getSymbolRequestOptions,
+    getSymbolsList,
     handlePrivateWsMessage,
-    handlePublicWsMessage } from '../exchanges/exchanges'
+    handlePublicWsMessage, HUOBI } from '../exchanges/exchanges'
 
 export const MainContext = createContext({})
 
@@ -22,7 +23,7 @@ export default function MainContextWrapper({ children }) {
     const user = JSON.parse(localStorage.getItem('user'))
 
     const [symbol, setSymbol] = useState(initialSymbol ? JSON.parse(initialSymbol) : getDefaultSymbol(exchange))
-    const [depthType, setDepthType] = useState('step0')
+    const [depthType, setDepthType] = useState(exchange === HUOBI ? 'step0' : null)
     const [price, setPrice] = useState({})
 
     const symbols = useLoad(getSymbolRequestOptions(exchange))
