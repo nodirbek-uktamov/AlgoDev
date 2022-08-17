@@ -40,11 +40,13 @@ export function huobiPrivateWSHandleMessage(event, ws, symbol, wsCallbacksRef, u
         })
 
         if (data.data.orderStatus === 'filled' && wsCallbacksRef.current.showOrderMessage) {
-            wsCallbacksRef.current.showOrderMessage([{
-                label: `${symbol.label} Order Filled ${parseFloat(data.data.tradeVolume).toFixed(symbol.tap || 0)} ${symbol.pair1}`,
-                key: data.data.orderId,
-                className: data.data.side === 'sell' ? 'is-danger' : 'is-success',
-            }])
+            if (user.alertMessageActive) {
+                wsCallbacksRef.current.showOrderMessage([{
+                    label: `${symbol.label} Order Filled ${parseFloat(data.data.tradeVolume).toFixed(symbol.tap || 0)} ${data.data.symbol}`,
+                    key: data.data.orderId,
+                    className: data.data.side === 'sell' ? 'is-danger' : 'is-success',
+                }])
+            }
 
             if (wsCallbacksRef.current.playFilledVoice && user.filledAudioActive) wsCallbacksRef.current.playFilledVoice(data.data.side)
         }

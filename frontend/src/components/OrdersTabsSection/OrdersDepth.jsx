@@ -5,7 +5,7 @@ import { MainContext } from '../../contexts/MainContext'
 import { getHeight, updateFormPrices } from '../../utils/helpers'
 
 function OrdersDepth({ botPrices, amountLimit }) {
-    const { symbol, wsCallbacksRef, callbacks } = useContext(MainContext)
+    const { symbol, wsCallbacksRef, callbacks, user } = useContext(MainContext)
     const { tpp, tap } = symbol
     const [book, setBook] = useState(null)
 
@@ -70,7 +70,7 @@ function OrdersDepth({ botPrices, amountLimit }) {
                 <div className="p-4" style={{ backgroundColor: '#000', height: orderbookHeight }}>
                     <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column-reverse wrap' }} className="mp-1">
                         {asks.map((item) => (
-                            <div className={item[1] > +amountLimit ? 'change-ask-book' : null} style={{ width: '100%' }} key={item}>
+                            <div className={item[1] > +amountLimit && user.orderbookAnimationActive ? 'change-ask-book' : null} style={{ width: '100%' }} key={item}>
                                 <RenderItem color="#FF0000" tradeType="sell" item={item} />
                             </div>
                         ))}
@@ -82,7 +82,7 @@ function OrdersDepth({ botPrices, amountLimit }) {
 
                     <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column wrap' }}>
                         {bids.map((item) => (
-                            <div className={item[1] > +amountLimit ? 'change-bid-book' : null} style={{ width: '100%' }} key={item}>
+                            <div className={item[1] > +amountLimit && user.orderbookAnimationActive ? 'change-bid-book' : null} style={{ width: '100%' }} key={item}>
                                 <RenderItem color="#02C77A" tradeType="buy" item={item} />
                             </div>
                         ))}

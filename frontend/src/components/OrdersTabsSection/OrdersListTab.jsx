@@ -1,15 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Input } from '../common/Input'
 import { MainContext } from '../../contexts/MainContext'
-import notificationSound from '../../static/nofitication.mp3'
 import { getHeight, updateFormPrices } from '../../utils/helpers'
-import { useMessage } from '../../hooks/message'
 
 export function OrdersListTab() {
     const { wsCallbacksRef, symbol, callbacks, user } = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
-    const [showMessage] = useMessage()
 
     useEffect(() => {
         wsCallbacksRef.current.setOrdersData = onChangeData
@@ -118,7 +115,7 @@ export function OrdersListTab() {
 
             <div className="p-3" style={{ backgroundColor: orders.length > 0 ? '#000' : null }}>
                 {orders.map((item) => (
-                    <div className={item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid'} key={item.tradeId}>
+                    <div className={user.tradesListAnimationActive && (item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid')} key={item.tradeId}>
                         <RenderItem item={item} />
                     </div>
                 ))}

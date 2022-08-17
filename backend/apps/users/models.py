@@ -37,6 +37,10 @@ class User(AbstractUser):
     sell_new_order_audio = models.FileField(null=True, blank=True)
     new_order_audio_active = models.BooleanField(default=True)
 
+    orderbook_animation_active = models.BooleanField(default=True)
+    trades_list_animation_active = models.BooleanField(default=True)
+    alert_message_active = models.BooleanField(default=True)
+
     @property
     def _huobi_secret_key(self):
         secret_key = hash.encode(settings.DECODE_KEY, self.huobi_secret_key)

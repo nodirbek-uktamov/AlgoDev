@@ -47,6 +47,15 @@ class UserSerializer(ModelSerializer):
         if isinstance(data.get('new_order_audio_active'), bool):
             instance.new_order_audio_active = data.get('new_order_audio_active')
 
+        if isinstance(data.get('orderbook_animation_active'), bool):
+            instance.orderbook_animation_active = data.get('orderbook_animation_active')
+
+        if isinstance(data.get('trades_list_animation_active'), bool):
+            instance.trades_list_animation_active = data.get('trades_list_animation_active')
+
+        if isinstance(data.get('alert_message_active'), bool):
+            instance.alert_message_active = data.get('alert_message_active')
+
         instance.save()
         return instance
 
@@ -73,6 +82,10 @@ class UserSerializer(ModelSerializer):
 
             'filled_audio_active',
             'new_order_audio_active',
+
+            'orderbook_animation_active',
+            'trades_list_animation_active',
+            'alert_message_active',
         )
         extra_kwargs = {
             'email': {'read_only': True},
