@@ -113,9 +113,9 @@ export default function Main() {
                                         <Card className="pb-5 column">
                                             <p className="is-size-4">Other settings</p>
 
-                                            <Checkbox name="orderbookAnimationActive" label="Orderbook animation active ?" />
-                                            <Checkbox name="tradesListAnimationActive" label="Trades list animation active ?" />
-                                            <Checkbox name="alertMessageActive" label="Order filled message active ?" />
+                                            <Checkbox name="orderbookAnimationActive" label="Orderbook animation" />
+                                            <Checkbox name="tradesListAnimationActive" label="Trades list animation" />
+                                            <Checkbox name="alertMessageActive" label="Order filled message" />
 
                                             <Button isLoading={userSettings.loading} type="submit" color="success"
                                                 text="Save" style={{ width: '10rem' }} />
