@@ -13,7 +13,7 @@ function createDepthSteps(exchange, tpp) {
         const baseStep = 10 ** (-1 * tpp)
 
         return [
-            { label: 'None', value: null },
+            { label: baseStep.toFixed(tpp), value: null },
             { label: (baseStep * 2).toFixed(tpp), value: '2' },
             { label: (baseStep * 5).toFixed(tpp), value: '5' },
             { label: (baseStep * 10).toFixed(tpp), value: '10' },

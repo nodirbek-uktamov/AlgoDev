@@ -122,7 +122,7 @@ export default function Main() {
                                         </Card>
                                     </div>
 
-                                    <div className="column is-flex is-3by1">
+                                    <div className="column is-flex is-3by1 is-narrow">
                                         <Card className="pb-5 column">
                                             <p className="is-size-4 mb-1">Sound settings</p>
 
