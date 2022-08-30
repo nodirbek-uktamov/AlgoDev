@@ -5,7 +5,7 @@ function ErrorItem({
     error,
 }) {
     if (field === 'nonFieldErrors' || field === 'detail') {
-        return <li><strong>{error}</strong></li>
+        return <li><strong style={{ color: '#cc0f35' }}>{error}</strong></li>
     }
 
     return (

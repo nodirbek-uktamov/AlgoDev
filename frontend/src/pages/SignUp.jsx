@@ -2,7 +2,7 @@ import { css, StyleSheet } from 'aphrodite'
 import { Form, Formik } from 'formik'
 import React from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import {Button} from '../components/common/Button'
+import { Button } from '../components/common/Button'
 import InputOld from '../components/common/InputOld'
 import ServerError from '../components/common/ServerError'
 import { usePostRequest } from '../hooks/request'
@@ -10,6 +10,7 @@ import { SIGNUP } from '../urls'
 import { email, required, validator } from '../utils/validators'
 import Password from '../components/common/Password'
 import LayoutAuth from '../components/LayoutAuth'
+import { ReactComponent as Logo } from '../static/logo.svg'
 
 export default function SignUp() {
     const signUp = usePostRequest({ url: SIGNUP, headers: {} })
@@ -36,8 +37,8 @@ export default function SignUp() {
                 </NavLink>
             </div>
         )}>
-            <div className="has-text-centered mb-4">
-                <h2 className="is-size-4 has-text-weight-bold mb-4 has-text-black">Register</h2>
+            <div id="login-title-panel" className="mb-4">
+                <Logo />
             </div>
 
             <Formik onSubmit={onSubmit}

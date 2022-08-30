@@ -14,7 +14,7 @@ import { isAuthenticated, signin } from '../utils/auth'
 import LayoutAuth from '../components/LayoutAuth'
 import { ReactComponent as Logo } from '../static/logo.svg'
 
-export default function Login() {
+export default function Demo() {
     const history = useHistory()
     const signIn = usePostRequest({ url: SIGNIN, headers: {} })
 
@@ -29,6 +29,11 @@ export default function Login() {
             signin(response, history)
             history.push('/')
         }
+    }
+
+    const initialValues = {
+        email: 'demo@demo.com',
+        password: 'demo',
     }
 
     return (
@@ -48,11 +53,11 @@ export default function Login() {
                 <Logo />
             </div>
 
-            <Formik onSubmit={onSubmit} initialValues={{ email: '', password: '' }}>
+            <Formik onSubmit={onSubmit} initialValues={initialValues}>
                 <Form>
                     <ServerError error={signIn.error} />
-                    <InputOld name="email" validate={validator(required, email)} placeholder="Email" />
-                    <Password name="password" validate={required} placeholder="Password" />
+                    <InputOld readonly name="email" validate={validator(required, email)} placeholder="Email" />
+                    <Password readonly name="password" validate={required} />
 
                     <div className="field">
                         <div className="control">

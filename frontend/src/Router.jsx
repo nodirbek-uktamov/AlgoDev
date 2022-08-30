@@ -13,7 +13,7 @@ import FTX from './pages/FTX'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import EmailConfirmationMessage from './pages/EmailConfirmationMessage'
 import Main from './pages/Main'
-
+import Demo from './pages/Demo'
 
 export default function App() {
     return (
@@ -22,6 +22,7 @@ export default function App() {
                 <Switch>
                     <ProtectedRoute path="/" name="main" component={Main} exact />
                     <Route path="/auth" name="auth" component={Login} exact />
+                    <Route path="/demo" name="auth" component={Demo} exact />
                     <Route path="/sign-up" name="auth" component={SignUp} exact />
                     <Route path="/reset-password/:key" name="auth" component={ResetPassword} exact />
                     <Route path="/confirm/:confirmationCode" component={ConfirmEmail} exact />
