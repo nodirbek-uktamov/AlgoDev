@@ -8,7 +8,6 @@ import { MainContext } from '../../../contexts/MainContext'
 import { LimitOptionsRenderer } from './TradeForm'
 import { calcPair1Amount, onChangeSlider } from '../../../utils/tradeForm'
 import { Ladder } from './Ladder'
-import { getHeight } from '../../../utils/helpers'
 
 const BOT_TYPES_LIMIT = [
     {

@@ -1,8 +1,8 @@
-export function getHeight(id) {
+export function getHeight(id, addValue = -50) {
     const element = document.getElementById(id)
 
     // -50 is header height
-    return element ? element.offsetHeight - 50 : 300
+    return element ? element.offsetHeight + addValue : 300
 }
 
 export const updateFormPrices = (price, setTradeFormValue) => {

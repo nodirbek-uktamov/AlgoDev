@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react'
 import RGL, { WidthProvider } from 'react-grid-layout'
-import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
 import FTXTradeForm from '../components/ftx/FTXTradeForm/FTXTradeForm'
 import { useLoad, usePutRequest } from '../hooks/request'
@@ -14,8 +13,6 @@ import { TradesList } from '../components/TradesList'
 import FTXOrders from '../components/ftx/FTXOrders'
 import { DepthTab } from '../components/OrdersTabsSection/DepthTab'
 import { OrdersListTab } from '../components/OrdersTabsSection/OrdersListTab'
-import { Button } from '../components/common/Button'
-import { signOut } from '../utils/auth'
 import { getDefaultLayout } from '../utils/gridLayout'
 import { getHeight } from '../utils/helpers'
 import DraggableHeader from '../components/DraggableHeader'
@@ -33,7 +30,6 @@ export default function FTX() {
     const cancelTrades = usePutRequest()
 
     const account = useLoad({ url: FTX_ACCOUNT })
-    const history = useHistory()
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -76,7 +72,7 @@ export default function FTX() {
                     <div key={1} id="form-draggable-container" className="form-draggable-container">
                         <DraggableHeader label="Create bot form" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('form-draggable-container') }} className="no-border-top">
+                        <Card style={{ height: getHeight('form-draggable-container') }} className="no-border-top-radius">
                             <FTXTradeForm onUpdate={onUpdate} />
                         </Card>
                     </div>
@@ -89,7 +85,7 @@ export default function FTX() {
                     <div key={4} id="depth-draggable-container">
                         <DraggableHeader label="Orderbook" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('depth-draggable-container') }} className="no-border-top">
+                        <Card style={{ height: getHeight('depth-draggable-container') }} className="no-border-top-radius">
                             <DepthTab botPrices={botPrices} />
                         </Card>
                     </div>
@@ -97,8 +93,10 @@ export default function FTX() {
                     <div key={5} id="orders-list-draggable-container">
                         <DraggableHeader label="Trades" className="draggable-header" />
 
-                        <Card style={{ height: getHeight('orders-list-draggable-container') }} className="no-border-top">
-                            <OrdersListTab />
+                        <Card style={{ height: getHeight('orders-list-draggable-container'), padding: 15 }} className="no-border-top-radius">
+                            <div style={{ overflow: 'hidden', height: getHeight('orders-list-draggable-container') - 30 }}>
+                                <OrdersListTab />
+                            </div>
                         </Card>
                     </div>
 
@@ -111,7 +109,7 @@ export default function FTX() {
                     <div key={7} id="trades-draggable-container">
                         <DraggableHeader label="Orders" className="draggable-header" />
 
-                        <Card dense={false} style={{ height: getHeight('trades-draggable-container') }} className="no-border-top">
+                        <Card dense={false} style={{ height: getHeight('trades-draggable-container') }} className="no-border-top-radius">
                             <TradesList
                                 cancelAllTrades={cancelAllTrades}
                                 onCancel={trades.request}

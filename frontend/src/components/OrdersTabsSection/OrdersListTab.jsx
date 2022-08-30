@@ -1,15 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Input } from '../common/Input'
 import { MainContext } from '../../contexts/MainContext'
-import notificationSound from '../../static/nofitication.mp3'
-import { updateFormPrices } from '../../utils/helpers'
-import { useMessage } from '../../hooks/message'
+import { getHeight, updateFormPrices } from '../../utils/helpers'
 
 export function OrdersListTab() {
     const { wsCallbacksRef, symbol, callbacks, user } = useContext(MainContext)
     const [orders, setOrders] = useState([])
     const [amountLimit, setAmountLimit] = useState(localStorage.getItem('amountLimit') || '0')
-    const [showMessage] = useMessage()
 
     useEffect(() => {
         wsCallbacksRef.current.setOrdersData = onChangeData
@@ -34,14 +31,14 @@ export function OrdersListTab() {
             if (newOrders.length > 0 && +amountLimit !== 0) {
                 if (wsCallbacksRef.current.playNewOrderVoice && user.newOrderAudioActive) wsCallbacksRef.current.playNewOrderVoice(newOrders[0].direction)
 
-                showMessage(newOrders.map((item) => ({
-                    label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,
-                    key: item.tradeId,
-                    className: item.direction === 'sell' ? 'is-danger' : 'is-success',
-                })), 'is-info')
+                // showMessage(newOrders.map((item) => ({
+                //     label: `${parseFloat(item.amount).toFixed(symbol.tap || 0)}`,
+                //     key: item.tradeId,
+                //     className: item.direction === 'sell' ? 'is-danger' : 'is-success',
+                // })), 'is-info')
             }
 
-            setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, 30))
+            setOrders((oldOrders) => [...newOrders, ...oldOrders].slice(0, (getHeight('orders-list-draggable-container') / 1000) * 70))
         }
     }
 
@@ -76,19 +73,22 @@ export function OrdersListTab() {
         {
             width: '1%',
             title: 'Date',
+            key: 'date',
         },
         {
             width: '1%',
             title: `Price (${symbol.pair2})`,
+            key: 'price',
         },
         {
             width: '1%',
             title: `Value (${symbol.pair1})`,
+            key: 'value',
         },
     ]
 
     return (
-        <div style={{ minWidth: '15.4rem' }}>
+        <div style={{ minWidth: '15.4rem', overflow: 'hidden' }}>
             <div className="mb-4">
                 <Input
                     label={`Amount from (${symbol.pair2})`}
@@ -115,7 +115,7 @@ export function OrdersListTab() {
 
             <div className="p-3" style={{ backgroundColor: orders.length > 0 ? '#000' : null }}>
                 {orders.map((item) => (
-                    <div className={item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid'} key={item.tradeId}>
+                    <div className={user.tradesListAnimationActive && (item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid')} key={item.tradeId}>
                         <RenderItem item={item} />
                     </div>
                 ))}

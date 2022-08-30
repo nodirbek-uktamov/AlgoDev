@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react'
 import RGL, { WidthProvider } from 'react-grid-layout'
-import { useHistory } from 'react-router-dom'
 import Chart from '../components/Chart'
 import TradeForm from '../components/huobi/TradeForm/TradeForm'
 import { useLoad, usePutRequest } from '../hooks/request'
@@ -12,8 +11,6 @@ import Tabs from '../components/Tabs'
 import { getDefaultLayout } from '../utils/gridLayout'
 import { DepthTab } from '../components/OrdersTabsSection/DepthTab'
 import { OrdersListTab } from '../components/OrdersTabsSection/OrdersListTab'
-import { Button } from '../components/common/Button'
-import { signOut } from '../utils/auth'
 import { TradesList } from '../components/TradesList'
 import { HuobiOrdersList } from '../components/huobi/HuobiOrdersList'
 import { getHeight } from '../utils/helpers'
@@ -24,7 +21,6 @@ const ReactGridLayout = WidthProvider(RGL)
 export default function Huobi() {
     const [botPrices, setBotPrices] = useState({})
     const [containerSizes, setContainerSizes] = useState(getDefaultLayout('huobi'))
-    const history = useHistory()
 
     const trades = useLoad({ url: TRADE.replace('{exchange}', 'huobi') })
     const cancelTrades = usePutRequest()
@@ -59,7 +55,7 @@ export default function Huobi() {
                 <div key={1} id="form-draggable-container">
                     <DraggableHeader label="Create bot form" className="draggable-header" />
 
-                    <Card style={{ height: getHeight('form-draggable-container') }} className="no-border-top">
+                    <Card style={{ height: getHeight('form-draggable-container') }} className="no-border-top-radius">
                         <TradeForm onUpdate={onUpdate} />
                     </Card>
                 </div>
@@ -72,7 +68,7 @@ export default function Huobi() {
                 <div key={4} id="depth-draggable-container">
                     <DraggableHeader label="Orderbook" className="draggable-header" />
 
-                    <Card style={{ height: getHeight('depth-draggable-container') }} className="no-border-top">
+                    <Card style={{ height: getHeight('depth-draggable-container') }} className="no-border-top-radius">
                         <DepthTab botPrices={botPrices} />
                     </Card>
                 </div>
@@ -80,8 +76,10 @@ export default function Huobi() {
                 <div key={5} id="orders-list-draggable-container">
                     <DraggableHeader label="Trades" className="draggable-header" />
 
-                    <Card style={{ height: getHeight('orders-list-draggable-container') }} className="no-border-top">
-                        <OrdersListTab />
+                    <Card style={{ height: getHeight('orders-list-draggable-container'), padding: 15 }} className="no-border-top-radius">
+                        <div style={{ overflow: 'hidden', height: getHeight('orders-list-draggable-container') - 30 }}>
+                            <OrdersListTab />
+                        </div>
                     </Card>
                 </div>
 
@@ -94,7 +92,7 @@ export default function Huobi() {
                 <div key={7} id="trades-draggable-container">
                     <DraggableHeader label="Orders" className="draggable-header" />
 
-                    <Card dense={false} style={{ height: getHeight('trades-draggable-container') }} className="no-border-top">
+                    <Card dense={false} style={{ height: getHeight('trades-draggable-container') }} className="no-border-top-radius">
                         <TradesList
                             cancelAllTrades={cancelAllTrades}
                             onCancel={trades.request}

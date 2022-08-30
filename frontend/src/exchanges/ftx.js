@@ -33,7 +33,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
 
     if (!data || !data.data) return
 
-    if (data.channel === 'orderbook' && typeof wsCallbacksRef.current.setBook === 'function') {
+    if (['orderbook', 'orderbookGrouped'].includes(data.channel) && typeof wsCallbacksRef.current.setBook === 'function') {
         wsCallbacksRef.current.setBook((oldOrders) => {
             if (data.type === 'partial') return { asks: data.data.asks, bids: data.data.bids }
 
@@ -75,7 +75,7 @@ export const ftxPrivateWSHandleMessage = (event, ws, symbol, wsCallbacksRef, use
         }
 
         if (data.data.status === 'closed') {
-            if (data.data.filledSize > 0 && typeof wsCallbacksRef.current.showOrderMessage === 'function') {
+            if (data.data.filledSize > 0 && typeof wsCallbacksRef.current.showOrderMessage === 'function' && user.alertMessageActive) {
                 wsCallbacksRef.current.showOrderMessage([{
                     label: `${data.data.market} Order Filled  ${parseFloat(data.data.filledSize).toFixed(symbol.tap || 0)} ${symbol.pair1}`,
                     key: data.data.id,

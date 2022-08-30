@@ -1,12 +1,11 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Table } from '../../common/Table'
 import { SIDE_TEXT_STYLE } from '../../huobi/HuobiOrdersList/HuobiOrdersList'
 import { MainContext } from '../../../contexts/MainContext'
 import { useLoad } from '../../../hooks/request'
 import { FTX_OPEN_TRIGGER_ORDERS_LIST } from '../../../urls'
-import { Button } from '../../common/Button'
 
-const renderColumns = (symbol, handleCancelOrder) => [
+const renderColumns = (symbol) => [
     {
         title: 'Type',
         key: 'type',
@@ -81,7 +80,7 @@ const renderColumns = (symbol, handleCancelOrder) => [
 ]
 
 function FTXTriggerOrdersList() {
-    const { symbol, wsCallbacksRef } = useContext(MainContext)
+    const { symbol } = useContext(MainContext)
     const triggerOrders = useLoad({ url: FTX_OPEN_TRIGGER_ORDERS_LIST.replace('{symbol}', symbol.value) })
 
     useEffect(() => {
@@ -91,14 +90,9 @@ function FTXTriggerOrdersList() {
         return () => clearInterval(interval)
     }, [triggerOrders])
 
-    const handleCancelOrder = useCallback(async (item) => {
-
-        // eslint-disable-next-line
-    }, [])
-
     return (
         <div className="orders-list_container">
-            <Table tableData={triggerOrders.response || []} columns={renderColumns(symbol, handleCancelOrder)} />
+            <Table tableData={triggerOrders.response || []} columns={renderColumns(symbol)} />
         </div>
     )
 }

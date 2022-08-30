@@ -109,7 +109,20 @@ export default function Main() {
                                         </Card>
                                     </div>
 
-                                    <div className="column is-flex is-fullwidth is-3by1">
+                                    <div className="column is-flex is-fullwidth">
+                                        <Card className="pb-5 column">
+                                            <p className="is-size-4">Other settings</p>
+
+                                            <Checkbox name="orderbookAnimationActive" label="Orderbook animation" />
+                                            <Checkbox name="tradesListAnimationActive" label="Trades list animation" />
+                                            <Checkbox name="alertMessageActive" label="Order filled message" />
+
+                                            <Button isLoading={userSettings.loading} type="submit" color="success"
+                                                text="Save" style={{ width: '10rem' }} />
+                                        </Card>
+                                    </div>
+
+                                    <div className="column is-flex is-3by1 is-narrow">
                                         <Card className="pb-5 column">
                                             <p className="is-size-4 mb-1">Sound settings</p>
 
