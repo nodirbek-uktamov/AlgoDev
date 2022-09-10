@@ -1,5 +1,6 @@
 from django.urls import path, include
 
+from main.views.proxy import ProxyView
 from main.views.ws import AuthParamsView
 from main.views import ftx
 from main.views.orders import OrdersListView, CancelAllOrdersView, CancelOrderView
@@ -26,10 +27,12 @@ urlpatterns = [
         path('positions/', ftx.PositionsListView.as_view(), name='positions'),
         path('positions/market/', ftx.PositionMarketOrderView.as_view(), name='close-position'),
         path('orders/open/', ftx.OpenOrdersListView.as_view(), name='open-orders'),
+        path('orders/market-orders-history/<str:symbol>/', ftx.MarketOrdersHistoryView.as_view(), name='open-orders'),
         path('orders/cancel/<int:id>/', ftx.CancelOrderView.as_view(), name='open-orders'),
         path('trigger-orders/<str:market>/', ftx.TriggerOrdersView.as_view(), name='open-trigger-orders'),
         path('twap-orders/<str:market>/', ftx.TWAPOrdersView.as_view(), name='active-twap-orders'),
         # path('place/', ftx.PlaceFTXOrderView.as_view(), name='place'),
     ])),
+    path('proxy/', ProxyView.as_view(), name='proxy'),
 ]
 

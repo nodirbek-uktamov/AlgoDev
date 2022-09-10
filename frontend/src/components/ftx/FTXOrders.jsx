@@ -9,11 +9,10 @@ import { FTX_OPEN_ORDERS_LIST } from '../../urls'
 import { MainContext } from '../../contexts/MainContext'
 import { useMessage } from '../../hooks/message'
 
-function FTXOrders() {
+function FTXOrders({ orders, setOrders }) {
     const { wsCallbacksRef } = useContext(MainContext)
 
     const [tab, setTab] = useState(0)
-    const [orders, setOrders] = useState([])
 
     const tabs = [
         { title: 'Positions', render: () => <FTXPositionsList /> },
@@ -34,7 +33,7 @@ function FTXOrders() {
 
     useEffect(() => {
         if (initialOrders.response) setOrders(initialOrders.response)
-    }, [initialOrders.response])
+    }, [initialOrders.response, setOrders])
 
     return (
         <Tabs className="mt-5" value={tab} onChange={setTab} tabs={tabs} />

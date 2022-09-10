@@ -33,9 +33,9 @@ export default function Logs({ setBotPrices, trades }) {
     function onClose() {
         setLogs((oldLogs) => ['Logs socket is closed. Reconnecting...', ...oldLogs])
 
-        setTimeout(() => {
-            connect()
-        }, 2000)
+        // setTimeout(() => {
+        //     connect()
+        // }, 2000)
     }
 
     function handleMessage(event) {
@@ -47,8 +47,11 @@ export default function Logs({ setBotPrices, trades }) {
             if (log.action.delete) {
                 trades.setResponse((oldTrades) => (oldTrades || []).filter((i) => i.id !== log.action.delete))
                 setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.delete]: { price: 0 } }))
-            } else if (log.action.take_profit_order) wsCallbacksRef.current.setTakeProfitOrderIds((oldIds) => [log.action.take_profit_order, ...oldIds])
-            else {
+            } else if (log.action.take_profit_order) {
+                if (typeof wsCallbacksRef.current.setTakeProfitOrderIds === 'function') {
+                    wsCallbacksRef.current.setTakeProfitOrderIds((oldIds) => [log.action.take_profit_order, ...oldIds])
+                }
+            } else {
                 if (log.action.price) {
                     setBotPrices((oldPrices) => ({ ...(oldPrices || {}), [log.action.price.trade]: log.action }))
                 }

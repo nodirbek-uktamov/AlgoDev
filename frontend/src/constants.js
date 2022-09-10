@@ -1,1 +1,1 @@
-export const LOCAL_LOAD_INTERVAL = 1000000
+export const LOCAL_LOAD_INTERVAL = 1000

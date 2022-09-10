@@ -23,6 +23,7 @@ export default function Huobi() {
     const [containerSizes, setContainerSizes] = useState(getDefaultLayout('huobi'))
 
     const trades = useLoad({ url: TRADE.replace('{exchange}', 'huobi') })
+    const [orders, setOrders] = useState([])
     const cancelTrades = usePutRequest()
 
     async function cancelAllTrades() {
@@ -86,7 +87,7 @@ export default function Huobi() {
                 <div key={6} id="chart-draggable-container">
                     <DraggableHeader label="Chart" className="draggable-header" />
 
-                    <Chart containerSizes={containerSizes} />
+                    <Chart openOrders={orders} containerSizes={containerSizes} />
                 </div>
 
                 <div key={7} id="trades-draggable-container">
@@ -98,7 +99,7 @@ export default function Huobi() {
                             onCancel={trades.request}
                             trades={trades.response || []} />
 
-                        <HuobiOrdersList />
+                        <HuobiOrdersList orders={orders} setOrders={setOrders} />
                     </Card>
                 </div>
             </ReactGridLayout>

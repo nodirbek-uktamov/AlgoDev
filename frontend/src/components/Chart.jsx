@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react'
-import TradingViewWidget from 'react-tradingview-widget'
 import { intervals } from '../utils/intervals'
 import { MainContext } from '../contexts/MainContext'
 import { Card } from './common/Card'
@@ -8,6 +7,9 @@ import { FTX, HUOBI } from '../exchanges/exchanges'
 import { huobiOnChangeSymbol } from '../exchanges/huobi'
 import { ftxOnChangeSymbol } from '../exchanges/ftx'
 import { getHeight } from '../utils/helpers'
+import FTXChart from './FTXChart'
+import HuobiChart from './HuobiChart'
+import { WS_TYPES } from '../utils/websocket'
 
 const defaultOptions = {
     autosize: true,
@@ -25,10 +27,9 @@ const defaultOptions = {
     backgroundColor: '#abcabc',
 }
 
-function Chart() {
-    const { exchange } = useContext(MainContext)
-
+function Chart({ openOrders }) {
     const {
+        exchange,
         symbolValue,
         wsCallbacksRef,
         disconnectHuobi,
@@ -38,19 +39,36 @@ function Chart() {
         symbolsList,
         connectFTXWs,
         disconnectFTXWs,
+        publicWs,
     } = useContext(MainContext)
 
-    const [interval, setInterval] = useState({
+    const [chartInterval, setChartInterval] = useState({
         label: '1 hour',
         value: 60,
+        valueInSeconds: 3600,
+        houbiKlineValue: '60min',
     })
 
     const [selectedSymbol, setSelectedSymbol] = useState({})
 
     const defaultSymbol = symbolsList.filter((s) => s.value === symbolValue.toUpperCase())[0]
 
+    function onChangeInterval(newValue) {
+        setChartInterval(newValue)
+
+        if (publicWs.current.readyState === WebSocket.OPEN) {
+            publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.candles.replace('{symbol}', symbolValue).replace('{period}', chartInterval.houbiKlineValue) }))
+            publicWs.current.send(JSON.stringify({ sub: WS_TYPES.candles.replace('{symbol}', symbolValue).replace('{period}', newValue.houbiKlineValue) }))
+        }
+    }
+
     const onChange = (value) => {
         setSelectedSymbol(value)
+
+        if (publicWs.current.readyState === WebSocket.OPEN) {
+            publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.candles.replace('{symbol}', symbolValue).replace('{period}', chartInterval.houbiKlineValue) }))
+            publicWs.current.send(JSON.stringify({ sub: WS_TYPES.candles.replace('{symbol}', value.value.toLowerCase()).replace('{period}', chartInterval.houbiKlineValue) }))
+        }
 
         if (exchange === HUOBI) {
             huobiOnChangeSymbol(
@@ -86,14 +104,12 @@ function Chart() {
                     renderSelectedOption={(o) => o.label}
                     renderMenuOption={(o) => o.label}
                     options={intervals}
-                    selectedOption={interval}
-                    setSelectedOption={setInterval} />
+                    selectedOption={chartInterval}
+                    setSelectedOption={onChangeInterval} />
             </div>
 
-            <TradingViewWidget
-                {...defaultOptions}
-                symbol={`${exchange.toUpperCase()}:${symbolValue.replace('-', '').toUpperCase()}`}
-                interval={interval && interval.value} />
+            {exchange === FTX ? <FTXChart openOrders={openOrders} chartInterval={chartInterval} /> : null}
+            {exchange === HUOBI ? <HuobiChart openOrders={openOrders} chartInterval={chartInterval} /> : null}
         </Card>
     )
 }

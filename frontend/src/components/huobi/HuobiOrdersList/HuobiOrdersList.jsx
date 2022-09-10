@@ -116,12 +116,11 @@ const renderColumns = (handleCancelOrder, onCloseMarket, onCloseLimit, cancelAll
     return result
 }
 
-function HuobiOrdersList() {
+function HuobiOrdersList({ orders, setOrders }) {
     const { wsCallbacksRef, symbolValue, symbol } = useContext(MainContext)
     const initialOrders = useLoad({ url: OPEN_ORDERS.replace('{symbol}', symbolValue) })
-    const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
+    // const [takeProfitOrderIds, setTakeProfitOrderIds] = useState([])
 
-    const [orders, setOrders] = useState([])
     const [filter, setFilter] = useState({ key: 'orderStatus', value: ORDERS_FILTER_TYPE.submitted })
 
     const cancelAllOrders = usePostRequest({ url: CANCEL_ALL_ORDERS })
@@ -136,14 +135,14 @@ function HuobiOrdersList() {
 
     useEffect(() => {
         wsCallbacksRef.current.setOrders = setOrders
-        wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
+        // wsCallbacksRef.current.setTakeProfitOrderIds = setTakeProfitOrderIds
         wsCallbacksRef.current.showOrderMessage = showMessage
 
-        wsCallbacksRef.current.updateInitialOrders = (symbol) => {
+        wsCallbacksRef.current.updateInitialOrders = (s) => {
             setOrders([])
-            initialOrders.request({ url: OPEN_ORDERS.replace('{symbol}', symbol) })
+            initialOrders.request({ url: OPEN_ORDERS.replace('{symbol}', s) })
         }
-    }, [initialOrders, showMessage, wsCallbacksRef])
+    }, [initialOrders, setOrders, showMessage, wsCallbacksRef])
 
     useEffect(() => {
         if (!initialOrders.response) return
@@ -151,10 +150,10 @@ function HuobiOrdersList() {
         if (initialOrders.response.orders) {
             setOrders((oldOrders) => [...initialOrders.response.orders, ...oldOrders])
         }
-        if (initialOrders.response.takeProfitOrders) {
-            setTakeProfitOrderIds((oldIds) => [...initialOrders.response.takeProfitOrders, ...oldIds])
-        }
-    }, [initialOrders.response])
+        // if (initialOrders.response.takeProfitOrders) {
+        //     setTakeProfitOrderIds((oldIds) => [...initialOrders.response.takeProfitOrders, ...oldIds])
+        // }
+    }, [initialOrders.response, setOrders])
 
     const filteredOrders = ({ key, value }) => {
         switch (value) {

@@ -20,6 +20,7 @@ export const LIMIT = '/main/limit/'
 
 export const HUOBI_DOMAIN = 'https://api.huobi.pro'
 export const HUOBI_SYMBOLS = `${HUOBI_DOMAIN}/v2/settings/common/symbols/`
+export const HUOBI_KLINES = `${HUOBI_DOMAIN}/market/history/kline?symbol={symbol}&size={size}&period={period}`
 export const HUOBI_SYMBOL_SETTINGS = `${HUOBI_DOMAIN}/v1/settings/common/symbols`
 
 export const FTX_SYMBOLS = 'main/ftx/symbols/'
@@ -31,6 +32,8 @@ export const FTX_ACTIVE_TWAP_ORDERS_LIST = 'main/ftx/twap-orders/{symbol}/'
 export const FTX_BALANCES = 'main/ftx/balances/'
 export const FTX_ACCOUNT = 'main/ftx/account/'
 export const FTX_CANCEL_ORDER = 'main/ftx/orders/cancel/{id}/'
+export const PROXY_API = 'main/proxy/'
+export const FTX_MARKET_ORDERS_HISTORY = 'main/ftx/orders/market-orders-history/{symbol}/'
 // export const FTX_PLACE_ORDER = 'main/ftx/place/'
 
 export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`

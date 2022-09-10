@@ -28,6 +28,7 @@ export default function FTX() {
 
     const trades = useLoad({ url: TRADE.replace('{exchange}', 'ftx') })
     const cancelTrades = usePutRequest()
+    const [orders, setOrders] = useState([])
 
     const account = useLoad({ url: FTX_ACCOUNT })
 
@@ -103,7 +104,7 @@ export default function FTX() {
                     <div key={6} id="chart-draggable-container">
                         <DraggableHeader label="Chart" className="draggable-header" />
 
-                        <Chart containerSizes={containerSizes} />
+                        <Chart openOrders={orders} containerSizes={containerSizes} />
                     </div>
 
                     <div key={7} id="trades-draggable-container">
@@ -115,7 +116,7 @@ export default function FTX() {
                                 onCancel={trades.request}
                                 trades={trades.response || []} />
 
-                            <FTXOrders />
+                            <FTXOrders orders={orders} setOrders={setOrders} />
                         </Card>
                     </div>
                 </ReactGridLayout>

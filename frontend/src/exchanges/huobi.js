@@ -87,6 +87,9 @@ export const huobiHandleMessagePublicWs = (ws, wsCallbacksRef, setPrice, event) 
             if (data.ch.includes('depth') && typeof wsCallbacksRef.current.setBook === 'function') {
                 wsCallbacksRef.current.setBook(data.tick)
             }
+            if (data.ch.includes('.kline.') && typeof wsCallbacksRef.current.changeKlineData === 'function') {
+                wsCallbacksRef.current.changeKlineData(data.tick)
+            }
         }
     })
 }

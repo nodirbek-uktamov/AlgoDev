@@ -1,16 +1,22 @@
 import requests
 import decimal
+
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from core.exchange.ftx import ftx_request, get_markets, get_positions, get_open_orders, place_order, cancel_order, \
-    get_trigger_orders, get_twap_orders, get_balances, get_account_information
+    get_trigger_orders, get_twap_orders, get_balances, get_account_information, get_orders_history, \
+    get_market_orders_history
 from core.tasks import send_log
 from core.utils.logs import red
 from main.serializers.ftx import ClosePositionSerializer
 
 
 class SymbolsListView(GenericAPIView):
+    permission_classes = (AllowAny,)
+
     def get(self, request):
         return Response(get_markets())
 
@@ -51,6 +57,11 @@ class OpenOrdersListView(GenericAPIView):
             i['symbol'] = i['market']
 
         return Response(response)
+
+
+class MarketOrdersHistoryView(GenericAPIView):
+    def get(self, request, symbol):
+        return Response(get_market_orders_history(request.user, symbol))
 
 
 class PositionMarketOrderView(GenericAPIView):

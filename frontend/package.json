@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8081",
   "dependencies": {
     "@lab49/react-order-book": "^0.1.1",
     "@sentry/browser": "^5.13.2",
@@ -14,6 +15,7 @@
     "fflate": "^0.7.3",
     "formik": "^2.0.6",
     "humps": "^2.0.1",
+    "lightweight-charts": "^3.8.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "pako": "^2.0.4",

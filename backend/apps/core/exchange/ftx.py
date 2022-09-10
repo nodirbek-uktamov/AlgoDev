@@ -5,6 +5,8 @@ import time
 import requests
 from requests import Request, Session
 
+from core.exchange.utils import format_float
+
 FTX_REST_API = 'https://ftx.com/api'
 
 
@@ -57,6 +59,7 @@ def get_markets():
             i['price_increment'] = 0
             i['priceIncrement'] = 0
         else:
+            i['min_price_move'] = i['priceIncrement']
             i['price_increment'] = abs(decimal.Decimal(str(i['priceIncrement'])).as_tuple().exponent)
             i['priceIncrement'] = i['price_increment']
 
@@ -88,6 +91,11 @@ def get_open_orders(user):
 
 def get_orders_history(user, market):
     return ftx_request(f'/orders/history?market={market}', 'GET', user).get('result', [])
+
+
+def get_market_orders_history(user, market):
+    return ftx_request(f'/orders/history?market={market}&orderType=market', 'GET', user).get('result', [])
+
 
 
 def get_trigger_orders(user, market):
