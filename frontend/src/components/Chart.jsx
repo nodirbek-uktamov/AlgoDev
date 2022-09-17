@@ -47,6 +47,7 @@ function Chart({ openOrders }) {
         value: 60,
         valueInSeconds: 3600,
         houbiKlineValue: '60min',
+        tradingViewKlineValue: '60',
     })
 
     const [selectedSymbol, setSelectedSymbol] = useState({})

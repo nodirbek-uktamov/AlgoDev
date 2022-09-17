@@ -6,9 +6,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from core.exchange.ftx import ftx_request, get_markets, get_positions, get_open_orders, place_order, cancel_order, \
-    get_trigger_orders, get_twap_orders, get_balances, get_account_information, get_orders_history, \
-    get_market_orders_history
+from core.exchange import ftx
 from core.tasks import send_log
 from core.utils.logs import red
 from main.serializers.ftx import ClosePositionSerializer
@@ -18,17 +16,17 @@ class SymbolsListView(GenericAPIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        return Response(get_markets())
+        return Response(ftx.get_markets())
 
 
 class AccountDetailView(GenericAPIView):
     def get(self, request):
-        return Response(get_account_information(request.user))
+        return Response(ftx.get_account_information(request.user))
 
 
 class BalancesListView(GenericAPIView):
     def get(self, request):
-        response = get_balances(request.user)
+        response = ftx.get_balances(request.user)
 
         usd_value = 0
         total_value = 0
@@ -44,12 +42,12 @@ class BalancesListView(GenericAPIView):
 
 class PositionsListView(GenericAPIView):
     def get(self, request):
-        return Response(get_positions(request.user))
+        return Response(ftx.get_positions(request.user))
 
 
 class OpenOrdersListView(GenericAPIView):
     def get(self, request):
-        response = get_open_orders(request.user)
+        response = ftx.get_open_orders(request.user)
 
         for i in response:
             i['orderSize'] = i['size']
@@ -59,9 +57,9 @@ class OpenOrdersListView(GenericAPIView):
         return Response(response)
 
 
-class MarketOrdersHistoryView(GenericAPIView):
-    def get(self, request, symbol):
-        return Response(get_market_orders_history(request.user, symbol))
+class FTXFillsView(GenericAPIView):
+    def get(self, request):
+        return Response(ftx.get_fills(request.user, request.GET))
 
 
 class PositionMarketOrderView(GenericAPIView):
@@ -69,7 +67,7 @@ class PositionMarketOrderView(GenericAPIView):
         data = ClosePositionSerializer.check(request.data)
         side = 'sell' if data['side'] == 'buy' else 'buy'
 
-        response = place_order(request.user, {
+        response = ftx.place_order(request.user, {
             'side': side,
             'size': float(data['size']),
             'market': data['future'],
@@ -86,7 +84,7 @@ class PositionMarketOrderView(GenericAPIView):
 
 class CancelOrderView(GenericAPIView):
     def post(self, request, id):
-        response = cancel_order(request.user, id)
+        response = ftx.cancel_order(request.user, id)
 
         return Response({
             'success': response.get('success') or False,
@@ -96,13 +94,13 @@ class CancelOrderView(GenericAPIView):
 
 class TriggerOrdersView(GenericAPIView):
     def get(self, request, market):
-        response = get_trigger_orders(request.user, market)
+        response = ftx.get_trigger_orders(request.user, market)
         return Response(response)
 
 
 class TWAPOrdersView(GenericAPIView):
     def get(self, request, market):
-        response = get_twap_orders(request.user, market)
+        response = ftx.get_twap_orders(request.user, market)
         return Response(response)
 
 # class PlaceFTXOrderView(GenericAPIView):

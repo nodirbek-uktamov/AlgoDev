@@ -175,7 +175,7 @@ USE_L10N = True
 
 USE_THOUSAND_SEPARATOR = True
 
-USE_TZ = not TESTING
+USE_TZ = False
 
 AUTH_USER_MODEL = 'users.User'
 

@@ -5,7 +5,7 @@ djangorestframework==3.10.3
 gunicorn==20.0.4
 Markdown==3.1.1
 Pillow==8.4.0
-psycopg2-binary==2.8.4
+psycopg2-binary==2.9.3
 pytz==2019.3
 PyYAML==5.3.1
 sentry-sdk==0.16.1
@@ -14,6 +14,7 @@ huobi==0.1.12
 websocket-client==1.3.1
 channels-redis==3.4.0
 coreapi==2.3.3
+celery==5.2.7
 
 pep8==1.7.1
 autopep8==1.4.4

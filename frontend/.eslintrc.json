@@ -5,6 +5,7 @@
         "es6": true,
         "node": true
     },
+    "ignorePatterns": "**/*.esm.js",
     "extends": [
         "airbnb"
     ],

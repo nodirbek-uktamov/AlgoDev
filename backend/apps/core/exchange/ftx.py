@@ -1,11 +1,9 @@
 import decimal
 import hmac
 import time
-
 import requests
 from requests import Request, Session
-
-from core.exchange.utils import format_float
+from urllib.parse import urlencode
 
 FTX_REST_API = 'https://ftx.com/api'
 
@@ -93,8 +91,9 @@ def get_orders_history(user, market):
     return ftx_request(f'/orders/history?market={market}', 'GET', user).get('result', [])
 
 
-def get_market_orders_history(user, market):
-    return ftx_request(f'/orders/history?market={market}&orderType=market', 'GET', user).get('result', [])
+def get_fills(user, params):
+    params_str = urlencode(params or {})
+    return ftx_request(f'/fills?{params_str}', 'GET', user).get('result', [])
 
 
 

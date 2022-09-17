@@ -33,7 +33,7 @@ export const FTX_BALANCES = 'main/ftx/balances/'
 export const FTX_ACCOUNT = 'main/ftx/account/'
 export const FTX_CANCEL_ORDER = 'main/ftx/orders/cancel/{id}/'
 export const PROXY_API = 'main/proxy/'
-export const FTX_MARKET_ORDERS_HISTORY = 'main/ftx/orders/market-orders-history/{symbol}/'
+export const FTX_FILLS_LIST = 'main/ftx/fills/'
 // export const FTX_PLACE_ORDER = 'main/ftx/place/'
 
 export const LOGS_WS = `${wsDomain}/api/v1/logs/{id}/`

@@ -57,6 +57,7 @@ html {
     border-right: 2px #ffffff solid;
     background-clip: padding-box;
 }
+
 *::-webkit-scrollbar-thumb:hover {
     background-color: #999;
 }
@@ -106,19 +107,19 @@ html {
 }
 
 .change-ask-book {
-  animation: new-trade-ask-animation 350ms linear;
+    animation: new-trade-ask-animation 350ms linear;
 }
 
 .change-bid-book {
-  animation: new-trade-bid-animation 350ms linear;
+    animation: new-trade-bid-animation 350ms linear;
 }
 
 .new-trade-ask {
-  animation: new-trade-ask-animation 1s linear;
+    animation: new-trade-ask-animation 1s linear;
 }
 
 .new-trade-bid {
-  animation: new-trade-bid-animation 1s linear;
+    animation: new-trade-bid-animation 1s linear;
 }
 
 .no-border-top-radius {
@@ -133,19 +134,23 @@ html {
 }
 
 @keyframes new-trade-bid-animation {
-  0% {
-    background: rgba(2, 199, 122, 0.25);
-  }
-  100% {
-    background: #000;
-  }
+    0% {
+        background: rgba(2, 199, 122, 0.25);
+    }
+    100% {
+        background: #000;
+    }
 }
 
 @keyframes new-trade-ask-animation {
-  0% {
-    background: rgba(255, 59, 105, 0.25);
-  }
-  100% {
-    background: #000;
-  }
+    0% {
+        background: rgba(255, 59, 105, 0.25);
+    }
+    100% {
+        background: #000;
+    }
+}
+
+.TVChartContainer {
+    height: 100%;
 }
