@@ -70,7 +70,7 @@ export const handlePublicWsMessage = (exchange, publicWs, wsCallbacksRef, setPri
 }
 
 export const getDefaultSymbol = (exchange) => {
-    if (exchange === HUOBI) return { value: 'ETHUSDT', pair1: 'ETH', pair2: 'USDT', tap: 4, tpp: 2 }
+    if (exchange === HUOBI) return { value: 'ETHUSDT', label: 'ETH/USDT', pair1: 'ETH', pair2: 'USDT', tap: 4, tpp: 2 }
     if (exchange === FTX) return { value: 'ETH-PERP', label: 'ETH-PERP', pair1: 'ETH', pair2: 'USD', tap: 3, tpp: 1, minPriceMove: 0.1 }
 }
 
