@@ -103,6 +103,11 @@ class TWAPOrdersView(GenericAPIView):
         response = ftx.get_twap_orders(request.user, market)
         return Response(response)
 
+
+class CancelAllOrdersView(GenericAPIView):
+    def post(self, request):
+        return Response(ftx.cancel_all_orders(request.user))
+
 # class PlaceFTXOrderView(GenericAPIView):
 #     def post(self, request):
 #         user = request.user

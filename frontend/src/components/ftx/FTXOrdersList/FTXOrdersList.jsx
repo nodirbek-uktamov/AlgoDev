@@ -4,11 +4,11 @@ import { Table } from '../../common/Table'
 import { SIDE_TEXT_STYLE } from '../../huobi/HuobiOrdersList/HuobiOrdersList'
 import { MainContext } from '../../../contexts/MainContext'
 import { usePostRequest } from '../../../hooks/request'
-import { FTX_CANCEL_ORDER } from '../../../urls'
+import { FTX_CANCEL_ALL_ORDERS, FTX_CANCEL_ORDER } from '../../../urls'
 import { Button } from '../../common/Button'
 import { useMessage } from '../../../hooks/message'
 
-const renderColumns = (symbol, handleCancelOrder) => [
+const renderColumns = (symbol, handleCancelOrder, handleCancelAll) => [
     {
         title: 'Side',
         key: 'side',
@@ -56,9 +56,10 @@ const renderColumns = (symbol, handleCancelOrder) => [
     },
     {
         key: 'close',
+        width: '0%',
         renderHeaderCell: (column) => (
             <div className="is-flex is-justify-content-center">
-                <Button scale={false} size="S" color="danger" text="Cancel all" onClick={() => console.log('cancel all')} />
+                <Button scale={false} size="S" color="danger" text="Cancel all" onClick={handleCancelAll} />
             </div>
         ),
         hasSorting: false,
@@ -76,6 +77,7 @@ function FTXOrdersList({ orders }) {
     const { symbol } = useContext(MainContext)
     const cancelOrder = usePostRequest()
     const [showMessage] = useMessage()
+    const cancelAllOrders = usePostRequest({ url: FTX_CANCEL_ALL_ORDERS })
 
     const handleCancelOrder = useCallback(async (item) => {
         const { response } = await cancelOrder.request({ url: FTX_CANCEL_ORDER.replace('{id}', item.id) })
@@ -87,9 +89,13 @@ function FTXOrdersList({ orders }) {
         // eslint-disable-next-line
     }, [])
 
+    function handleCancelAll() {
+        cancelAllOrders.request()
+    }
+
     return (
         <div className="orders-list_container">
-            <Table tableData={orders} columns={renderColumns(symbol, handleCancelOrder)} />
+            <Table tableData={orders} columns={renderColumns(symbol, handleCancelOrder, handleCancelAll)} />
         </div>
     )
 }

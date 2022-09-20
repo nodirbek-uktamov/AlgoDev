@@ -96,7 +96,6 @@ def get_fills(user, params):
     return ftx_request(f'/fills?{params_str}', 'GET', user).get('result', [])
 
 
-
 def get_trigger_orders(user, market):
     return ftx_request(f'/conditional_orders?market={market}', 'GET', user).get('result', [])
 
@@ -107,6 +106,11 @@ def get_twap_orders(user, market):
 
 def place_order(user, data):
     response = ftx_request('/orders', 'POST', user, json=data)
+    return response
+
+
+def cancel_all_orders(user):
+    response = ftx_request('/orders', 'DELETE', user)
     return response
 
 
@@ -121,8 +125,8 @@ def place_twap_order(user, data):
 
 
 def batch_cancel_orders(user, order_ids):
-    for id in order_ids:
-        response = ftx_request(f'/orders/{id}', 'DELETE', user)
+    response = ftx_request(f'/bulk_orders', 'DELETE', user, {'orderIds': order_ids})
+    return response
 
 
 def cancel_order(user, id):

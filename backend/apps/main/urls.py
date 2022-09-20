@@ -13,12 +13,13 @@ urlpatterns = [
     path('trades/<str:exchange>/', TradeView.as_view(), name='trade'),
     path('ws-auth-params/<str:exchange>/', AuthParamsView.as_view(), name='auth-params'),
 
-    path('orders/cancel/', CancelAllOrdersView.as_view(), name='cancel-all-orders'),
     path('orders/cancel/<int:order_id>', CancelOrderView.as_view(), name='cancel-all-orders'),
     path('orders/<str:symbol>/', OrdersListView.as_view(), name='open-orders-list'),
 
     path('market/', MarketOrderView.as_view(), name='market'),
     path('limit/', LimitOrderView.as_view(), name='limit'),
+
+    path('huobi/orders/cancel/', CancelAllOrdersView.as_view(), name='huobi-cancel-all-orders'),
 
     path('ftx/', include([
         path('symbols/', ftx.SymbolsListView.as_view(), name='symbols'),
@@ -31,6 +32,7 @@ urlpatterns = [
         path('orders/cancel/<int:id>/', ftx.CancelOrderView.as_view(), name='open-orders'),
         path('trigger-orders/<str:market>/', ftx.TriggerOrdersView.as_view(), name='open-trigger-orders'),
         path('twap-orders/<str:market>/', ftx.TWAPOrdersView.as_view(), name='active-twap-orders'),
+        path('orders/cancel/', ftx.CancelAllOrdersView.as_view(), name='ftx-cancel-all-orders'),
         # path('place/', ftx.PlaceFTXOrderView.as_view(), name='place'),
     ])),
     path('proxy/', ProxyView.as_view(), name='proxy'),
