@@ -8,7 +8,7 @@ import { TVChartContainer } from './TVChartContainer'
 import { WS_TYPES } from '../utils/websocket'
 
 function HuobiChart({ openOrders, chartInterval }) {
-    const { symbolValue, symbol, wsCallbacksRef, publicWs } = useContext(MainContext)
+    const { symbolValue, symbol, wsCallbacksRef, publicWs, user } = useContext(MainContext)
     const [orderLines, setOrderLines] = useState({})
     const [chartWidget, setChartWidget] = useState(null)
     const [klineData, setKlineData] = useState(null)
