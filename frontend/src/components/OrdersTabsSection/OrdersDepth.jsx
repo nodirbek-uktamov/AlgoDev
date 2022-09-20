@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react'
 import { css, StyleSheet } from 'aphrodite'
 import cn from 'classnames'
 import { MainContext } from '../../contexts/MainContext'
@@ -8,30 +8,36 @@ function OrdersDepth({ botPrices, amountLimit }) {
     const { symbol, wsCallbacksRef, callbacks, user } = useContext(MainContext)
     const { tpp, tap } = symbol
     const [book, setBook] = useState(null)
+    const [date, setDate] = useState(new Date())
 
     useEffect(() => {
         wsCallbacksRef.current.setBook = setBook
         // eslint-disable-next-line
     }, [])
 
+    useEffect(() => {
+        const timerID = setInterval(() => setDate(new Date()), 250)
+        return () => {
+            clearInterval(timerID)
+        }
+    }, [])
+
     function isActive(price, tradeType) {
         return Object.values(botPrices).filter((i) => Number(i.price.price) === price && i.price.trade_type === tradeType).length > 0
     }
 
-    function RenderItem({ item, tradeType, color }) {
-        return (
-            <div className={cn('columns m-0 p-0 is-justify-content-space-between', isActive(item[0], tradeType) && css(styles.activePrice))}>
-                <p
-                    onMouseDown={() => updateFormPrices(item[0], callbacks.current.setTradeFormValue)}
-                    style={{ color }}
-                    className="column is-narrow m-0 p-0 pointer">
-                    {item[0].toFixed(tpp)}
-                </p>
+    const RenderItem = memo(({ item, tradeType, color }) => (
+        <div className={cn('columns m-0 p-0 is-justify-content-space-between', isActive(item[0], tradeType) && css(styles.activePrice))}>
+            <p
+                onMouseDown={() => updateFormPrices(item[0], callbacks.current.setTradeFormValue)}
+                style={{ color }}
+                className="column is-narrow m-0 p-0 pointer">
+                {item[0].toFixed(tpp)}
+            </p>
 
-                <p className="column m-0 p-0 is-narrow">{item[1].toFixed(tap)}</p>
-            </div>
-        )
-    }
+            <p className="column m-0 p-0 is-narrow">{item[1].toFixed(tap)}</p>
+        </div>
+    ))
 
     const columns = [
         {
@@ -53,6 +59,36 @@ function OrdersDepth({ botPrices, amountLimit }) {
     const asks = book ? book.asks.slice(0, ordersCountOnEachSide) : []
     const bids = book ? book.bids.slice(0, ordersCountOnEachSide) : []
 
+    const renderBook = useCallback(() => {
+        if (document.visibilityState !== 'visible') return
+
+        return (
+            <div className="p-4" style={{ backgroundColor: '#000', height: orderbookHeight }}>
+                <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column-reverse wrap' }} className="mp-1">
+                    {asks.map((item) => (
+                        <div className={item[1] > +amountLimit && user.orderbookAnimationActive && document.visibilityState === 'visible' ? 'change-ask-book' : null} style={{ width: '100%' }} key={item}>
+                            <RenderItem color="#FF0000" tradeType="sell" item={item} />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="my-2 has-text-weight-bold is-size-5">
+                    {asks[0] && bids[0] ? ((asks[0][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
+                </div>
+
+                <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column wrap' }}>
+                    {bids.map((item) => (
+                        <div className={item[1] > +amountLimit && user.orderbookAnimationActive && document.visibilityState === 'visible' ? 'change-bid-book' : null} style={{ width: '100%' }} key={item}>
+                            <RenderItem color="#02C77A" tradeType="buy" item={item} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )
+
+        // eslint-disable-next-line
+    }, [date])
+
     return (
         <div style={{ height: containerHeight }}>
             <div className="is-flex" id="order-book-header">
@@ -66,29 +102,7 @@ function OrdersDepth({ botPrices, amountLimit }) {
                 ))}
             </div>
 
-            {book && (
-                <div className="p-4" style={{ backgroundColor: '#000', height: orderbookHeight }}>
-                    <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column-reverse wrap' }} className="mp-1">
-                        {asks.map((item) => (
-                            <div className={item[1] > +amountLimit && user.orderbookAnimationActive ? 'change-ask-book' : null} style={{ width: '100%' }} key={item}>
-                                <RenderItem color="#FF0000" tradeType="sell" item={item} />
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="my-2 has-text-weight-bold is-size-5">
-                        {asks[0] && bids[0] ? ((asks[0][0] + bids[0][0]) / 2).toFixed(tpp) : '—'}
-                    </div>
-
-                    <div style={{ height: 'calc(50% - 1rem)', overflow: 'hidden', display: 'flex', flexFlow: 'column wrap' }}>
-                        {bids.map((item) => (
-                            <div className={item[1] > +amountLimit && user.orderbookAnimationActive ? 'change-bid-book' : null} style={{ width: '100%' }} key={item}>
-                                <RenderItem color="#02C77A" tradeType="buy" item={item} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {book && renderBook()}
         </div>
     )
 }

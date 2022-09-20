@@ -55,10 +55,13 @@ const renderColumns = (symbol, handleCancelOrder) => [
         ),
     },
     {
-        title: '',
-        key: 'actions',
-        hasSorting: true,
-        width: '10%',
+        key: 'close',
+        renderHeaderCell: (column) => (
+            <div className="is-flex is-justify-content-center">
+                <Button scale={false} size="S" color="danger" text="Cancel all" onClick={() => console.log('cancel all')} />
+            </div>
+        ),
+        hasSorting: false,
         render: (rowData) => (
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: '1.1rem' }}>
                 <Button scale={false} size="S"

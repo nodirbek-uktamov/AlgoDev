@@ -115,7 +115,7 @@ export function OrdersListTab() {
 
             <div className="p-3" style={{ backgroundColor: orders.length > 0 ? '#000' : null }}>
                 {orders.map((item) => (
-                    <div className={user.tradesListAnimationActive && (item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid')} key={item.tradeId}>
+                    <div className={(user.tradesListAnimationActive && document.visibilityState === 'visible') && (item.direction === 'sell' ? 'new-trade-ask' : 'new-trade-bid')} key={item.tradeId}>
                         <RenderItem item={item} />
                     </div>
                 ))}
