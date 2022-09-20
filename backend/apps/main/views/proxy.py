@@ -4,9 +4,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
-class ProxyView(GenericAPIView):
+class ProxyView(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = []
 
