@@ -134,7 +134,7 @@ function HuobiChart({ openOrders, chartInterval }) {
     }, [chartRef.current.changeKlineData, klineData])
 
     return (
-        <TVChartContainer datafeed={newDataFeed} symbol={symbol.label} setWidget={setChartWidget} interval={chartInterval.tradingViewKlineValue} />
+        <TVChartContainer userId={user.email} datafeed={newDataFeed} symbol={symbol.label} setWidget={setChartWidget} interval={chartInterval.tradingViewKlineValue} />
     )
 }
 

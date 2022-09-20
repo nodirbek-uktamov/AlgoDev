@@ -7,7 +7,7 @@ import { TVChartContainer } from './TVChartContainer'
 import FTXDatafeed from '../utils/datafeeds/ftx'
 
 function FTXChart({ openOrders, chartInterval }) {
-    const { symbolValue } = useContext(MainContext)
+    const { symbolValue, user } = useContext(MainContext)
     const [orderLines, setOrderLines] = useState({})
     const [chartWidget, setChartWidget] = useState(null)
     const ordersHistory = useGetRequest({ url: FTX_FILLS_LIST })
@@ -106,7 +106,7 @@ function FTXChart({ openOrders, chartInterval }) {
     }
 
     return (
-        <TVChartContainer datafeed={FTXDatafeed} symbol={symbolValue.toUpperCase()} setWidget={setChartWidget} interval={chartInterval.tradingViewKlineValue} />
+        <TVChartContainer userId={user.email} datafeed={FTXDatafeed} symbol={symbolValue.toUpperCase()} setWidget={setChartWidget} interval={chartInterval.tradingViewKlineValue} />
     )
 }
 
