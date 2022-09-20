@@ -10,8 +10,23 @@ class ProxyView(GenericAPIView):
     permission_classes = (AllowAny,)
     authentication_classes = []
 
-    def get(self, request):
-        if not request.GET.get('url') or not isinstance(request.GET.get('url'), str):
+    def _check_url(self, url):
+        if not url or not isinstance(url, str):
             raise ValidationError({'url': 'Required string to params'})
 
-        return Response(requests.get(request.GET.get('url')).json())
+    def get(self, request):
+        params = dict(request.GET)
+        url = params.pop('url')[0]
+
+        self._check_url(url)
+        response = requests.get(url, params=params)
+
+        return Response(response.json())
+
+    def post(self, request):
+        params = dict(request.GET)
+        url = params.pop('url')[0]
+
+        self._check_url(url)
+
+        return Response(requests.post(url, data=request.data, params=params).json())

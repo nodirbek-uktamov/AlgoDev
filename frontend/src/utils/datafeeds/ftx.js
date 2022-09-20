@@ -27,7 +27,6 @@ export const FTX_RESOLUTIONS = {
     240: 14400,
     '1D': 86400,
     '1W': 604800,
-    '1M': 2592000,
 }
 
 const configurationData = {
@@ -36,7 +35,7 @@ const configurationData = {
 }
 
 const lastBarsCache = new Map()
-const intervalSet = {}
+const data = {}
 
 export default {
     onReady: (callback) => {
@@ -49,7 +48,14 @@ export default {
         symbolType,
         onResultReadyCallback,
     ) => {
-        const symbols = await getAllSymbols()
+        let symbols
+
+        if (data.symbols) {
+            symbols = data.symbols
+        } else {
+            symbols = await getAllSymbols()
+            data.symbols = symbols
+        }
 
         const newSymbols = symbols.filter((symbol) => symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1)
         onResultReadyCallback(newSymbols)
@@ -60,7 +66,14 @@ export default {
         onSymbolResolvedCallback,
         onResolveErrorCallback,
     ) => {
-        const symbols = await getAllSymbols()
+        let symbols
+
+        if (data.symbols) {
+            symbols = data.symbols
+        } else {
+            symbols = await getAllSymbols()
+            data.symbols = symbols
+        }
 
         const symbolItem = symbols.find(({ full_name }) => full_name === symbolName)
 
@@ -139,9 +152,9 @@ export default {
         subscribeUID,
         onResetCacheNeededCallback,
     ) => {
-        if (intervalSet.interval) clearInterval(intervalSet.interval)
+        if (data.interval) clearInterval(data.interval)
 
-        intervalSet.interval = setInterval(async () => {
+        data.interval = setInterval(async () => {
             const { data } = await baseAxios({ ...auth(), url: PROXY_API, params: { url: `https://ftx.com/api/markets/${symbolInfo.name}/candles/last?resolution=${FTX_RESOLUTIONS[resolution]}` } })
 
             if (data.success) {
@@ -151,7 +164,7 @@ export default {
     },
 
     unsubscribeBars: (subscriberUID) => {
-        if (intervalSet.interval) clearInterval(intervalSet.interval)
+        if (data.interval) clearInterval(data.interval)
     },
     getMarks: async (symbolInfo, from, to, onDataCallback, resolution) => {
         const { data } = await baseAxios({ ...auth(), url: FTX_FILLS_LIST, params: { market: symbolInfo.name, start_time: from, end_time: to } })

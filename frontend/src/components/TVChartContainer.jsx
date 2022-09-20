@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { widget } from '../charting_library'
 import Datafeed from '../utils/datafeeds/ftx'
+import { intervals } from '../utils/intervals'
 
 function getLanguageFromURL() {
     const regex = new RegExp('[\\?&]lang=([^&#]*)')
@@ -11,12 +12,13 @@ function getLanguageFromURL() {
 export class TVChartContainer extends React.PureComponent {
     static defaultProps = {
         libraryPath: '/charting_library/',
-        chartsStorageUrl: 'https://saveload.tradingview.com',
+        chartsStorageUrl: 'http://localhost:8000/api/v1/main/proxy/?url=https://saveload.tradingview.com',
         chartsStorageApiVersion: '1.1',
-        clientId: 'hftcryptobot.com',
+        clientId: 'tradingview.com',
         fullscreen: false,
         autosize: true,
         studiesOverrides: {},
+        symbolsList: []
     }
 
     tvWidget = null
@@ -82,6 +84,23 @@ export class TVChartContainer extends React.PureComponent {
 
         tvWidget.onChartReady(() => {
             if (typeof this.props.setWidget === 'function') this.props.setWidget(tvWidget)
+            const chart = tvWidget.activeChart()
+
+            // chart.onIntervalChanged().subscribe(null, (value,) => {
+            //     const intervalObject = intervals.filter(i => i.tradingViewKlineValue === value)[0]
+            //
+            //     if (!intervalObject) return
+            //
+            //     this.props.onChangeInterval(intervalObject)
+            // })
+
+            chart.onSymbolChanged().subscribe(null, (value) => {
+                const symbolObject = this.props.symbolsList.filter(i => i.value === value.name)[0]
+
+                if (!symbolObject) return
+
+                this.props.onChangeSymbol(symbolObject)
+            })
         })
     }
 

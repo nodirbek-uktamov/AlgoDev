@@ -1,14 +1,18 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import map from 'lodash/map'
 import { MainContext } from '../contexts/MainContext'
-import { useGetRequest } from '../hooks/request'
-import { FTX_FILLS_LIST } from '../urls'
 import HuobiDatafeed from '../utils/datafeeds/huobi'
 import { TVChartContainer } from './TVChartContainer'
 import { WS_TYPES } from '../utils/websocket'
 
-function HuobiChart({ openOrders, chartInterval }) {
-    const { symbolValue, symbol, wsCallbacksRef, publicWs, user } = useContext(MainContext)
+function HuobiChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol, symbolsList }) {
+    const {
+        symbolValue,
+        symbol,
+        wsCallbacksRef,
+        publicWs,
+        user,
+    } = useContext(MainContext)
     const [orderLines, setOrderLines] = useState({})
     const [chartWidget, setChartWidget] = useState(null)
     const [klineData, setKlineData] = useState(null)
@@ -134,7 +138,15 @@ function HuobiChart({ openOrders, chartInterval }) {
     }, [chartRef.current.changeKlineData, klineData])
 
     return (
-        <TVChartContainer userId={user.email} datafeed={newDataFeed} symbol={symbol.label} setWidget={setChartWidget} interval={chartInterval.tradingViewKlineValue} />
+        <TVChartContainer
+            onChangeInterval={onChangeInterval}
+            onChangeSymbol={onChangeSymbol}
+            symbolsList={symbolsList}
+            userId={`huobi${user.email}${user.firstName}${user.lastName}`} // DON'T CHANGE, DATA OF SAVED CHARTS WILL LOST
+            datafeed={newDataFeed}
+            symbol={symbol.label}
+            setWidget={setChartWidget}
+            interval={chartInterval.tradingViewKlineValue} />
     )
 }
 

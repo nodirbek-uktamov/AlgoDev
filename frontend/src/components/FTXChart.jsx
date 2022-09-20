@@ -6,8 +6,11 @@ import { FTX_FILLS_LIST } from '../urls'
 import { TVChartContainer } from './TVChartContainer'
 import FTXDatafeed from '../utils/datafeeds/ftx'
 
-function FTXChart({ openOrders, chartInterval }) {
-    const { symbolValue, user } = useContext(MainContext)
+function FTXChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol, symbolsList }) {
+    const {
+        symbolValue,
+        user,
+    } = useContext(MainContext)
     const [orderLines, setOrderLines] = useState({})
     const [chartWidget, setChartWidget] = useState(null)
     const ordersHistory = useGetRequest({ url: FTX_FILLS_LIST })
@@ -17,7 +20,10 @@ function FTXChart({ openOrders, chartInterval }) {
 
         try {
             chartWidget.activeChart().removeAllShapes()
-            const { from, to } = chartWidget.activeChart().getVisibleRange()
+            const {
+                from,
+                to,
+            } = chartWidget.activeChart().getVisibleRange()
 
             map(ordersHistory.response || [], (i) => {
                 const time = new Date(i.time).getTime() / 1000
@@ -51,9 +57,18 @@ function FTXChart({ openOrders, chartInterval }) {
 
         const interval = setInterval(() => {
             if (!chartWidget) return
-            const { from, to } = chartWidget.activeChart().getVisibleRange()
+            const {
+                from,
+                to,
+            } = chartWidget.activeChart().getVisibleRange()
 
-            ordersHistory.request({ params: { market: symbolValue, start_time: from, end_time: to } })
+            ordersHistory.request({
+                params: {
+                    market: symbolValue,
+                    start_time: from,
+                    end_time: to,
+                },
+            })
         }, 5000)
 
         return () => clearInterval(interval)
@@ -106,7 +121,15 @@ function FTXChart({ openOrders, chartInterval }) {
     }
 
     return (
-        <TVChartContainer userId={user.email} datafeed={FTXDatafeed} symbol={symbolValue.toUpperCase()} setWidget={setChartWidget} interval={chartInterval.tradingViewKlineValue} />
+        <TVChartContainer
+            onChangeInterval={onChangeInterval}
+            onChangeSymbol={onChangeSymbol}
+            symbolsList={symbolsList}
+            userId={`ftx${user.email}${user.firstName}${user.lastName}`} // DON'T CHANGE, DATA OF SAVED CHARTS WILL LOST
+            datafeed={FTXDatafeed}
+            symbol={symbolValue.toUpperCase()}
+            setWidget={setChartWidget}
+            interval={chartInterval.tradingViewKlineValue} />
     )
 }
 

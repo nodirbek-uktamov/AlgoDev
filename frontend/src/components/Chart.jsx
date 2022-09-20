@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import { intervals } from '../utils/intervals'
 import { MainContext } from '../contexts/MainContext'
 import { Card } from './common/Card'
@@ -54,16 +54,16 @@ function Chart({ openOrders }) {
 
     const defaultSymbol = symbolsList.filter((s) => s.value === symbolValue.toUpperCase())[0]
 
-    function onChangeInterval(newValue) {
+    const onChangeInterval = useCallback((newValue) => {
         setChartInterval(newValue)
 
         if (publicWs.current.readyState === WebSocket.OPEN) {
             publicWs.current.send(JSON.stringify({ unsub: WS_TYPES.candles.replace('{symbol}', symbolValue).replace('{period}', chartInterval.houbiKlineValue) }))
             publicWs.current.send(JSON.stringify({ sub: WS_TYPES.candles.replace('{symbol}', symbolValue).replace('{period}', newValue.houbiKlineValue) }))
         }
-    }
+    }, [chartInterval.houbiKlineValue, publicWs, symbolValue])
 
-    const onChange = (value) => {
+    const onChangeSymbol = useCallback((value) => {
         setSelectedSymbol(value)
 
         if (publicWs.current.readyState === WebSocket.OPEN) {
@@ -85,7 +85,7 @@ function Chart({ openOrders }) {
         }
 
         if (exchange === FTX) ftxOnChangeSymbol(value, exchange, setSymbol, symbolValue, connectFTXWs, disconnectFTXWs)
-    }
+    }, [chartInterval.houbiKlineValue, connectFTXWs, connectHuobi, disconnectFTXWs, disconnectHuobi, exchange, privateWs, publicWs, setSymbol, symbolValue, wsCallbacksRef])
 
     return (
         <Card color="black" style={{ height: getHeight('chart-draggable-container'), paddingBottom: '5rem' }} className="no-border-top-radius">
@@ -94,7 +94,7 @@ function Chart({ openOrders }) {
                     enableSearch
                     searchBy={(o) => o.label}
                     options={symbolsList}
-                    setSelectedOption={onChange}
+                    setSelectedOption={onChangeSymbol}
                     defaultValue={defaultSymbol}
                     selectedOption={selectedSymbol}
                     renderSelectedOption={(o) => o.label}
@@ -109,8 +109,8 @@ function Chart({ openOrders }) {
                     setSelectedOption={onChangeInterval} />
             </div>
 
-            {exchange === FTX ? <FTXChart openOrders={openOrders} chartInterval={chartInterval} /> : null}
-            {exchange === HUOBI ? <HuobiChart openOrders={openOrders} chartInterval={chartInterval} /> : null}
+            {exchange === FTX ? <FTXChart onChangeSymbol={onChangeSymbol} symbolsList={symbolsList} onChangeInterval={onChangeInterval} openOrders={openOrders} chartInterval={chartInterval} /> : null}
+            {exchange === HUOBI ? <HuobiChart onChangeSymbol={onChangeSymbol} symbolsList={symbolsList} onChangeInterval={onChangeInterval} openOrders={openOrders} chartInterval={chartInterval} /> : null}
         </Card>
     )
 }

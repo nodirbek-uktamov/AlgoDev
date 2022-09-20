@@ -37,7 +37,7 @@ const configurationData = {
 }
 
 const lastBarsCache = new Map()
-const intervalSet = {}
+const data = {}
 
 export default {
     onReady: (callback) => {
@@ -50,7 +50,14 @@ export default {
         symbolType,
         onResultReadyCallback,
     ) => {
-        const symbols = await getAllSymbols()
+        let symbols
+
+        if (data.symbols) {
+            symbols = data.symbols
+        } else {
+            symbols = await getAllSymbols()
+            data.symbols = symbols
+        }
 
         const newSymbols = symbols.filter((symbol) => symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1)
         onResultReadyCallback(newSymbols)
@@ -61,7 +68,14 @@ export default {
         onSymbolResolvedCallback,
         onResolveErrorCallback,
     ) => {
-        const symbols = await getAllSymbols()
+        let symbols
+
+        if (data.symbols) {
+            symbols = data.symbols
+        } else {
+            symbols = await getAllSymbols()
+            data.symbols = symbols
+        }
 
         const symbolItem = symbols.find(({ full_name }) => full_name === symbolName)
 
