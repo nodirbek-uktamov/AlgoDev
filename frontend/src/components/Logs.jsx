@@ -33,9 +33,9 @@ export default function Logs({ setBotPrices, trades }) {
     function onClose() {
         setLogs((oldLogs) => ['Logs socket is closed. Reconnecting...', ...oldLogs])
 
-        // setTimeout(() => {
-        //     connect()
-        // }, 2000)
+        setTimeout(() => {
+            connect()
+        }, 2000)
     }
 
     function handleMessage(event) {
