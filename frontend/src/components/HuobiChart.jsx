@@ -142,7 +142,7 @@ function HuobiChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbo
             onChangeInterval={onChangeInterval}
             onChangeSymbol={onChangeSymbol}
             symbolsList={symbolsList}
-            userId={`huobi${user.email}${user.firstName}${user.lastName}`} // DON'T CHANGE, DATA OF SAVED CHARTS WILL LOST
+            userId={`huobi${user.email}${user.id}`} // DON'T CHANGE, DATA OF SAVED CHARTS WILL LOST
             datafeed={newDataFeed}
             symbol={symbol.label}
             setWidget={setChartWidget}

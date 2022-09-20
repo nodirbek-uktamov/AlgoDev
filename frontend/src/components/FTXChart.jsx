@@ -125,7 +125,7 @@ function FTXChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol,
             onChangeInterval={onChangeInterval}
             onChangeSymbol={onChangeSymbol}
             symbolsList={symbolsList}
-            userId={`ftx${user.email}${user.firstName}${user.lastName}`} // DON'T CHANGE, DATA OF SAVED CHARTS WILL LOST
+            userId={`ftx${user.email}${user.id}`} // DON'T CHANGE, DATA OF SAVED CHARTS WILL LOST
             datafeed={FTXDatafeed}
             symbol={symbolValue.toUpperCase()}
             setWidget={setChartWidget}
