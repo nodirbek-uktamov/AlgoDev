@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { widget } from '../charting_library'
-import Datafeed from '../utils/datafeeds/ftx'
-import { intervals } from '../utils/intervals'
+import { domain } from '../urls'
 
 function getLanguageFromURL() {
     const regex = new RegExp('[\\?&]lang=([^&#]*)')
@@ -12,7 +11,7 @@ function getLanguageFromURL() {
 export class TVChartContainer extends React.PureComponent {
     static defaultProps = {
         libraryPath: '/charting_library/',
-        chartsStorageUrl: 'http://localhost:8000/api/v1/main/proxy/?url=https://saveload.tradingview.com',
+        chartsStorageUrl: domain + '/api/v1/main/proxy/?url=https://saveload.tradingview.com',
         chartsStorageApiVersion: '1.1',
         clientId: 'tradingview.com',
         fullscreen: false,
