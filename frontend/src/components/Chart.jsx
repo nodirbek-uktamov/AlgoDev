@@ -89,25 +89,25 @@ function Chart({ openOrders }) {
 
     return (
         <Card color="black" style={{ height: getHeight('chart-draggable-container'), paddingBottom: '5rem' }} className="no-border-top-radius">
-            <div style={{ display: 'flex', gap: '1.1rem', marginBottom: '1rem' }}>
-                <Select
-                    enableSearch
-                    searchBy={(o) => o.label}
-                    options={symbolsList}
-                    setSelectedOption={onChangeSymbol}
-                    defaultValue={defaultSymbol}
-                    selectedOption={selectedSymbol}
-                    renderSelectedOption={(o) => o.label}
-                    renderMenuOption={(o) => o.label} />
+            {/* <div style={{ display: 'flex', gap: '1.1rem', marginBottom: '1rem' }}> */}
+            {/*    <Select */}
+            {/*        enableSearch */}
+            {/*        searchBy={(o) => o.label} */}
+            {/*        options={symbolsList} */}
+            {/*        setSelectedOption={onChangeSymbol} */}
+            {/*        defaultValue={defaultSymbol} */}
+            {/*        selectedOption={selectedSymbol} */}
+            {/*        renderSelectedOption={(o) => o.label} */}
+            {/*        renderMenuOption={(o) => o.label} /> */}
 
-                <Select
-                    defaultValue={intervals[6]}
-                    renderSelectedOption={(o) => o.label}
-                    renderMenuOption={(o) => o.label}
-                    options={intervals}
-                    selectedOption={chartInterval}
-                    setSelectedOption={onChangeInterval} />
-            </div>
+            {/*    <Select */}
+            {/*        defaultValue={intervals[6]} */}
+            {/*        renderSelectedOption={(o) => o.label} */}
+            {/*        renderMenuOption={(o) => o.label} */}
+            {/*        options={intervals} */}
+            {/*        selectedOption={chartInterval} */}
+            {/*        setSelectedOption={onChangeInterval} /> */}
+            {/* </div> */}
 
             {exchange === FTX ? <FTXChart onChangeSymbol={onChangeSymbol} symbolsList={symbolsList} onChangeInterval={onChangeInterval} openOrders={openOrders} chartInterval={chartInterval} /> : null}
             {exchange === HUOBI ? <HuobiChart onChangeSymbol={onChangeSymbol} symbolsList={symbolsList} onChangeInterval={onChangeInterval} openOrders={openOrders} chartInterval={chartInterval} /> : null}

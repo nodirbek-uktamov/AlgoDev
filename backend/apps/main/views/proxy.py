@@ -24,6 +24,15 @@ class ProxyView(APIView):
 
         return Response(response.json())
 
+    def delete(self, request):
+        params = dict(request.GET)
+        url = params.pop('url')[0]
+
+        self._check_url(url)
+        response = requests.delete(url, params=params)
+
+        return Response(response.json())
+
     def post(self, request):
         params = dict(request.GET)
         url = params.pop('url')[0]
