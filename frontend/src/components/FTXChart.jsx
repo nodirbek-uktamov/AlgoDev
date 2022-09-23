@@ -1,80 +1,80 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import map from 'lodash/map'
 import { MainContext } from '../contexts/MainContext'
-import { useGetRequest } from '../hooks/request'
-import { FTX_FILLS_LIST } from '../urls'
 import { TVChartContainer } from './TVChartContainer'
 import FTXDatafeed from '../utils/datafeeds/ftx'
+import { FTX_CANCEL_ORDER, FTX_MODIFY_ORDER } from '../urls'
+import { usePostRequest } from '../hooks/request'
 
 function FTXChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol, symbolsList }) {
-    const {
-        symbolValue,
-        user,
-    } = useContext(MainContext)
+    const { symbolValue, user } = useContext(MainContext)
     const [orderLines, setOrderLines] = useState({})
     const [chartWidget, setChartWidget] = useState(null)
-    const ordersHistory = useGetRequest({ url: FTX_FILLS_LIST })
+    const cancelOrder = usePostRequest()
+    const modifyOrder = usePostRequest()
 
-    useEffect(() => {
-        if (!chartWidget) return
+    // const ordersHistory = useGetRequest({ url: FTX_FILLS_LIST })
 
-        try {
-            chartWidget.activeChart().removeAllShapes()
-            const {
-                from,
-                to,
-            } = chartWidget.activeChart().getVisibleRange()
+    // useEffect(() => {
+    //     if (!chartWidget) return
+    //
+    //     try {
+    //         chartWidget.activeChart().removeAllShapes()
+    //         const {
+    //             from,
+    //             to,
+    //         } = chartWidget.activeChart().getVisibleRange()
+    //
+    //         map(ordersHistory.response || [], (i) => {
+    //             const time = new Date(i.time).getTime() / 1000
+    //             if (time <= from || time > to) return
+    //
+    //             chartWidget.activeChart().createShape(
+    //                 {
+    //                     time,
+    //                     // price: i.price,
+    //                     channel: i.side === 'sell' ? 'high' : 'low',
+    //                 },
+    //                 {
+    //                     shape: i.side === 'sell' ? 'arrow_down' : 'arrow_up',
+    //                     overrides: {
+    //                         fontsize: 10,
+    //                     },
+    //                 },
+    //             )
+    //         })
+    //     } catch (e) {
+    //
+    //     }
+    //
+    //     // eslint-disable-next-line
+    // }, [chartInterval.valueInSeconds, ordersHistory.response, chartWidget])
 
-            map(ordersHistory.response || [], (i) => {
-                const time = new Date(i.time).getTime() / 1000
-                if (time <= from || time > to) return
-
-                chartWidget.activeChart().createShape(
-                    {
-                        time,
-                        // price: i.price,
-                        channel: i.side === 'sell' ? 'high' : 'low',
-                    },
-                    {
-                        shape: i.side === 'sell' ? 'arrow_down' : 'arrow_up',
-                        overrides: {
-                            fontsize: 10,
-                        },
-                    },
-                )
-            })
-        } catch (e) {
-
-        }
-
-        // eslint-disable-next-line
-    }, [chartInterval.valueInSeconds, ordersHistory.response, chartWidget])
-
-    useEffect(() => {
-        if (!chartWidget) return
-
-        ordersHistory.request({ params: { market: symbolValue } })
-
-        const interval = setInterval(() => {
-            if (!chartWidget) return
-            const {
-                from,
-                to,
-            } = chartWidget.activeChart().getVisibleRange()
-
-            ordersHistory.request({
-                params: {
-                    market: symbolValue,
-                    start_time: from,
-                    end_time: to,
-                },
-            })
-        }, 5000)
-
-        return () => clearInterval(interval)
-
-        // eslint-disable-next-line
-    }, [chartWidget, symbolValue, chartInterval])
+    // useEffect(() => {
+    //     if (!chartWidget) return
+    //
+    //     ordersHistory.request({ params: { market: symbolValue } })
+    //
+    //     const interval = setInterval(() => {
+    //         if (!chartWidget) return
+    //         const {
+    //             from,
+    //             to,
+    //         } = chartWidget.activeChart().getVisibleRange()
+    //
+    //         ordersHistory.request({
+    //             params: {
+    //                 market: symbolValue,
+    //                 start_time: from,
+    //                 end_time: to,
+    //             },
+    //         })
+    //     }, 5000)
+    //
+    //     return () => clearInterval(interval)
+    //
+    //     // eslint-disable-next-line
+    // }, [chartWidget, symbolValue, chartInterval])
 
     useEffect(() => {
         if (!chartWidget) return
@@ -91,6 +91,7 @@ function FTXChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol,
                 order.side === 'buy' ? '#03bb89' : '#ff595e',
                 order.size,
                 order.orderPrice,
+                order.id,
             )
         })
 
@@ -106,7 +107,7 @@ function FTXChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol,
         // eslint-disable-next-line
     }, [openOrders, chartWidget])
 
-    function createOrderLine(text, color, quantity, price) {
+    function createOrderLine(text, color, quantity, price, orderId) {
         return chartWidget.activeChart().createOrderLine()
             .setText(text)
             .setLineColor(color)
@@ -118,6 +119,18 @@ function FTXChart({ openOrders, chartInterval, onChangeInterval, onChangeSymbol,
             .setLineWidth(2)
             .setQuantity(quantity)
             .setPrice(price)
+            .onCancel(() => {
+                cancelOrder.request({ url: FTX_CANCEL_ORDER.replace('{id}', orderId) })
+            })
+            .onMove(function () {
+                const newData = {
+                    // eslint-disable-next-line react/no-this-in-sfc
+                    price: this.getPrice(),
+                    size: quantity,
+                }
+
+                modifyOrder.request({ url: FTX_MODIFY_ORDER.replace('{id}', orderId), data: newData })
+            })
     }
 
     return (

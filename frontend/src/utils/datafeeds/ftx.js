@@ -1,6 +1,7 @@
 import baseAxios from '../request'
 import { auth } from '../auth'
 import { FTX_FILLS_LIST, FTX_SYMBOLS, PROXY_API } from '../../urls'
+import { LOCAL_LOAD_CANDLE_DETAIL_INTERVAL } from '../../constants'
 
 async function getAllSymbols() {
     const { data } = await baseAxios({ ...auth(), url: FTX_SYMBOLS })
@@ -160,7 +161,7 @@ export default {
             if (data.success) {
                 onRealtimeCallback(data.result)
             }
-        }, 1000)
+        }, window.location.hostname === 'localhost' ? LOCAL_LOAD_CANDLE_DETAIL_INTERVAL : 1000)
     },
 
     unsubscribeBars: (subscriberUID) => {

@@ -68,16 +68,13 @@ export default {
         onSymbolResolvedCallback,
         onResolveErrorCallback,
     ) => {
-        let symbols
+        console.log('symbolName: ', symbolName)
 
-        if (data.symbols) {
-            symbols = data.symbols
-        } else {
-            symbols = await getAllSymbols()
-            data.symbols = symbols
-        }
+        const symbols = await getAllSymbols()
+        data.symbols = symbols
 
         const symbolItem = symbols.find(({ full_name }) => full_name === symbolName)
+        console.log('symbolItem: ', symbolItem)
 
         if (!symbolItem) {
             onResolveErrorCallback('cannot resolve symbol')
@@ -95,7 +92,7 @@ export default {
             minmov: 1,
             pricescale: 10 ** symbolItem.tpp,
             has_intraday: true,
-            has_no_volume: true,
+            // has_no_volume: true,
             has_weekly_and_monthly: false,
             supported_resolutions: configurationData.supported_resolutions,
             volume_precision: symbolItem.tap,

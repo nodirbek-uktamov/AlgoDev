@@ -32,20 +32,6 @@ export class TVChartContainer extends React.PureComponent {
         this.init()
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.symbol !== this.props.symbol) {
-            // console.log(this.props.symbol)
-            if (this.tvWidget && this.tvWidget.activeChart()) {
-                this.tvWidget.activeChart().setSymbol(this.props.symbol)
-            }
-        }
-
-        if (prevProps.interval !== this.props.interval) {
-            this.removeChart()
-            this.init()
-        }
-    }
-
     componentWillUnmount() {
         this.removeChart()
     }
@@ -94,7 +80,7 @@ export class TVChartContainer extends React.PureComponent {
             // })
 
             chart.onSymbolChanged().subscribe(null, (value) => {
-                const symbolObject = this.props.symbolsList.filter(i => i.value === value.name)[0]
+                const symbolObject = this.props.symbolsList.filter(i => i.label === value.name)[0]
 
                 if (!symbolObject) return
 

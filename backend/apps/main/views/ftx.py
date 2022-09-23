@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from core.exchange import ftx
 from core.tasks import send_log
 from core.utils.logs import red
-from main.serializers.ftx import ClosePositionSerializer
+from main.serializers.ftx import ClosePositionSerializer, ModifyOrderSerializer
 
 
 class SymbolsListView(GenericAPIView):
@@ -90,6 +90,12 @@ class CancelOrderView(GenericAPIView):
             'success': response.get('success') or False,
             'message': response.get('result') or response.get('error') or 'Unknown error'
         })
+
+
+class ModifyOrderView(GenericAPIView):
+    def post(self, request, id):
+        data = ModifyOrderSerializer.check(request.data)
+        return Response(ftx.modify_order(request.user, id, data))
 
 
 class TriggerOrdersView(GenericAPIView):

@@ -1,8 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react'
-import { intervals } from '../utils/intervals'
 import { MainContext } from '../contexts/MainContext'
 import { Card } from './common/Card'
-import { Select } from './common/Select'
 import { FTX, HUOBI } from '../exchanges/exchanges'
 import { huobiOnChangeSymbol } from '../exchanges/huobi'
 import { ftxOnChangeSymbol } from '../exchanges/ftx'
@@ -64,6 +62,7 @@ function Chart({ openOrders }) {
     }, [chartInterval.houbiKlineValue, publicWs, symbolValue])
 
     const onChangeSymbol = useCallback((value) => {
+        console.log('value: ', value)
         setSelectedSymbol(value)
 
         if (publicWs.current.readyState === WebSocket.OPEN) {
@@ -88,7 +87,7 @@ function Chart({ openOrders }) {
     }, [chartInterval.houbiKlineValue, connectFTXWs, connectHuobi, disconnectFTXWs, disconnectHuobi, exchange, privateWs, publicWs, setSymbol, symbolValue, wsCallbacksRef])
 
     return (
-        <Card color="black" style={{ height: getHeight('chart-draggable-container'), paddingBottom: '5rem' }} className="no-border-top-radius">
+        <Card color="black" style={{ height: getHeight('chart-draggable-container') }} className="no-border-top-radius">
             {/* <div style={{ display: 'flex', gap: '1.1rem', marginBottom: '1rem' }}> */}
             {/*    <Select */}
             {/*        enableSearch */}
